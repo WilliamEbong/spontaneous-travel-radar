@@ -1,0 +1,14 @@
+name: smoke
+# Day-one block test: does Google Flights answer GitHub Actions IPs?
+on: workflow_dispatch
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install fast-flights==3.1.0
+      - run: python scripts/smoke_fast_flights.py
