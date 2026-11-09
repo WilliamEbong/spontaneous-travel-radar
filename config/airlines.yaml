@@ -1,0 +1,7 @@
+# Carry-on surcharge, CAD per person, round trip, by airline code.
+# Fallback only: the day-one smoke test showed Google prices the carry-on itself when
+# carry_on_bags=1 (Flair +$43 per person per leg), and exclude_basic_economy=True hides these
+# fares anyway. Not applied by the collector unless that changes.
+F8: 110   # Flair
+NK: 120   # Spirit
+F9: 120   # Frontier

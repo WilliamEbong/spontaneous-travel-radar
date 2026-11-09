@@ -1,0 +1,12 @@
+# Stat holidays that create or extend a day-off block. Pick the calendar your employer observes.
+# Checked 2026-11-09 against the provincial/federal rules (weekday of every date verified):
+# - alberta: general holidays plus the optional Heritage Day and Boxing Day; actual dates
+#   (Alberta has no fixed observed-day shift; a holiday on a weekend creates no window here).
+# - ontario: statutory holidays plus the Civic Holiday; Christmas/Boxing Day on a weekend use the
+#   observed Monday/Tuesday. No Remembrance Day, no Heritage Day, no Family Day shift.
+# - federal: federally regulated employers (incl. Easter Monday, Truth and Reconciliation Day),
+#   observed weekdays.
+calendar: alberta
+alberta: [2026-11-11, 2026-12-25, 2026-12-26, 2027-01-01, 2027-02-15, 2027-03-26, 2027-05-24, 2027-07-01, 2027-08-02, 2027-09-06, 2027-10-11, 2027-11-11, 2027-12-25]
+ontario: [2026-12-25, 2026-12-28, 2027-01-01, 2027-02-15, 2027-03-26, 2027-05-24, 2027-07-01, 2027-08-02, 2027-09-06, 2027-10-11, 2027-12-27, 2027-12-28]
+federal: [2026-11-11, 2026-12-25, 2026-12-28, 2027-01-01, 2027-03-26, 2027-03-29, 2027-05-24, 2027-07-01, 2027-08-02, 2027-09-06, 2027-09-30, 2027-10-11, 2027-11-11, 2027-12-27, 2027-12-28]

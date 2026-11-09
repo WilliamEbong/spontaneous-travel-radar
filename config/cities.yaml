@@ -1,0 +1,628 @@
+# The 20 tracked cities (design section 5). Edit freely; the loader validates every field.
+# bar_cad: complete-trip bar for two = ceil50(2 x amazing flight threshold + good-band hotel midpoint
+#   (cheap 240, mid 380, expensive 550; USD converted at 1.40) + 4 x transfer). Lower it to make a city harder to trigger.
+# climate: month -> [mean high C, mean low C, days with precipitation]; approximate 1991-2020 normals, seeds only.
+# airports: the first is the preferred (usually non-stop) airport; the rest are queried on alternating days.
+# season_months: empty = year-round. BNA, AUS and SAN routes are likely seasonal (health flags no non-stop found).
+# transfer_cost_cad_pp_each_way: airport to core by train/bus, or half a rideshare where there is no train.
+cities:
+  - key: new_york
+    name: New York
+    country: US
+    tier: 1
+    rank: 10
+    airports: [EWR, JFK, LGA]
+    tz: America/New_York
+    lat: 40.7128
+    lon: -74.006
+    airport_to_core_min: 45
+    transfer_cost_cad_pp_each_way: 23
+    car_needed: false
+    neighbourhoods: [Midtown Manhattan, Lower East Side, Williamsburg]
+    season_months: []
+    flight_group: nyc_tier2
+    hotel_group: expensive
+    hotel_currency: USD
+    bar_cad: 1550
+    climate:
+      1: [3.9, -2.6, 11]
+      2: [5.5, -1.7, 10]
+      3: [9.8, 1.9, 11]
+      4: [16.4, 7.3, 11]
+      5: [22.2, 12.6, 11]
+      6: [27.0, 18.0, 10]
+      7: [29.9, 21.1, 10]
+      8: [29.0, 20.6, 10]
+      9: [25.2, 17.0, 9]
+      10: [18.8, 10.8, 9]
+      11: [12.4, 5.0, 9]
+      12: [6.6, 0.4, 11]
+  - key: chicago
+    name: Chicago
+    country: US
+    tier: 1
+    rank: 9
+    airports: [ORD, MDW]
+    tz: America/Chicago
+    lat: 41.8781
+    lon: -87.6298
+    airport_to_core_min: 45
+    transfer_cost_cad_pp_each_way: 7
+    car_needed: false
+    neighbourhoods: [The Loop, River North, West Loop]
+    season_months: []
+    flight_group: yul_ord
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1100
+    climate:
+      1: [-0.6, -8.2, 11]
+      2: [1.7, -6.5, 9]
+      3: [7.8, -1.5, 11]
+      4: [14.6, 4.0, 12]
+      5: [20.8, 9.5, 12]
+      6: [26.5, 15.3, 11]
+      7: [28.9, 18.4, 10]
+      8: [28.1, 17.9, 9]
+      9: [24.1, 13.4, 8]
+      10: [16.9, 6.5, 10]
+      11: [9.2, 0.4, 10]
+      12: [2.1, -5.3, 11]
+  - key: montreal
+    name: Montreal
+    country: CA
+    tier: 1
+    rank: 9
+    airports: [YUL]
+    tz: America/Toronto
+    lat: 45.5019
+    lon: -73.5674
+    airport_to_core_min: 45
+    transfer_cost_cad_pp_each_way: 11
+    car_needed: false
+    neighbourhoods: [Old Montreal, Plateau Mont-Royal, Downtown Montreal]
+    season_months: []
+    flight_group: yul_ord
+    hotel_group: cheap
+    hotel_currency: CAD
+    bar_cad: 800
+    climate:
+      1: [-5.3, -14.0, 17]
+      2: [-3.2, -12.2, 13]
+      3: [2.5, -6.5, 13]
+      4: [11.6, 1.2, 12]
+      5: [18.9, 7.9, 13]
+      6: [24.0, 13.5, 13]
+      7: [26.3, 16.1, 12]
+      8: [25.3, 15.0, 11]
+      9: [20.6, 10.4, 11]
+      10: [12.7, 3.8, 13]
+      11: [5.7, -1.7, 14]
+      12: [-1.6, -9.1, 16]
+  - key: san_francisco
+    name: San Francisco
+    country: US
+    tier: 1
+    rank: 8
+    airports: [SFO, OAK]
+    tz: America/Los_Angeles
+    lat: 37.7749
+    lon: -122.4194
+    airport_to_core_min: 35
+    transfer_cost_cad_pp_each_way: 15
+    car_needed: false
+    neighbourhoods: [Union Square, SoMa, Nob Hill]
+    season_months: []
+    flight_group: medium
+    hotel_group: expensive
+    hotel_currency: USD
+    bar_cad: 1300
+    climate:
+      1: [14.3, 7.6, 11]
+      2: [15.9, 8.6, 10]
+      3: [17.0, 9.2, 10]
+      4: [17.9, 9.8, 6]
+      5: [18.9, 10.9, 3]
+      6: [20.2, 11.9, 1]
+      7: [20.4, 12.7, 0]
+      8: [20.8, 13.4, 0]
+      9: [22.1, 13.4, 1]
+      10: [21.1, 12.2, 3]
+      11: [17.6, 10.0, 8]
+      12: [14.3, 7.9, 10]
+  - key: vancouver
+    name: Vancouver
+    country: CA
+    tier: 1
+    rank: 8
+    airports: [YVR]
+    tz: America/Vancouver
+    lat: 49.2827
+    lon: -123.1207
+    airport_to_core_min: 25
+    transfer_cost_cad_pp_each_way: 10
+    car_needed: false
+    neighbourhoods: [Downtown Vancouver, Gastown, Yaletown]
+    season_months: []
+    flight_group: yvr
+    hotel_group: mid
+    hotel_currency: CAD
+    bar_cad: 700
+    climate:
+      1: [6.9, 1.4, 19]
+      2: [8.2, 1.6, 15]
+      3: [10.3, 3.4, 18]
+      4: [13.2, 5.6, 15]
+      5: [16.7, 8.8, 13]
+      6: [19.6, 11.7, 11]
+      7: [22.2, 13.7, 6]
+      8: [22.2, 13.8, 6]
+      9: [19.1, 10.8, 9]
+      10: [13.9, 7.0, 16]
+      11: [9.4, 3.5, 20]
+      12: [6.6, 1.2, 19]
+  - key: seattle
+    name: Seattle
+    country: US
+    tier: 1
+    rank: 8
+    airports: [SEA]
+    tz: America/Los_Angeles
+    lat: 47.6062
+    lon: -122.3321
+    airport_to_core_min: 40
+    transfer_cost_cad_pp_each_way: 4
+    car_needed: false
+    neighbourhoods: [Downtown Seattle, Capitol Hill, Belltown]
+    season_months: []
+    flight_group: sea_pdx
+    hotel_group: cheap
+    hotel_currency: USD
+    bar_cad: 800
+    climate:
+      1: [8.4, 2.3, 18]
+      2: [9.9, 2.4, 15]
+      3: [12.4, 4.0, 17]
+      4: [15.2, 5.8, 14]
+      5: [18.9, 8.9, 10]
+      6: [21.7, 11.6, 8]
+      7: [25.6, 13.9, 4]
+      8: [25.8, 14.2, 4]
+      9: [22.3, 11.8, 7]
+      10: [16.3, 8.2, 13]
+      11: [11.1, 4.6, 18]
+      12: [8.0, 2.3, 18]
+  - key: las_vegas
+    name: Las Vegas
+    country: US
+    tier: 1
+    rank: 7
+    airports: [LAS]
+    tz: America/Los_Angeles
+    lat: 36.1147
+    lon: -115.1728
+    airport_to_core_min: 20
+    transfer_cost_cad_pp_each_way: 18
+    car_needed: false
+    neighbourhoods: [The Strip, Downtown Las Vegas]
+    season_months: []
+    flight_group: medium
+    hotel_group: cheap
+    hotel_currency: USD
+    bar_cad: 850
+    climate:
+      1: [14.6, 4.2, 3]
+      2: [17.2, 6.4, 3]
+      3: [21.7, 9.9, 2]
+      4: [26.0, 13.8, 1]
+      5: [31.5, 19.3, 1]
+      6: [37.3, 24.6, 0]
+      7: [40.4, 28.2, 2]
+      8: [39.3, 27.1, 2]
+      9: [34.8, 22.6, 1]
+      10: [27.4, 15.6, 1]
+      11: [19.4, 8.6, 2]
+      12: [14.0, 3.9, 2]
+  - key: toronto
+    name: Toronto
+    country: CA
+    tier: 1
+    rank: 8
+    airports: [YYZ, YTZ]
+    tz: America/Toronto
+    lat: 43.6532
+    lon: -79.3832
+    airport_to_core_min: 30
+    transfer_cost_cad_pp_each_way: 13
+    car_needed: false
+    neighbourhoods: [Downtown Toronto, King West, Yorkville]
+    season_months: []
+    flight_group: yyz
+    hotel_group: mid
+    hotel_currency: CAD
+    bar_cad: 850
+    climate:
+      1: [-0.7, -6.7, 16]
+      2: [0.4, -6.0, 12]
+      3: [4.7, -2.6, 13]
+      4: [11.5, 3.0, 12]
+      5: [18.4, 9.0, 13]
+      6: [23.8, 14.4, 11]
+      7: [26.6, 17.4, 11]
+      8: [25.5, 16.7, 10]
+      9: [21.0, 12.8, 11]
+      10: [13.6, 6.5, 12]
+      11: [7.0, 1.1, 13]
+      12: [2.1, -3.7, 14]
+  - key: portland
+    name: Portland
+    country: US
+    tier: 1
+    rank: 7
+    airports: [PDX]
+    tz: America/Los_Angeles
+    lat: 45.5152
+    lon: -122.6784
+    airport_to_core_min: 40
+    transfer_cost_cad_pp_each_way: 4
+    car_needed: false
+    neighbourhoods: [Pearl District, Downtown Portland]
+    season_months: []
+    flight_group: sea_pdx
+    hotel_group: cheap
+    hotel_currency: USD
+    bar_cad: 800
+    climate:
+      1: [8.6, 2.1, 18]
+      2: [10.7, 2.3, 15]
+      3: [13.6, 4.3, 18]
+      4: [16.2, 6.2, 16]
+      5: [20.1, 9.3, 12]
+      6: [23.1, 12.1, 8]
+      7: [27.8, 14.8, 3]
+      8: [28.2, 14.9, 3]
+      9: [24.8, 12.3, 6]
+      10: [18.2, 8.3, 12]
+      11: [11.8, 4.6, 18]
+      12: [8.1, 2.2, 18]
+  - key: denver
+    name: Denver
+    country: US
+    tier: 1
+    rank: 7
+    airports: [DEN]
+    tz: America/Denver
+    lat: 39.7392
+    lon: -104.9903
+    airport_to_core_min: 40
+    transfer_cost_cad_pp_each_way: 14
+    car_needed: false
+    neighbourhoods: [LoDo, RiNo]
+    season_months: []
+    flight_group: medium
+    hotel_group: cheap
+    hotel_currency: USD
+    bar_cad: 850
+    climate:
+      1: [7.2, -7.8, 4]
+      2: [8.1, -7.0, 5]
+      3: [12.7, -2.7, 6]
+      4: [15.9, 0.8, 7]
+      5: [21.2, 6.3, 9]
+      6: [27.6, 11.6, 7]
+      7: [31.6, 15.1, 8]
+      8: [30.2, 14.1, 8]
+      9: [25.6, 9.1, 5]
+      10: [18.4, 2.4, 4]
+      11: [11.4, -3.7, 4]
+      12: [6.6, -7.9, 4]
+  - key: san_diego
+    name: San Diego
+    country: US
+    tier: 1
+    rank: 8
+    airports: [SAN]
+    tz: America/Los_Angeles
+    lat: 32.7157
+    lon: -117.1611
+    airport_to_core_min: 15
+    transfer_cost_cad_pp_each_way: 10
+    car_needed: false
+    neighbourhoods: [Gaslamp Quarter, Little Italy]
+    season_months: []
+    flight_group: medium
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1050
+    climate:
+      1: [19.7, 9.9, 7]
+      2: [19.6, 10.9, 7]
+      3: [19.8, 12.3, 6]
+      4: [20.8, 13.8, 4]
+      5: [21.4, 15.8, 2]
+      6: [22.9, 17.4, 1]
+      7: [25.3, 19.4, 0]
+      8: [26.3, 20.0, 0]
+      9: [26.1, 19.0, 1]
+      10: [24.4, 16.6, 2]
+      11: [22.0, 12.6, 4]
+      12: [19.4, 9.8, 6]
+  - key: los_angeles
+    name: Los Angeles
+    country: US
+    tier: 1
+    rank: 7
+    airports: [LAX, BUR]
+    tz: America/Los_Angeles
+    lat: 34.0522
+    lon: -118.2437
+    airport_to_core_min: 50
+    transfer_cost_cad_pp_each_way: 28
+    car_needed: false
+    neighbourhoods: [Santa Monica, Downtown Los Angeles, Silver Lake]
+    season_months: []
+    flight_group: medium
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1100
+    climate:
+      1: [20.0, 9.3, 6]
+      2: [20.4, 9.9, 6]
+      3: [21.1, 11.2, 5]
+      4: [22.6, 12.6, 3]
+      5: [23.4, 14.8, 1]
+      6: [25.3, 16.5, 0]
+      7: [28.4, 18.4, 0]
+      8: [29.2, 18.9, 0]
+      9: [28.6, 18.1, 1]
+      10: [26.0, 15.6, 2]
+      11: [22.8, 11.6, 3]
+      12: [19.7, 9.0, 5]
+  - key: nashville
+    name: Nashville
+    country: US
+    tier: 1
+    rank: 7
+    airports: [BNA]
+    tz: America/Chicago
+    lat: 36.1627
+    lon: -86.7816
+    airport_to_core_min: 20
+    transfer_cost_cad_pp_each_way: 18
+    car_needed: false
+    neighbourhoods: [Downtown Nashville, The Gulch]
+    season_months: []
+    flight_group: yul_ord
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1150
+    climate:
+      1: [9.0, -1.4, 11]
+      2: [11.6, 0.6, 11]
+      3: [16.6, 4.8, 12]
+      4: [22.1, 9.4, 11]
+      5: [26.5, 14.6, 12]
+      6: [30.5, 19.4, 11]
+      7: [32.2, 21.6, 11]
+      8: [32.0, 21.0, 9]
+      9: [28.6, 16.9, 8]
+      10: [22.6, 10.3, 8]
+      11: [16.0, 4.4, 10]
+      12: [10.6, 0.6, 11]
+  - key: austin
+    name: Austin
+    country: US
+    tier: 1
+    rank: 7
+    airports: [AUS]
+    tz: America/Chicago
+    lat: 30.2672
+    lon: -97.7431
+    airport_to_core_min: 20
+    transfer_cost_cad_pp_each_way: 18
+    car_needed: false
+    neighbourhoods: [Downtown Austin, South Congress]
+    season_months: []
+    flight_group: yul_ord
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1150
+    climate:
+      1: [17.4, 4.7, 8]
+      2: [19.5, 6.6, 7]
+      3: [23.6, 10.6, 8]
+      4: [27.2, 14.4, 6]
+      5: [31.1, 19.0, 9]
+      6: [34.3, 22.4, 7]
+      7: [35.8, 23.5, 4]
+      8: [36.4, 23.6, 5]
+      9: [33.1, 20.9, 6]
+      10: [28.2, 15.6, 7]
+      11: [22.0, 9.9, 7]
+      12: [17.8, 5.6, 7]
+  - key: palm_springs
+    name: Palm Springs
+    country: US
+    tier: 1
+    rank: 6
+    airports: [PSP]
+    tz: America/Los_Angeles
+    lat: 33.8303
+    lon: -116.5453
+    airport_to_core_min: 10
+    transfer_cost_cad_pp_each_way: 12
+    car_needed: false
+    neighbourhoods: [Downtown Palm Springs, Uptown Design District]
+    season_months: [11, 12, 1, 2, 3, 4]
+    flight_group: medium
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1050
+    climate:
+      1: [21.3, 7.7, 3]
+      2: [23.0, 9.3, 3]
+      3: [26.9, 12.1, 2]
+      4: [30.3, 15.2, 1]
+      5: [35.4, 19.6, 0]
+      6: [40.1, 23.5, 0]
+      7: [42.3, 27.3, 1]
+      8: [41.8, 27.1, 1]
+      9: [38.7, 24.0, 1]
+      10: [32.6, 18.2, 1]
+      11: [25.6, 11.6, 1]
+      12: [20.6, 7.0, 2]
+  - key: new_orleans
+    name: New Orleans
+    country: US
+    tier: 2
+    rank: 9
+    airports: [MSY]
+    tz: America/Chicago
+    lat: 29.9511
+    lon: -90.0715
+    airport_to_core_min: 30
+    transfer_cost_cad_pp_each_way: 25
+    car_needed: false
+    neighbourhoods: [French Quarter, Warehouse District, Garden District]
+    season_months: []
+    flight_group: nyc_tier2
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1300
+    climate:
+      1: [17.4, 7.6, 10]
+      2: [19.6, 9.6, 9]
+      3: [23.1, 13.1, 9]
+      4: [26.6, 16.6, 7]
+      5: [30.3, 21.2, 8]
+      6: [32.6, 24.2, 13]
+      7: [33.5, 25.1, 15]
+      8: [33.4, 25.0, 14]
+      9: [31.6, 23.2, 11]
+      10: [27.4, 17.7, 7]
+      11: [22.3, 12.2, 8]
+      12: [18.8, 9.1, 10]
+  - key: mexico_city
+    name: Mexico City
+    country: MX
+    tier: 2
+    rank: 9
+    airports: [MEX, NLU]
+    tz: America/Mexico_City
+    lat: 19.4326
+    lon: -99.1332
+    airport_to_core_min: 30
+    transfer_cost_cad_pp_each_way: 10
+    car_needed: false
+    neighbourhoods: [Roma Norte, Condesa, Polanco]
+    season_months: []
+    flight_group: nyc_tier2
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1250
+    climate:
+      1: [21.9, 5.4, 3]
+      2: [23.6, 6.5, 3]
+      3: [25.9, 8.4, 5]
+      4: [26.9, 10.2, 9]
+      5: [26.7, 11.5, 14]
+      6: [24.9, 12.2, 20]
+      7: [23.4, 11.6, 24]
+      8: [23.6, 11.7, 23]
+      9: [23.0, 11.6, 20]
+      10: [22.6, 9.8, 11]
+      11: [22.4, 7.6, 4]
+      12: [21.6, 6.2, 2]
+  - key: quebec_city
+    name: Quebec City
+    country: CA
+    tier: 2
+    rank: 8
+    airports: [YQB]
+    tz: America/Toronto
+    lat: 46.8139
+    lon: -71.208
+    airport_to_core_min: 25
+    transfer_cost_cad_pp_each_way: 20
+    car_needed: false
+    neighbourhoods: [Old Quebec, Saint-Roch]
+    season_months: []
+    flight_group: nyc_tier2
+    hotel_group: cheap
+    hotel_currency: CAD
+    bar_cad: 1000
+    climate:
+      1: [-7.9, -17.7, 19]
+      2: [-5.6, -15.7, 15]
+      3: [0.2, -9.4, 15]
+      4: [8.0, -1.2, 13]
+      5: [16.6, 4.9, 15]
+      6: [22.1, 10.4, 15]
+      7: [24.9, 13.5, 16]
+      8: [23.6, 12.4, 14]
+      9: [18.3, 7.6, 15]
+      10: [10.7, 1.9, 15]
+      11: [3.0, -4.4, 16]
+      12: [-4.5, -12.6, 18]
+  - key: boston
+    name: Boston
+    country: US
+    tier: 2
+    rank: 8
+    airports: [BOS]
+    tz: America/New_York
+    lat: 42.3601
+    lon: -71.0589
+    airport_to_core_min: 20
+    transfer_cost_cad_pp_each_way: 3
+    car_needed: false
+    neighbourhoods: [Back Bay, Downtown Boston, Seaport]
+    season_months: []
+    flight_group: nyc_tier2
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1200
+    climate:
+      1: [2.2, -5.7, 11]
+      2: [3.6, -4.3, 10]
+      3: [7.5, -0.6, 11]
+      4: [13.9, 4.4, 11]
+      5: [19.8, 9.6, 12]
+      6: [25.0, 14.9, 10]
+      7: [28.2, 18.3, 10]
+      8: [27.4, 18.0, 9]
+      9: [23.5, 14.2, 9]
+      10: [16.9, 8.2, 10]
+      11: [11.2, 3.2, 10]
+      12: [5.3, -2.0, 11]
+  - key: washington_dc
+    name: Washington DC
+    country: US
+    tier: 2
+    rank: 8
+    airports: [DCA, IAD]
+    tz: America/New_York
+    lat: 38.9072
+    lon: -77.0369
+    airport_to_core_min: 20
+    transfer_cost_cad_pp_each_way: 4
+    car_needed: false
+    neighbourhoods: [Penn Quarter, Dupont Circle]
+    season_months: []
+    flight_group: nyc_tier2
+    hotel_group: mid
+    hotel_currency: USD
+    bar_cad: 1200
+    climate:
+      1: [6.8, -1.7, 10]
+      2: [8.9, -0.6, 9]
+      3: [13.6, 3.3, 11]
+      4: [19.8, 8.4, 11]
+      5: [24.9, 13.9, 11]
+      6: [29.8, 19.4, 10]
+      7: [32.2, 22.4, 10]
+      8: [31.1, 21.7, 9]
+      9: [27.1, 17.7, 8]
+      10: [20.6, 10.8, 8]
+      11: [14.6, 4.8, 9]
+      12: [8.9, 0.6, 10]

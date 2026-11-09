@@ -1,0 +1,20 @@
+mode: dry-run            # dry-run | live. Month one stays dry-run (hits go to hits/dry-run/, nothing fires).
+usd_cad: 1.40            # the only currency conversion in the system
+lookahead_min_days: 3
+lookahead_max_days: 45
+score_threshold: 80
+realert_drop_pct: 15
+serpapi_monthly_cap: 60  # free tier is 250/month; this leaves headroom
+serpapi_per_candidate_cap: 3
+weights: {price: 40, time: 15, convenience: 10, city: 15, events: 10, weather: 10}
+flight_bands:            # per person, round trip, CAD, realistic; thresholds are upper bounds
+  yvr:       {amazing: 120, good: 150, average: 190}
+  sea_pdx:   {amazing: 200, good: 260, average: 330}
+  medium:    {amazing: 220, good: 280, average: 350}
+  yyz:       {amazing: 190, good: 240, average: 300}
+  yul_ord:   {amazing: 250, good: 320, average: 400}
+  nyc_tier2: {amazing: 320, good: 400, average: 500}
+hotel_bands:             # 2 nights, 1 room, fees in, pre-tax, in the city's hotel currency
+  cheap:     {amazing: 200, good: 280, average: 400}
+  mid:       {amazing: 320, good: 440, average: 600}
+  expensive: {amazing: 450, good: 650, average: 900}
