@@ -1,36 +1,29 @@
-mode: dry-run            # dry-run | live. Month one stays dry-run (hits go to hits/dry-run/, nothing fires).
+mode: dry-run            # dry-run | live. Month one stays dry-run: nothing is emailed, hits and near misses show on the page.
 usd_cad: 1.40            # the only currency conversion in the system
 dayoff_min_weeks: 6      # Settings panel: day-off trips start at least N weeks out (2-12), so both of you can get the time approved
-weekend_trips: true      # Settings panel: also scan weekend-only trips (no day off), which fire only when exceptional
-score_threshold: 80
-realert_drop_pct: 15
-serpapi_monthly_cap: 60  # free tier is 250/month; this leaves headroom
-serpapi_per_candidate_cap: 3
-weights: {price: 40, time: 15, convenience: 10, city: 15, events: 10, weather: 10}
+cap_cad: null            # Settings panel: optional cap on a hit's complete trip for two, CAD; null = off (v2: no budgets in scoring)
+realert_drop_pct: 15     # a city-window gets a fresh closer look (pass 2) only after its fare drops this much more
+serpapi_monthly_cap: 200 # free tier is 250/month; pass 2 spends 2 per candidate (hotels + rentals), at most 3 candidates a scan
+weights: {price: 45, time: 20, convenience: 10, city: 15, weather: 10}
+price_curve:             # price points vs share = complete trip for two / the route's typical trip (v2, D-57)
+  points: [[0.60, 45], [0.75, 25], [1.00, 0], [1.30, -10]]   # straight lines between; full points at or under 0.60
+  floor: -40             # past 1.30 the line keeps its slope down to this, so the cheaper of two dear trips still wins (D-59)
 time_curve:              # time score vs share of the window's best possible waking hours (D-51)
   zero_at: 0.10          # 0 points here; trips below it are dropped as not worth flying
   full_at: 0.70          # full points here (real trips top out near 0.70-0.75: flights eat the rest)
-trip_classes:            # D-52. Window ranges and hard rules are William's; the weekend gate_* values are tunable
+trip_classes:            # D-52. Window ranges and hard rules are William's; thresholds are tunable (v2: 70 to look closer, 80 to hit)
   dayoff:                # fri-off, mon-off and stat blocks; Day 1 from dayoff_min_weeks to + span_weeks out
+    enabled: true        # Settings panel
+    candidate_threshold: 70   # pass-1 score (with fare at or under the route's good) that earns pass 2
+    hit_threshold: 80    # Settings panel: final score (pass 2 + what's on) for a hit
     span_weeks: 10
     rotate_days: 3       # each city-weekend is scanned every 3rd day (crc32 rotation)
   weekend:               # leave Friday after work, home Sunday; no day off needed
+    enabled: true        # Settings panel
+    candidate_threshold: 70
+    hit_threshold: 80    # Settings panel
     min_days: 3          # Friday at least this many days out
     max_days: 42
     depart_from: "17:30" # Friday (reading of "leave friday after work")
     depart_to: "12:00"   # Saturday
     max_air_min: 180     # non-stop only, 3 h or less in the air (cities.yaml air_time_min)
-    gate_band: amazing   # candidate only at this band or better
-    gate_min_score: 88
-    gate_max_bar_share: 0.70   # complete trip at most this share of the city's bar_cad
-flight_bands:            # per person, round trip, CAD, realistic; thresholds are upper bounds
-  yvr:       {amazing: 120, good: 150, average: 190}
-  sea_pdx:   {amazing: 200, good: 260, average: 330}
-  medium:    {amazing: 220, good: 280, average: 350}
-  yyz:       {amazing: 190, good: 240, average: 300}
-  yul_ord:   {amazing: 250, good: 320, average: 400}
-  nyc_tier2: {amazing: 320, good: 400, average: 500}
-hotel_bands:             # 2 nights, 1 room, fees in, pre-tax, in the city's hotel currency
-  cheap:     {amazing: 200, good: 280, average: 400}
-  mid:       {amazing: 320, good: 440, average: 600}
-  expensive: {amazing: 450, good: 650, average: 900}

@@ -83,7 +83,9 @@ def test_class_windows_boundaries():
     assert "2026-12-25_weekend" in weekend and "2027-01-01_weekend" not in weekend and "2026-11-13_weekend" not in weekend
     assert "2026-11-13_weekend" in {w.id for w in class_windows(date(2026, 11, 10), s, set())}           # 3 days out
     assert "2026-11-13_weekend" not in {w.id for w in class_windows(date(2026, 11, 11), s, set())}       # 2 days out
-    assert all(w.trip_class == "dayoff" for w in class_windows(date(2026, 11, 13), replace(s, weekend_trips=False), set()))
+    off = lambda cls: replace(s, trip_classes={**s.trip_classes, cls: {**s.trip_classes[cls], "enabled": False}})  # noqa: E731
+    assert all(w.trip_class == "dayoff" for w in class_windows(date(2026, 11, 13), off("weekend"), set()))
+    assert all(w.trip_class == "weekend" for w in class_windows(date(2026, 11, 13), off("dayoff"), set()))
 
 
 def test_weekend_window_rule_and_blocked_days():

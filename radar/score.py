@@ -1,38 +1,68 @@
-"""Flight/hotel bands, the 0-100 worth-it score and the candidate rule (design section 7)."""
-from dataclasses import dataclass
+"""The pass-1 score: the complete trip against its route's typical trip, plus time, convenience, city and weather (v2, D-57).
 
-from radar.config import City, Scoring
+Price is one thing, the complete trip for two (flights + lodging + transfers), as a share of what the route
+normally costs (config/references.yaml). Flights alone only decide the ladder label and who gets a closer look.
+"""
+from dataclasses import asdict, dataclass
+from datetime import date
+
+from radar.config import City, Reference, Scoring
 from radar.itineraries import Trip
 
-PRICE_ANCHORS = (40, 28, 14, 0)   # score at the amazing, good, average thresholds and at the bad floor
+WINTER = (11, 12, 1, 2, 3)   # room references: winter = check-in Nov to Mar (ponytail: two seasons; finer later)
 
 
-def _band(value: float, b: dict) -> str:
-    for name in ("amazing", "good", "average"):
-        if value <= b[name]:
+def season(d: date) -> str:
+    return "winter" if d.month in WINTER else "summer"
+
+
+def to_cad(amount: float, currency: str, s: Scoring) -> float:
+    return amount * s.usd_cad if currency == "USD" else amount
+
+
+def transfers_cad(city: City) -> int:
+    return 4 * city.transfer_cost_cad_pp_each_way   # two people, two ways
+
+
+def room_night_cad(city: City, ref: Reference, check_in: date, level: str, s: Scoring) -> float:
+    """One night at the route's typical/good/exceptional rate, taxes in, CAD."""
+    return to_cad(ref.rooms[season(check_in)][level], city.hotel_currency, s) * city.hotel_tax
+
+
+def typical_trip_cad(trip: Trip, city: City, ref: Reference, s: Scoring) -> float:
+    """What this trip normally costs for two: typical fares, typical room nights, transfers."""
+    return 2 * ref.flights["typical"] + trip.nights * room_night_cad(city, ref, trip.check_in, "typical", s) + transfers_cad(city)
+
+
+def lodging_estimate_cad(trip: Trip, city: City, ref: Reference, s: Scoring) -> float:
+    """Pass 1 has no real lodging yet: assume the season's good room rate, so a great fare can earn a closer look (D-58)."""
+    return trip.nights * room_night_cad(city, ref, trip.check_in, "good", s)
+
+
+def price_points(share: float, curve: dict) -> float:
+    """Full points at or under the first share, straight lines between the points, and past the last point the
+    same slope continues down to the floor (D-59), so the cheaper of two dear trips still scores higher."""
+    pts = curve["points"]
+    if share <= pts[0][0]:
+        return float(pts[0][1])
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if share <= x1:
+            return y0 + (y1 - y0) * (share - x0) / (x1 - x0)
+    (x0, y0), (x1, y1) = pts[-2], pts[-1]
+    return max(float(curve["floor"]), y1 + (y1 - y0) * (share - x1) / (x1 - x0))
+
+
+def price_component(total_cad: float, typical_cad: float, s: Scoring) -> tuple[float, float]:
+    """(share, the price component on the price weight's scale)."""
+    share = total_cad / typical_cad
+    return share, s.weights["price"] * price_points(share, s.price_curve) / s.price_curve["points"][0][1]
+
+
+def ladder_label(price_pp: float, flights: dict) -> str:
+    for name in ("exceptional", "good", "typical"):
+        if price_pp <= flights[name]:
             return name
-    return "bad"
-
-
-def flight_band(price_pp: int, group: str, bands: dict) -> str:
-    return _band(price_pp, bands[group])
-
-
-def hotel_band(total_2n: float, group: str, bands: dict) -> str:
-    return _band(total_2n, bands[group])
-
-
-def band_price_score(price_pp: float, b: dict) -> float:
-    """Piecewise linear through (amazing, 40), (good, 28), (average, 14), (average + (average - good), 0).
-    Past that bad line it keeps falling, -10 per bad-line width down to -40 (D-56), so among all-bad trips
-    the cheaper one still scores higher instead of extra hours buying the dearest way to do the weekend."""
-    xs = (b["amazing"], b["good"], b["average"], 2 * b["average"] - b["good"])
-    if price_pp <= xs[0]:
-        return 40.0
-    for (x0, y0), (x1, y1) in zip(zip(xs, PRICE_ANCHORS), zip(xs[1:], PRICE_ANCHORS[1:])):
-        if price_pp <= x1:
-            return y0 + (y1 - y0) * (price_pp - x0) / (x1 - x0)
-    return max(-40.0, -10.0 * (price_pp - xs[3]) / xs[3])
+    return "above"
 
 
 def time_points(hours: float, best: float, curve: dict) -> float:
@@ -46,41 +76,8 @@ def worth_flying(trip: Trip, s: Scoring) -> bool:
     return trip.best_possible_hours > 0 and trip.hours_on_ground >= s.time_curve["zero_at"] * trip.best_possible_hours
 
 
-@dataclass(frozen=True)
-class Components:
-    price: float
-    time: float
-    convenience: float
-    city: float
-    events: float
-    weather: float
-
-
-@dataclass(frozen=True)
-class Scored:
-    trip: Trip
-    band: str
-    price_pp: int
-    lodging_cad: float
-    lodging_source: str               # "estimate" | "serpapi"
-    total_cad: float
-    components: Components
-    score: int
-    candidate: bool
-    hotel_spike: bool
-    history_pct: float | None = None
-
-
-def to_cad(amount: float, currency: str, s: Scoring) -> float:
-    return amount * s.usd_cad if currency == "USD" else amount
-
-
-def lodging_estimate_cad(city: City, nights: int, s: Scoring) -> float:
-    b = s.hotel_bands[city.hotel_group]
-    return to_cad((b["amazing"] + b["good"]) / 2 / 2 * nights, city.hotel_currency, s)
-
-
 def convenience(trip: Trip, city: City) -> float:
+    """0..10 from the flights and the city; pass 2 takes 3 more off for fringe lodging (FRINGE_PTS)."""
     legs = (trip.out, trip.back)
     if all(leg.stops == 0 for leg in legs):
         c = 10
@@ -92,41 +89,84 @@ def convenience(trip: Trip, city: City) -> float:
     return max(0, c)
 
 
-BANDS = ("amazing", "good", "average", "bad")
+FRINGE_PTS = 3   # lodging 3 to 6 km from the centre (pass 2)
 
 
-def _candidate(band: str, history_pct: float | None, trip_class: str, s: Scoring) -> bool:
-    if trip_class == "weekend":   # weekend-only trips: only the gate band or better (D-52)
-        return BANDS.index(band) <= BANDS.index(s.trip_classes["weekend"]["gate_band"])
-    return band == "amazing" or (band == "good" and history_pct is not None and history_pct <= 10)
+def convenience_component(conv_pts: float, fringe: bool, s: Scoring) -> float:
+    return s.weights["convenience"] * max(0, conv_pts - (FRINGE_PTS if fringe else 0)) / 10
 
 
-def score_trip(trip: Trip, city: City, s: Scoring, *, n_events: int, weather_score: float,
+@dataclass(frozen=True)
+class Components:
+    price: float
+    time: float
+    convenience: float
+    city: float
+    weather: float
+
+
+@dataclass(frozen=True)
+class Scored:
+    trip: Trip
+    ladder: str                       # exceptional | good | typical | above (flights per person vs the route)
+    price_pp: int
+    lodging_cad: float
+    lodging_source: str               # "estimate" | "hotels" | "rentals" | "airbnb"
+    total_cad: float                  # flights + lodging + transfers, for two
+    typical_cad: float                # the route's typical complete trip for these nights
+    share: float                      # total_cad / typical_cad
+    conv_pts: float                   # convenience 0..10 before any fringe penalty
+    components: Components
+    score: int
+    candidate: bool
+    history_pct: float | None = None
+
+
+def is_candidate(price_pp: float, score: int, good_pp: float, threshold: int) -> bool:
+    """Pass 2 only for a fare at or under the route's good and a pass-1 score at the class's threshold (FR-308)."""
+    return price_pp <= good_pp and score >= threshold
+
+
+def score_trip(trip: Trip, city: City, ref: Reference, s: Scoring, *, weather_score: float,
                history_pct: float | None, lodging_cad: float | None = None) -> Scored:
-    """lodging_cad None uses the band estimate; a real hotel total re-scores through the same function."""
+    """lodging_cad None uses the pass-1 estimate (D-58); history_pct is shown, not scored (v2)."""
     w = s.weights
     price_pp = round(trip.flights_cad_2pax / 2)
-    band = flight_band(price_pp, city.flight_group, s.flight_bands)
-    p = band_price_score(price_pp, s.flight_bands[city.flight_group])
-    if history_pct is not None:
-        p = 0.5 * p + 0.5 * 40 * (1 - history_pct / 100)
+    lodging = lodging_estimate_cad(trip, city, ref, s) if lodging_cad is None else lodging_cad
+    total = trip.flights_cad_2pax + lodging + transfers_cad(city)
+    typical = typical_trip_cad(trip, city, ref, s)
+    share, price = price_component(total, typical, s)
+    conv = convenience(trip, city)
     comp = Components(
-        price=w["price"] * p / 40,
+        price=price,
         time=w["time"] * time_points(trip.hours_on_ground, trip.best_possible_hours, s.time_curve),
-        convenience=w["convenience"] * convenience(trip, city) / 10,
+        convenience=convenience_component(conv, False, s),
         city=w["city"] * city.rank / 10,
-        events=w["events"] * min(10.0, 3 + 1.5 * n_events) / 10,
         weather=w["weather"] * max(0.0, min(10.0, weather_score)) / 10,
     )
-    source = "estimate" if lodging_cad is None else "serpapi"
-    lodging = lodging_estimate_cad(city, trip.nights, s) if lodging_cad is None else lodging_cad
+    score = round(sum(vars(comp).values()))
     return Scored(
-        trip=trip, band=band, price_pp=price_pp, lodging_cad=round(lodging, 2), lodging_source=source,
-        total_cad=round(trip.flights_cad_2pax + lodging + 4 * city.transfer_cost_cad_pp_each_way, 2),
-        components=comp, score=round(sum(vars(comp).values())),
-        candidate=_candidate(band, history_pct, trip.trip_class, s),
-        hotel_spike=n_events >= 6, history_pct=history_pct,
+        trip=trip, ladder=ladder_label(price_pp, ref.flights), price_pp=price_pp, lodging_cad=round(lodging, 2),
+        lodging_source="estimate" if lodging_cad is None else "given", total_cad=round(total, 2),
+        typical_cad=round(typical, 2), share=round(share, 4), conv_pts=conv, components=comp, score=score,
+        candidate=is_candidate(price_pp, score, ref.flights["good"], s.trip_classes[trip.trip_class]["candidate_threshold"]),
+        history_pct=history_pct,
     )
+
+
+def rescore(components: dict, *, flights_cad: float, lodging_cad: float, transfers: float, typical_cad: float,
+            conv_pts: float, fringe: bool, s: Scoring) -> dict:
+    """Pass 2 and pass 3: the same trip with real lodging. Only the price and convenience components move.
+    Works on plain numbers so finalize can run from a candidate file alone."""
+    total = flights_cad + lodging_cad + transfers
+    share, price = price_component(total, typical_cad, s)
+    comp = {**components, "price": price, "convenience": convenience_component(conv_pts, fringe, s)}
+    return {"components": {k: round(v, 2) for k, v in comp.items()}, "score": round(sum(comp.values())),
+            "total_cad": round(total, 2), "share": round(share, 4), "lodging_cad": round(lodging_cad, 2)}
+
+
+def components_dict(x: Scored) -> dict:
+    return {k: round(v, 2) for k, v in asdict(x.components).items()}
 
 
 def best_per_window(scored: list[Scored]) -> list[Scored]:
@@ -137,3 +177,4 @@ def best_per_window(scored: list[Scored]) -> list[Scored]:
         if k not in best or (x.score, -x.total_cad) > (best[k].score, -best[k].total_cad):
             best[k] = x
     return list(best.values())
+

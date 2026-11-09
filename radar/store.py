@@ -6,7 +6,10 @@ from pathlib import Path
 from radar.score import Scored
 
 
-def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool) -> dict:
+def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool, *, pass_: int = 1, candidate_id: str | None = None) -> dict:
+    """One logged quote. score/share/price_pts are pass 1 (lodging estimated); pass says how far the trip got in this
+    scan (2 = real lodging checked), candidate_id names its file in hits/candidates/; final_score is pass 3, which the
+    routine writes to hits/ only, so it stays null here (FR-309)."""
     t = x.trip
     return {
         "scan_date": scan_date.isoformat(), "scan_ts": scan_ts, "city": t.city_key, "airport": t.airport,
@@ -14,8 +17,10 @@ def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool) -> dict:
         "back_dep": t.back.dep.isoformat(), "back_arr": t.back.arr.isoformat(),
         "airlines": "+".join(dict.fromkeys(t.out.airlines + t.back.airlines)),
         "stops_out": t.out.stops, "stops_back": t.back.stops, "flights_cad_2pax": t.flights_cad_2pax,
-        "price_pp": x.price_pp, "band": x.band, "score": x.score, "candidate": x.candidate, "winner": winner,
-        # the backtest (docs/TUNING-PLAN.md) re-scores a config variant as score - price_pts + new price points
+        "price_pp": x.price_pp, "ladder": x.ladder, "nights": t.nights, "total_cad": round(x.total_cad),
+        "share": x.share, "score": x.score, "candidate": x.candidate, "winner": winner,
+        "pass": pass_, "final_score": None, "candidate_id": candidate_id,
+        # the backtest (docs/TUNING-PLAN.md) re-scores a variant as score - price_pts + new price points
         "price_pts": round(x.components.price, 2),
         "history_pct": None if x.history_pct is None else round(x.history_pct, 1),
     }

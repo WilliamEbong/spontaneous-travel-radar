@@ -102,12 +102,12 @@ def test_disabled_city_gets_no_queries():
     assert qs and not any("YVR" in (q.origin, q.dest) for q in qs)
 
 
-def test_daily_volume_stays_under_todays_702():
+def test_daily_volume_stays_at_or_under_688():
+    """Acceptance check 10 (v2): the dry-run query build over six weeks of scan days plans 572 to 688 a day (D-54)."""
     s = load_scoring()
-    for i in range(7):
-        today = date(2026, 11, 10) + timedelta(days=i)
-        n = len(build_queries(load_cities(), class_windows(today, s, set()), today, s.trip_classes))
-        assert 500 <= n <= 702, (today, n)                                              # D-52 budget
+    ns = [len(build_queries(load_cities(), class_windows(d, s, set()), d, s.trip_classes))
+          for d in (date(2026, 11, 10) + timedelta(days=i) for i in range(42))]
+    assert 500 <= min(ns) and max(ns) <= 688, (min(ns), max(ns))
 
 
 def test_slim_items_parse_the_same():

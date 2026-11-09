@@ -385,7 +385,7 @@ function renderHealth(latest, stale) {
     ["SerpApi this month", `${h.serpapi_used_this_month ?? 0} of ${h.serpapi_cap ?? 60} searches`],
     ["Cache hits", h.cache_hits],
     ["Skipped (budget)", h.budget_skipped],
-    ["Events", h.events_source],
+    ["Lodging checks today", h.pass2_checks != null ? `${h.pass2_checks} (${h.serpapi_lookups ?? 0} lookups)` : "–"],
     ["Host", h.host],
     ["Duration", h.duration_s != null ? `${Math.round(h.duration_s / 60)} min` : "–"],
     ["No non-stop found", (h.no_nonstop || []).map((k) => names[k] || k).join(", ") || "none", null, true],
