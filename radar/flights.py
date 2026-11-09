@@ -156,7 +156,7 @@ def build_queries(cities: list[City], windows: list[Window], scan_date: date) ->
                     continue  # ponytail: fixed rotation; smarter coverage if health shows gaps
                 for o, d, day, role in (
                     (HOME, apt, w.out_dates[0], {"earliest_dep_hour": 19}),
-                    (HOME, apt, w.out_dates[1], {"latest_dep_hour": 12}),
+                    (HOME, apt, w.out_dates[1], {}),                      # any time on Day 1 (D-50)
                     (apt, HOME, w.back_dates[0], {}),                     # may land after midnight: exact check in itineraries
                     (apt, HOME, w.back_dates[1], {"latest_arr_hour": 16}),
                 ):

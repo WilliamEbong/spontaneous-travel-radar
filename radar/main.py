@@ -18,7 +18,7 @@ from radar.flights import HOME, Budget, FetchError, build_queries, fetch_leg
 from radar.hits import finalize_hit, gates, previous_hit, write_hit
 from radar.hotels import HotelCheck, check_hotels, used_this_month
 from radar.itineraries import assemble
-from radar.score import score_trip
+from radar.score import score_trip, worth_flying
 from radar.store import append_quotes, quote_row, read_history, route_percentile
 from radar.weather import weather_score
 from radar.windows import CALGARY, generate_windows
@@ -99,7 +99,7 @@ def scan(args) -> int:
         for w in windows:
             outs = [leg for d in w.out_dates for a in c.airports for leg in legs.get((HOME, a, d), [])]
             backs = [leg for d in w.back_dates for a in c.airports for leg in legs.get((a, HOME, d), [])]
-            trips = assemble(c, w, outs, backs)
+            trips = [t for t in assemble(c, w, outs, backs) if worth_flying(t, s)]
             if not trips:
                 continue
             evs = fetch_events(c, w.days_off[0], w.days_off[-1], api_key=tm_key, cache_dir=day_cache)

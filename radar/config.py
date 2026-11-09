@@ -42,6 +42,7 @@ class Scoring:
     lookahead_max_days: int
     serpapi_monthly_cap: int
     serpapi_per_candidate_cap: int
+    time_curve: dict[str, float]      # {zero_at, full_at}: share of the window's best possible waking hours
 
 
 def _read(path):

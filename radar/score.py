@@ -33,6 +33,17 @@ def band_price_score(price_pp: float, b: dict) -> float:
     return 0.0
 
 
+def time_points(hours: float, best: float, curve: dict) -> float:
+    """0..1: zero at curve['zero_at'] of the window's best possible waking hours, full at curve['full_at']."""
+    r = hours / best if best else 0.0
+    return max(0.0, min(1.0, (r - curve["zero_at"]) / (curve["full_at"] - curve["zero_at"])))
+
+
+def worth_flying(trip: Trip, s: Scoring) -> bool:
+    """Hard floor (D-51): below zero_at of the possible time there is no trip worth flying."""
+    return trip.best_possible_hours > 0 and trip.hours_on_ground >= s.time_curve["zero_at"] * trip.best_possible_hours
+
+
 @dataclass(frozen=True)
 class Components:
     price: float
@@ -90,7 +101,7 @@ def score_trip(trip: Trip, city: City, s: Scoring, *, n_events: int, weather_sco
         p = 0.5 * p + 0.5 * 40 * (1 - history_pct / 100)
     comp = Components(
         price=w["price"] * p / 40,
-        time=w["time"] * min(1.0, trip.hours_on_ground / trip.best_possible_hours) if trip.best_possible_hours else 0.0,
+        time=w["time"] * time_points(trip.hours_on_ground, trip.best_possible_hours, s.time_curve),
         convenience=w["convenience"] * convenience(trip, city) / 10,
         city=w["city"] * city.rank / 10,
         events=w["events"] * min(10.0, 3 + 1.5 * n_events) / 10,

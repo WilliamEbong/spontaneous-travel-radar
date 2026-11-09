@@ -14,7 +14,7 @@ class Window:
     window_nights: int              # len(days_off) - 1; hotel nights come from the itinerary
     vacation_days: int              # weekdays in the block that are not stats
     depart_from: datetime           # 19:30 the evening before Day 1
-    depart_to: datetime             # 12:00 on Day 1
+    depart_to: datetime             # 23:59 on Day 1 (soft since D-50: the time score charges for late starts)
     return_from: datetime           # 17:00 on Day N-1
     return_to: datetime             # 16:00 on Day N
     out_dates: tuple[date, date]    # (day before Day 1, Day 1)
@@ -30,7 +30,7 @@ def _window(pattern: str, first: date, n: int, holidays: set[date]) -> Window:
     return Window(
         id=f"{first.isoformat()}_{pattern}", days_off=days, window_nights=n - 1,
         vacation_days=sum(1 for d in days if d.weekday() < 5 and d not in holidays),
-        depart_from=_at(first - DAY, 19, 30), depart_to=_at(first, 12),
+        depart_from=_at(first - DAY, 19, 30), depart_to=_at(first, 23, 59),
         return_from=_at(days[-2], 17), return_to=_at(days[-1], 16),
         out_dates=(first - DAY, first), back_dates=(days[-2], days[-1]),
     )

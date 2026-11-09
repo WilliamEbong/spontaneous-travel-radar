@@ -45,6 +45,8 @@ def test_build_queries_roles_and_filters():
     assert mon[0].latest_arr_hour == 16 and mon[0].origin_tz == "America/Vancouver"
     thu = [q for q in qs if q.day == date(2026, 11, 19) and q.dest == "YVR"]
     assert thu[0].earliest_dep_hour == 19
+    sat_out = [q for q in qs if q.day == date(2026, 11, 21) and q.dest == "YVR"]   # Day 1 (mon-off): whole day (D-50)
+    assert len(sat_out) == 1 and sat_out[0].latest_dep_hour is None and sat_out[0].earliest_dep_hour is None
     assert all(q.max_stops == 1 for q in qs)
 
 

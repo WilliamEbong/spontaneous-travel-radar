@@ -1,7 +1,10 @@
+from dataclasses import replace
+
 import pytest
 
 from radar.config import load_scoring
-from radar.score import best_per_window, flight_band, hotel_band, lodging_estimate_cad, score_trip
+from radar.score import (best_per_window, flight_band, hotel_band, lodging_estimate_cad, score_trip, time_points,
+                         worth_flying)
 from tests.conftest import city
 
 
@@ -20,9 +23,28 @@ def test_hotel_band_expensive():
 def test_score_amazing_nonstop_vancouver_is_candidate(vancouver_trip_fixture):
     s = score_trip(vancouver_trip_fixture, city("vancouver"), load_scoring(), n_events=2, weather_score=8, history_pct=None)
     assert s.band == "amazing" and s.candidate
-    assert s.components.price == 40 and s.components.city == 12
-    assert s.score == 87 and s.lodging_source == "estimate"
+    assert s.components.price == 40 and s.components.city == 12 and s.components.time == 15   # r = 0.71
+    assert s.score == 91 and s.lodging_source == "estimate"
     assert s.total_cad == pytest.approx(220 + 380 + 40)   # flights + mid good-band midpoint (CAD) + transfers
+
+
+def test_time_curve_is_linear_between_its_anchors():
+    curve = {"zero_at": 0.4, "full_at": 0.9}
+    assert [time_points(r * 100, 100, curve) for r in (0.3, 0.4, 0.65, 0.9, 1.0)] == pytest.approx([0, 0, 0.5, 1, 1])
+
+
+def test_time_curve_on_the_two_toronto_trips():
+    """2026-11-21 mon-off, best possible 49.5 h: red-eye 01:20 out / 15:39 home keeps 34.9 h on the ground;
+    the 14:25 out / 06:15 back trip Google shows keeps about 15 h. Price decides between them (D-51)."""
+    s = load_scoring()
+    assert 15 * time_points(34.9, 49.5, s.time_curve) == pytest.approx(15)
+    assert 15 * time_points(15.0, 49.5, s.time_curve) == pytest.approx(5, abs=0.5)
+
+
+def test_floor_drops_a_trip_with_too_little_time(vancouver_trip_fixture):
+    s = load_scoring()
+    assert worth_flying(vancouver_trip_fixture, s)
+    assert not worth_flying(replace(vancouver_trip_fixture, hours_on_ground=0.09 * 49.5), s)
 
 
 def test_connection_costs_convenience(nyc_one_stop_trip):

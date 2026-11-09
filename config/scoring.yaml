@@ -7,6 +7,9 @@ realert_drop_pct: 15
 serpapi_monthly_cap: 60  # free tier is 250/month; this leaves headroom
 serpapi_per_candidate_cap: 3
 weights: {price: 40, time: 15, convenience: 10, city: 15, events: 10, weather: 10}
+time_curve:              # time score vs share of the window's best possible waking hours (D-51)
+  zero_at: 0.10          # 0 points here; trips below it are dropped as not worth flying
+  full_at: 0.70          # full points here (real trips top out near 0.70-0.75: flights eat the rest)
 flight_bands:            # per person, round trip, CAD, realistic; thresholds are upper bounds
   yvr:       {amazing: 120, good: 150, average: 190}
   sea_pdx:   {amazing: 200, good: 260, average: 330}

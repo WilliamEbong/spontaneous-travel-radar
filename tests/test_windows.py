@@ -25,7 +25,7 @@ def test_plain_weekend_two_patterns():
     w = next(w for w in ws if w.id == "2026-11-20_fri-off")
     assert w.window_nights == 2 and w.vacation_days == 1
     assert w.depart_from == datetime(2026, 11, 19, 19, 30, tzinfo=CALGARY)
-    assert w.depart_to == datetime(2026, 11, 20, 12, 0, tzinfo=CALGARY)
+    assert w.depart_to == datetime(2026, 11, 20, 23, 59, tzinfo=CALGARY)          # any time on Day 1 (D-50)
     assert w.return_from == datetime(2026, 11, 21, 17, 0, tzinfo=CALGARY)
     assert w.return_to == datetime(2026, 11, 22, 16, 0, tzinfo=CALGARY)
 
