@@ -28,3 +28,8 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 
 ## Phase 6: Polish
 - [ ] T014 Learning-run procedure and handover (`docs/LEARNING-RUN.md`, `README.md`)
+
+## Phase 7: Convergence
+- [ ] T015 Verify the first workflow scan committed `data/latest.json` (mode dry-run) and history per SC-002 (partial)
+- [ ] T016 Verify the live Pages dashboard with Playwright on real scan data (table, health, console, 375 px) per SC-003 (partial)
+- [ ] T017 Reconcile FR-006 "every in-window quote" with decision D-12 (history logs cheapest per airport plus the winner) with William per FR-006 (contradicts)
