@@ -1,6 +1,7 @@
 # Spontaneous Travel Radar: Implementation Plan
 
-> **Build status (2026-11-09, unattended build):** Tasks 0 to 12 done; 13 and 14 in progress.
+> **Build status (2026-11-09, unattended build):** Tasks 0 to 14 done; first full scan committed and the
+> live dashboard verified. Open: T017 (a wording decision for William) and the go-live items in `docs/LEARNING-RUN.md`.
 > Per-task status lives in `specs/001-spontaneous-travel-radar/tasks.md`; progress in `SESSION-LOG.md`;
 > every judgment call in `docs/notes/decisions.md`; final state in `HANDOFF.md`.
 

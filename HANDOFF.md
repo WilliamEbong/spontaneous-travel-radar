@@ -22,15 +22,16 @@ Read this first if you are picking the build up in a fresh session. Then read `S
 
 ## Open threads
 
-1. Convergence T015/T016: confirm the first full scan (run 42580547763) committed `data/latest.json`,
-   then verify the live dashboard with Playwright (desktop + 375 px, console clean).
+1. Done 2026-11-09 08:50 UTC: the first full scan (run 42580547763) committed `data/latest.json`
+   (702/702 queries, 0 errors, 66 min) and the live dashboard was verified with Playwright.
+   Next check: the scheduled scan of 2026-11-10 10:17 UTC is the first to ship D-25 (cheapest per city).
 2. Webhook for the hit routine is blocked until William installs the Claude GitHub App on the repo
    (https://github.com/apps/claude/installations/select_target). That also lets routines commit
    digests. Not needed until go-live (`docs/LEARNING-RUN.md`).
 3. T017: FR-006 says every quote is logged; D-12 logs the cheapest per airport plus the winner.
    William to confirm.
-4. Bands look far below realistic carry-on, no-basic fares (D-03, D-04): expect "bad" everywhere
-   until retuned from the first weeks of data.
+4. Bands sit far below realistic carry-on, no-basic fares (D-03, D-04, D-26): all 119 city-windows
+   on day one band "bad", so there are no candidates and no hotel checks until William retunes.
 
 ## Gotchas
 
