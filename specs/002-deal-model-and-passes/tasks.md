@@ -24,4 +24,4 @@ Each task ends with `pytest -q` green and its own commit. IDs follow `BUILD-PLAN
 
 ## Polish
 - [x] T310 Docs: design doc v2 section, decisions D-57 onward, LEARNING-RUN, TUNING-PLAN, PROMPT-tune, CAPABILITIES, README
-- [ ] T311 Finish: tests, offline scan at `--today 2026-11-12`, Playwright evidence, fresh-context review and fixes, HANDOFF, report
+- [x] T311 Finish: tests, offline scan at `--today 2026-11-12`, Playwright evidence, fresh-context review and fixes, HANDOFF, report

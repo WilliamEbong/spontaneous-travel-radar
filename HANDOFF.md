@@ -1,108 +1,133 @@
-# Handoff: Spontaneous Travel Radar (build of 2026-11-09)
+# Handoff: Spontaneous Travel Radar (v2 build of 2026-11-09)
 
-Read this first if you are picking the build up in a fresh session. Then read `SESSION-LOG.md` and
-`docs/notes/decisions.md`.
+Read this first if you are picking the build up in a fresh session. Then `SESSION-LOG.md`, the end of
+`docs/notes/decisions.md` (D-57 to D-73) and `BUILD-PLAN-v2.md`.
 
 ## Where things stand
 
-- Repo `WilliamEbong/spontaneous-travel-radar` is public and on `main`. All BUILD-PLAN tasks 0 to 14
-  are implemented; Spec Kit artifacts are in `specs/001-spontaneous-travel-radar/` (tasks.md has a
-  Phase 7 "Convergence" with the last open items).
-- `pytest -q`: 58 tests, all passing, no network.
-- Collector host: GitHub Actions (`.github/workflows/scan.yml`, cron 10:17 UTC). The day-one block
-  test showed Google does not block Actions IPs. PC fallback: `scripts/run-scan.ps1` (not registered).
-- Dashboard: https://williamebong.github.io/spontaneous-travel-radar/ (Pages source = GitHub Actions).
-- Secrets `SERPAPI_KEY` and `TICKETMASTER_KEY` are set as Actions secrets (William set them) and
-  are in the local `.env` (gitignored).
-- Routines (month one on Opus 5.5, D-28; Gmail connector only):
-  - `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *` (05:30 Calgary),
-    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Enabled**
-    2026-11-09 16:10 UTC from the main session on William's say-so; first run 2026-11-10 12:36 UTC.
-    Manage at https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw.
-  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, **disabled** 2026-11-09 16:10 UTC (folded into
-    `radar-daily`, D-30; William does not want the separate email).
-  - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, Sonnet, **disabled**, no schedule, no webhook.
-  - `radar-tune` `trig_01E542toF6zwmddqDsjRGXeX`, Opus, one-shot `run_once_at` 2026-12-09T13:00:00Z
-    (06:00 Calgary), **enabled**. Follows `routine/PROMPT-tune.md` and `docs/TUNING-PLAN.md`:
-    backtest harness, rolling-percentile flight bands, a keep-or-revert config loop, then one PR
-    `radar/tune-2026-12-09` for William to merge. Manage at
-    https://claude.ai/code/routines/trig_01E542toF6zwmddqDsjRGXeX.
-  - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, done. The re-run at 15:43 UTC passed for push
-    auth, PR open and comment read; Codex did not review the probe PR (D-37). Results in
-    `routine/CAPABILITIES.md`.
-  - first probe `trig_01XmaxqFZGSsnebpkB8VweMi`, done (read yes, push no, email yes).
-- Codex review: William enabled automatic review on the repo (On PR open), but it did not review
-  probe PR #1. Until a Codex review is seen on a `radar/iter-*` PR, assume the reviewer subagent
-  fallback is doing the reviewing. Check the first PR's comments.
-- Merged `radar/iter-*` branches stay on GitHub (the routine cannot delete branches). Turning on
-  "Automatically delete head branches" in the repo settings would clean them up.
-- Dashboard v2 merged to `main` (0ef0b69) and live on Pages, 2026-11-09. `index.html` and `site/` stay
-  off-limits to the routine.
-- Settings panel merged to `main` (897b491) and live, 2026-11-09 (D-43 to D-48): gear in the app bar;
-  cities on/off and order, per-city `bar_cad`, days off (`config/days_off.yaml`, read by
-  `generate_windows`), alert mode and threshold; Save writes through the GitHub Contents API with a
-  fine-grained token William pastes once (steps in `README.md`, "Settings from the dashboard"). The
-  token lives in the browser only. The routine may edit `config/scoring.yaml`; the panel retries on a
-  sha conflict. William has not created the token yet as of this note.
-- Window rule softened, 2026-11-09 evening (D-50, D-51): leave from 19:30 the evening before Day 1
-  through 23:59 on Day 1 (was noon); home by 16:00 stays hard. Time score is linear from 10% to 70%
-  of the window's best possible waking hours (`config/scoring.yaml: time_curve`), and trips under 10%
-  are dropped. The request suggested 0.4/0.9; the data showed that would drop the trip that motivated
-  the change, so 0.10/0.70 (details in D-51). The first scan with it is 2026-11-10.
-- Two trip classes, 2026-11-09 (D-52 to D-55, `specs/002-trip-classes/`): day-off trips 42 to 112 days
-  out (lead time on the dashboard, 2 to 12 weeks), basic fares excluded, rotated so each
-  city-airport-weekend is fetched every 3 days (secondary airports every 9). Weekend-only trips 3 to 42
-  days out every day: Fri 17:30 to Sat 12:00 out, home Sun 16:00, non-stop, 7 cities within 3 h, basic
-  fares allowed, gated at amazing / score 88 / 70% of the bar. About 623 queries a day (572 to 688).
-  `trip_class` is on every row and hit. First scan with it: 2026-11-10.
+- **The v2 deal model is built on branch `v2-deal-model`, not merged.** Worktree:
+  `C:\Users\Owner\OneDrive\Documents\Spontaneous Travel\.claude\worktrees\v2-deal-model` (the main
+  checkout stays on `main`). Nothing pushed. The design session merges after review: merging deploys Pages
+  (the push touches `index.html` and `site/`), the next 10:17 UTC scan runs the v2 collector, and
+  `radar-daily` reads the v2 `routine/PROMPT-daily.md` the next morning (pass 3 included).
+- Spec Kit: `specs/002-deal-model-and-passes/` (spec, plan, tasks; all ticked).
+  Constitution amended to v1.1.0 for William's v2 decisions (D-71).
+- `pytest -q`: 99 tests, all passing, no network. A fresh-context reviewer read the whole branch and found
+  9 problems (one high: a hit could be declared on the pass-1 room estimate); all fixed with tests (D-73).
+- What v2 does (design section 14): each trip is judged against its route's ladder
+  (`config/references.yaml`); price is the complete trip for two as a share of the route's typical trip
+  (45/25/0/-10 points at 0.60/0.75/1.00/1.30, then falling to -100); basic fares in both classes;
+  Ticketmaster gone. Pass 1 scores every trip (lodging assumed at the season's good room rate). A fare at
+  or under the route's good with a score of 70+ is a candidate; the top three a scan get pass 2 (Google
+  Hotels and vacation rentals through SerpApi, within 6 km of the centre, best option by score) and a file
+  in `hits/candidates/`. Pass 3 is the daily routine's: research of what is on against
+  `config/interests.yaml`, Airbnb by a Sonnet subagent, then `python -m radar.main finalize`, which files
+  a hit (final 80+, and only with real lodging) in `hits/dry-run/` (learning run) or `hits/` (live), or a
+  near miss in `hits/near-miss/`.
+- Dashboard: hits, Passed (every 70+ trip and the pass it reached), Every city (best deal, ladder,
+  every weekend, price history), notes. Weekend trips ("No day off needed") are gold: border and label,
+  both themes; day-off trips neutral. Settings: per-class switch and hit line, optional overall cap (off),
+  read-only ladders; the per-city bar is gone.
+- Room ladders came from Google Hotels for 19 cities (T9, 41 SerpApi lookups). The branch's
+  `data/serpapi_usage.json` says 45 for 2026-11 (1 day one, 3 probes, 41 T9). `main` says 1 unless a
+  scan used SerpApi since (v1 used it only for candidates, and there were none).
+- Unchanged from v1 and still true: collector on GitHub Actions (`scan.yml`, cron 10:17 UTC), Pages
+  from Actions, routines as listed below, learning run until about 2026-12-08, `radar-tune` on
+  2026-12-09 (its plan, `docs/TUNING-PLAN.md`, is rewritten for ladders).
 
-## Enable procedure for `radar-daily` (done 2026-11-09; kept for a re-enable)
+## Commits on the branch
 
-1. Re-arm the GitHub probe: `RemoteTrigger update trig_01NCvvPT6cUDiLLFkr7HN6tv` with
-   `{"enabled": true, "run_once_at": "<now + 3 min, UTC>"}`. It reads `routine/PROMPT-probe-github.md`.
-2. Read the result: `RemoteTrigger list_runs`, then `get_run_log` on the newest session. Record it in
-   `routine/CAPABILITIES.md`. Check the probe PR is closed and its branch deleted.
-3. If (a) push to main and (b) opening a PR both pass: keep the PR flow. If (b) fails but (a)
-   passes: remove Phase A from `routine/PROMPT-daily.md`, make Phase C always use the fresh-context
-   reviewer and commit to `main`, and say plainly here that Codex review is not in the loop. If (a)
-   fails: do not enable; the routine could only email.
-4. Enable `radar-daily` (`{"enabled": true}`), then disable the weekly digest
-   (`trig_01V9gJ6rL1sDuSsqDkE11oxo`, `{"enabled": false}`). The hit routine stays disabled.
+`c7c2256` spec/plan/tasks and probe fixtures · `9ea2ba8` T2 basic fares · `88b5ab4` T1/T3/T4/T5 collector
+(one commit: score, hotels and hits change shape together) · `b5e21d2` T6/T7 pass 3 and prompts ·
+`49f4ede` session log · `bdee74e` T8 dashboard and settings · `2337364` T9 room ladders (this commit is red:
+a YAML comment inside a flow mapping) · `7733b98` fix, green again · `d9c2a90` T10 docs · `eb64265` review
+fixes (D-73) · then this hand-over.
 
-## Open threads
+## Merge notes for the design session
 
-1. Done 2026-11-09 08:50 UTC: the first full scan (run 42580547763) committed `data/latest.json`
-   (702/702 queries, 0 errors, 66 min) and the live dashboard was verified with Playwright.
-   Next check: the scheduled scan of 2026-11-10 10:17 UTC is the first to ship D-25 (cheapest per city).
-2. Webhook for the hit routine is blocked until William installs the Claude GitHub App on the repo
-   (https://github.com/apps/claude/installations/select_target). That also lets routines commit
-   digests. Not needed until go-live (`docs/LEARNING-RUN.md`).
-3. T017: FR-006 says every quote is logged; D-12 logs the cheapest per airport plus the winner.
-   William to confirm.
-4. Bands sit far below realistic carry-on, no-basic fares (D-03, D-04, D-26): all 119 city-windows
-   on day one band "bad", so there are no candidates and no hotel checks until the bands move.
-   Decided 2026-11-09: William keeps basic fares excluded (`EXCLUDE_BASIC` stays `True`). Retune
-   `config/scoring.yaml` from the project's own data after two weeks of scans (target: the digest of
-   2026-11-23): per city, amazing/good/average at about p10/p25/p50 of `price_pp` from
-   `data/weekly-summary.json`.
+1. From the main checkout: `git merge --no-ff v2-deal-model` (or squash). Expected conflicts: only
+   `data/serpapi_usage.json` if a scan on `main` used SerpApi meanwhile (add the two months' counts:
+   the branch's 44 lookups are real), and the end of `docs/notes/decisions.md` if someone appended there.
+   The daily routine writes `data/digests/` and `docs/iteration-log.md`, which the branch does not touch.
+2. After the merge: the `TICKETMASTER_KEY` Actions secret is unused; William can delete it.
+3. First v2 scan: history rows gain `ladder`, `share`, `total_cad`, `nights`, `pass`, `final_score`,
+   `candidate_id` and drop `band`; `latest.json` gains `classes`; the old rows stay readable.
+4. Check the first `radar-daily` run that has a candidate: it should write
+   `data/research/<city>-<window>.json`, run `finalize`, and push `hits/` with its note.
+5. Between the merge and the first v2 scan the page shows v1 `latest.json`: checked, it renders 20 cards with
+   no broken numbers (the ladder line shows dashes until the scan).
+
+## Open questions for William (each has a default already in place)
+
+1. **D-60:** the research doc's "good trip about 74" is an arithmetic slip; the decided anchors give 70.6
+   (still a candidate, not a hit). Default: anchors as decided, doc corrected.
+2. **D-61:** the round-trip reprice is not built: fast-flights 3.1.0 cannot price our exact leg pair
+   (probe evidence in the decision). Totals stay one-way sums, which run 3 to 15% above Google's headline.
+3. **D-68:** New York's and Mexico City's lodging centres moved to Union Square and Roma Norte, and Los
+   Angeles now searches Downtown first (Santa Monica is 22 km from the centre, outside the 6 km cut).
+   New Orleans winter rooms stay an estimate (Google showed $620 a night on the sampled weekend).
+4. Is the hit routine's stored prompt the repo file or inline text? `routine/PROMPT-hit.md` now asks for
+   `[Weekend]` / `[Day off]` subjects; if the stored prompt is inline, update it at go-live.
+5. Web search inside `radar-daily` was never probed. If it fails, pass 3 finalizes with no finds and the
+   note says so; the trip can still be a hit on its pass-2 score.
+
+## Acceptance checks (BUILD-PLAN-v2), as run on 2026-11-09/10
+
+1. Vancouver worked example: $650 trip 83, exceptional 91 (doc: about 90), good trip 70.6 (doc: about 74,
+   an arithmetic slip in the doc, D-60). `tests/test_score.py`.
+2. Cheaper of two above-typical trips wins: Toronto day-one case and a far-past-2.2 case. `tests/test_score.py`.
+3. Basic fares in a fresh YYC-YVR fetch: Flair $241 for two, WestJet 101 $343 vs $450 Standard
+   (`tests/fixtures/ff_yyc_yvr_basic.json`, `tests/test_flights.py`).
+4. No Ticketmaster in code, workflow or tests (grep; `scripts/run-scan.ps1` comment fixed too).
+5. Candidate at good with 69 no, 70 yes. `tests/test_score.py`.
+6. Central $650 hotel beats fringe $550 rental by score, both listed. `tests/test_hotels_hits.py`.
+7. SerpApi cap: a simulated month stops at exactly 200. `tests/test_hotels_hits.py`.
+8. Dashboard: Hits, Passed, Every city, Notes in order; class grouping right; four states x 375/1280 x
+   light/dark; no horizontal scroll; 0 console messages; gold border on weekend cards. Screenshots in
+   `C:\Users\Owner\OneDrive\Documents\.playwright-mcp\v2-shots\` (`final-*` after the review fixes).
+9. Offline scan rows carry ladder, share, pass, final_score (`--today 2026-10-08`; `--today 2026-11-12`
+   runs clean but the recorded fares cover none of its windows).
+10. Query build plans 572 to 688 a day over six weeks. `tests/test_flights.py`.
+
+## Later (not built)
+
+"Would book / Not for me" taps writing `data/labels.jsonl`; interests editable in the panel; seasonal room
+references finer than winter/summer and more than one sampled weekend per season; an exact-pair round-trip
+price if fast-flights exposes Google's second page; the dashboard copy "next 6 weeks" for weekend trips is
+fixed text (the range is config).
 
 ## Gotchas
 
-- Price points go negative past the bad line (-10 per bad-line width, floor -40; D-56), so among
-  all-bad trips the cheaper wins: the Toronto 21-23 Nov card picked $1,357 pp over about $1,000 pp
-  because both scored 0 on price. Winner ties already break on lower total. `price_pts` can be negative.
-- fast-flights 3.1.0's `get_flights` drops Google's "best flights" list; we parse the page
-  ourselves (`radar/flights.py: parse_items`). It also imports `typing_extensions` undeclared.
-- tzdata 2026f has Alberta and BC on permanent daylight time from November 2026; the workflow sets
-  `PYTHONTZPATH=""` so Python uses the pip `tzdata` package.
-- In this Windows Bash tool, backslashes inside heredocs get mangled: write files with the editor.
-- Playwright MCP can only write inside the project folder (`.playwright-mcp/`, gitignored).
+- Python on Windows writes CRLF through `write_text`; the repo is mostly LF. Restore line endings before a
+  commit (the run used a small script; `git diff --stat` showing whole files changed is the symptom).
+- In this Windows Bash tool, backslashes inside heredocs get mangled: write scripts with the editor.
+- Check pytest's exit code, not its last printed line, before committing (one red commit came from that).
+- SerpApi responses are cached per scan day by city and dates, not by query text: after changing a city's
+  first neighbourhood mid-day (or in `data/cache/rooms/` for the T9 script), delete those cache files.
+- The token for the Settings panel lives in `localStorage` on `williamebong.github.io`, an origin every
+  project page on that account shares (unchanged from v1; the reviewer noted it).
+- Playwright MCP writes relative paths under `C:\Users\Owner\OneDrive\Documents\`; the v2 screenshots are in
+  `C:\Users\Owner\OneDrive\Documents\.playwright-mcp\v2-shots\`. Use `localhost`, not `127.0.0.1`.
+- An offline scan writes `data/`, `hits/` into the current folder: run it in a scratch copy (the tests do).
+- `--today 2026-11-12` offline finds no trips: the recorded fixtures end 28 Nov and day-off windows then
+  start 24 Dec. `--today 2026-10-08` exercises both classes.
+
+## Routines (unchanged by this build; manage at https://claude.ai/code/routines)
+
+- `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *`, 2026-11-10 to 2026-12-08,
+  instructions `routine/PROMPT-daily.md` (repo file, D-35). Enabled.
+- `radar-tune` `trig_01E542toF6zwmddqDsjRGXeX`, Opus, one-shot 2026-12-09T13:00:00Z, follows
+  `routine/PROMPT-tune.md` and `docs/TUNING-PLAN.md`. Enabled.
+- Hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y` disabled; weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`
+  disabled; GitHub probe done.
 
 ## How to verify
 
 ```
 .venv\Scripts\python -m pytest -q
-.venv\Scripts\python -m radar.main scan --offline --today 2026-10-08
-gh run list --workflow scan.yml --limit 3
+python scripts\dashboard_fixtures.py <scratch dir>     (four data states through the real pipeline)
+python -m http.server 8766 --directory <scratch dir>   then http://localhost:8766/hits/ (and empty, passed, live)
+python scripts\room_references.py --dry-run             (lists the 39 lookups it would make)
 ```
-Then open the dashboard URL and check Health: coverage, fetch errors, blocked, SerpApi used.
+Offline scan: copy `config/` and `tests/fixtures/offline/` into a scratch folder and run
+`python -m radar.main scan --offline --today 2026-10-08` there.
