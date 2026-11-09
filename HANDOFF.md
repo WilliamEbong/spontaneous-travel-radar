@@ -16,16 +16,24 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   are in the local `.env` (gitignored).
 - Routines (month one on Opus 5.5, D-28; Gmail connector only):
   - `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *` (05:30 Calgary),
-    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Disabled** until
-    the enable procedure below passes.
-  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, Mondays 14:00 UTC, real work 2026-11-16 to
-    2026-12-07. Still **enabled**, as the fallback until `radar-daily` is on; then disable it (D-30).
+    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Enabled**
+    2026-11-09; first run 2026-11-10 about 12:30 UTC.
+  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, **disabled** 2026-11-09 (folded into the Monday
+    note of `radar-daily`, D-30).
   - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, Sonnet, **disabled**, no schedule, no webhook.
-  - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, disabled; its first run (14:38 UTC) found
-    no GitHub write access (App not installed). Results in `routine/CAPABILITIES.md`.
+  - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, done. The re-run at 15:43 UTC passed for push
+    auth, PR open and comment read; Codex did not review the probe PR (D-36). Results in
+    `routine/CAPABILITIES.md`.
   - first probe `trig_01XmaxqFZGSsnebpkB8VweMi`, done (read yes, push no, email yes).
+- Codex review: William enabled automatic review on the repo (On PR open), but it did not review
+  probe PR #1. Until a Codex review is seen on a `radar/iter-*` PR, assume the reviewer subagent
+  fallback is doing the reviewing. Check the first PR's comments.
+- Merged `radar/iter-*` branches stay on GitHub (the routine cannot delete branches). Turning on
+  "Automatically delete head branches" in the repo settings would clean them up.
+- Dashboard redesign is on branch `worktree-dashboard-v2` (not merged). `index.html` and `site/` are
+  off-limits to the routine either way.
 
-## Enable procedure for `radar-daily` (after William installs the Claude GitHub App and Codex review)
+## Enable procedure for `radar-daily` (done 2026-11-09; kept for a re-enable)
 
 1. Re-arm the GitHub probe: `RemoteTrigger update trig_01NCvvPT6cUDiLLFkr7HN6tv` with
    `{"enabled": true, "run_once_at": "<now + 3 min, UTC>"}`. It reads `routine/PROMPT-probe-github.md`.
