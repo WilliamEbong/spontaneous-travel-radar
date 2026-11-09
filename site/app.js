@@ -290,6 +290,7 @@ function sortCards(by) {
     score: (a, b) => b.dataset.score - a.dataset.score || a.dataset.price - b.dataset.price,
     price: (a, b) => a.dataset.price - b.dataset.price,
     city: (a, b) => a.dataset.name.localeCompare(b.dataset.name),
+    mine: (a, b) => a.dataset.order - b.dataset.order,
   }[by];
   box.append(...[...box.children].sort(cmp));
 }
@@ -337,7 +338,8 @@ function renderCities(latest, series) {
     return;
   }
   const ctx = { series, windows: latest.windows || [] };
-  $("cities").replaceChildren(...rows.map((r) => cityCard(r, ctx)));
+  const mine = Object.fromEntries((latest.cities || []).map((c, i) => [c.key, i]));   // config/cities.yaml order, set in Settings
+  $("cities").replaceChildren(...rows.map((r) => { const card = cityCard(r, ctx); card.dataset.order = mine[r.city] ?? 999; return card; }));
   sortCards(document.querySelector("#sort input:checked").value);
 }
 
@@ -402,19 +404,25 @@ function renderHealth(latest, stale) {
   $("health-btn").title = label;
 }
 
-function wireSheet() {
-  const dlg = $("health");
-  $("health-btn").addEventListener("click", () => dlg.showModal());
-  $("health-close").addEventListener("click", () => dlg.close());
+function wireDialog(dlg, openBtn, closeBtn, onOpen) {
+  openBtn.addEventListener("click", () => { dlg.showModal(); if (onOpen) onOpen(); });
+  closeBtn.addEventListener("click", () => dlg.close());
   dlg.addEventListener("click", (e) => {   // a click on the backdrop lands on the dialog element itself, outside its box
     const r = dlg.getBoundingClientRect();
     if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
   });
 }
+// localStorage is a convenience only (the chosen sort, the GitHub token): every call tolerates a blocked store.
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { /* private mode or blocked */ } },
+};
 
 async function main() {
-  wireSheet();
-  $("sort").addEventListener("change", (e) => sortCards(e.target.value));
+  wireDialog($("health"), $("health-btn"), $("health-close"));
+  const savedSort = document.querySelector(`#sort input[value="${store.get("radar.sort")}"]`);
+  if (savedSort) savedSort.checked = true;
+  $("sort").addEventListener("change", (e) => { store.set("radar.sort", e.target.value); sortCards(e.target.value); });
   const [latest, series, hits, digests] = await Promise.all([
     getJSON("data/latest.json"), getJSON("data/series.json"), getJSON("hits/index.json"), getJSON("data/digests/index.json"),
   ]);
@@ -429,7 +437,7 @@ async function main() {
   const ageH = (Date.now() - new Date(latest.scan_ts)) / 3.6e6;
   const stale = ageH > STALE_HOURS ? ageH : 0;
   const chip = $("scan-age");
-  chip.textContent = `Scanned ${ago(latest.scan_ts)}`;
+  chip.replaceChildren(el("span", { class: "chip-long", text: "Scanned " }), ago(latest.scan_ts));   // "Scanned" hides on narrow phones
   chip.title = when(latest.scan_ts) + " Calgary time";
   chip.classList.toggle("warn", Boolean(stale));
 
