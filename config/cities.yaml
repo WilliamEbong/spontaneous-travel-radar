@@ -14,8 +14,8 @@ cities:
     rank: 10
     airports: [EWR, JFK, LGA]
     tz: America/New_York
-    lat: 40.7128
-    lon: -74.006
+    lat: 40.7359             # Union Square: between the listed neighbourhoods (City Hall put Midtown 4-6 km out)
+    lon: -73.9911
     airport_to_core_min: 45
     air_time_min: 270
     transfer_cost_cad_pp_each_way: 23
@@ -340,7 +340,7 @@ cities:
     air_time_min: 192
     transfer_cost_cad_pp_each_way: 28
     car_needed: false
-    neighbourhoods: [Santa Monica, Downtown Los Angeles, Silver Lake]
+    neighbourhoods: [Downtown Los Angeles, Silver Lake, Santa Monica]   # first = lodging search; Santa Monica is 22 km from the centre
     season_months: []
     hotel_currency: USD
     climate:
@@ -479,8 +479,8 @@ cities:
     rank: 9
     airports: [MEX, NLU]
     tz: America/Mexico_City
-    lat: 19.4326
-    lon: -99.1332
+    lat: 19.4194             # Roma Norte (the Zocalo put every listed neighbourhood 3-4 km out)
+    lon: -99.1617
     airport_to_core_min: 30
     air_time_min: 420
     transfer_cost_cad_pp_each_way: 10
