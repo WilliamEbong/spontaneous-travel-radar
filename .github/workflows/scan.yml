@@ -44,7 +44,6 @@ jobs:
         if: github.event_name != 'push'
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-          TICKETMASTER_KEY: ${{ secrets.TICKETMASTER_KEY }}
           PYTHONTZPATH: ""   # use the pip tzdata package (Alberta/BC rule changes), not the runner's older zone files
           CITIES: ${{ inputs.cities }}
           BUDGET: ${{ inputs.budget }}

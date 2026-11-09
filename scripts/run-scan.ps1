@@ -4,7 +4,7 @@
 #   2. Add "data/**" to the push `paths:` list so each PC push redeploys Pages.
 #   3. Register this script (PowerShell, from the repo root):
 #      schtasks /Create /SC DAILY /ST 04:30 /TN "SpontaneousTravelRadar" /TR "powershell -ExecutionPolicy Bypass -File \"$PWD\scripts\run-scan.ps1\""
-# radar.main loads SERPAPI_KEY and TICKETMASTER_KEY from .env itself.
+# radar.main loads SERPAPI_KEY from .env itself.
 Set-Location (Split-Path $PSScriptRoot -Parent)
 .\.venv\Scripts\python.exe -m radar.main scan
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

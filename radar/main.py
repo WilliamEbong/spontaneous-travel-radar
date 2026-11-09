@@ -1,6 +1,7 @@
 """CLI.
 
 python -m radar.main scan [--offline] [--today YYYY-MM-DD] [--cities a,b] [--budget N]
+python -m radar.main finalize <candidate id> --research data/research/<city>-<window>.json   # pass 3 (radar-daily)
 python -m radar.main export       # rebuild series.json and the hits/digests indexes from what is on disk
 python -m radar.main summarize    # data/weekly-summary.json
 """
@@ -11,12 +12,11 @@ import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from radar.config import load_cities, load_days_off, load_holidays, load_scoring
-from radar.events import fetch_events, notable_count
+from radar.config import load_cities, load_days_off, load_holidays, load_interests, load_references, load_scoring
 from radar.export import write_digests_index, write_hits_index, write_latest, write_series, write_weekly_summary
 from radar.flights import HOME, Budget, FetchError, build_queries, fetch_leg
-from radar.hits import finalize_hit, gates, previous_hit, write_hit
-from radar.hotels import HotelCheck, check_hotels, used_this_month
+from radar.hits import candidate_id, fare_dropped, finalize, pass2, previous_candidate, write_candidate
+from radar.hotels import check_lodging, used_this_month
 from radar.itineraries import assemble
 from radar.score import score_trip, worth_flying
 from radar.store import append_quotes, quote_row, read_history, route_percentile
@@ -24,7 +24,7 @@ from radar.weather import weather_score
 from radar.windows import CALGARY, class_windows
 
 OFFLINE_DIR = "tests/fixtures/offline"
-MAX_HOTEL_CHECKS_PER_SCAN = 3   # ponytail: spreads the 60/month SerpApi cap; raise if candidates go unchecked
+MAX_CANDIDATES_PER_SCAN = 3     # pass 2 (2 SerpApi lookups each) for the top three; the 200/month cap holds at 3 a day
 BLOCK_STREAK = 15               # consecutive fetch errors that mean Google is blocking: stop fetching
 
 
@@ -43,7 +43,9 @@ def scan(args) -> int:
     today = date.fromisoformat(args.today) if args.today else datetime.now(CALGARY).date()
     s, holidays = load_scoring(), load_holidays()
     extra, blocked = load_days_off()
-    cities = [c for c in load_cities() if c.enabled]
+    all_cities = load_cities()
+    refs = load_references(keys=[c.key for c in all_cities])
+    cities = [c for c in all_cities if c.enabled]
     if args.cities:
         keep = set(args.cities.split(","))
         cities = [c for c in cities if c.key in keep]
@@ -83,7 +85,6 @@ def scan(args) -> int:
         if answered and not any(leg.stops == 0 for v in answered for leg in v):
             no_nonstop.append(c.key)
 
-    tm_key = None if args.offline else os.environ.get("TICKETMASTER_KEY")
     serp_key = None if args.offline else os.environ.get("SERPAPI_KEY")
     history = [r for r in read_history(90, today=today) if r["scan_date"] != today.isoformat()]  # a re-run must not see itself
     by_city_hist: dict[tuple, list] = {}
@@ -97,7 +98,8 @@ def scan(args) -> int:
             pct_memo[k] = route_percentile(price_pp, city_key, by_city_hist.get((city_key, trip_class), []))
         return pct_memo[k]
 
-    winners, rows, context, cheapest_city = [], [], {}, {}
+    # pass 1: score every in-window trip; one winner per city-window
+    winners, logged, weather = [], [], {}
     for c in cities:
         for w in windows:
             cls = w.trip_class   # a class's legs never pair with the other class's windows
@@ -106,45 +108,41 @@ def scan(args) -> int:
             trips = [t for t in assemble(c, w, outs, backs) if worth_flying(t, s)]
             if not trips:
                 continue
-            evs = fetch_events(c, w.days_off[0], w.days_off[-1], api_key=tm_key, cache_dir=day_cache)
-            n = notable_count(evs, w.days_off)
             wx = weather_score(c, list(w.days_off), today=today, cache_dir=None if args.offline else day_cache)
-            sc = [score_trip(t, c, s, n_events=n, weather_score=wx[0], history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
+            sc = [score_trip(t, c, refs[c.key], s, weather_score=wx[0], history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
                   for t in trips]
             win = max(sc, key=lambda x: (x.score, -x.total_cad))
             winners.append(win)
-            low = min(sc, key=lambda x: (x.trip.flights_cad_2pax, -x.score))
-            if c.key not in cheapest_city or low.trip.flights_cad_2pax < cheapest_city[c.key].trip.flights_cad_2pax:
-                cheapest_city[c.key] = low   # design 6.3: "Best right now" = cheapest realistic fare per city
-            context[(c.key, w.id)] = (evs, wx)
+            weather[(c.key, w.id)] = wx
             cheapest = {}
             for x in sc:
                 if x.trip.airport not in cheapest or x.trip.flights_cad_2pax < cheapest[x.trip.airport].trip.flights_cad_2pax:
                     cheapest[x.trip.airport] = x
-            logged = list(cheapest.values()) + ([win] if win not in cheapest.values() else [])
-            rows += [quote_row(x, today, scan_ts, x is win) for x in logged]
+            logged += [(x, x is win) for x in list(cheapest.values()) + ([win] if win not in cheapest.values() else [])]
 
-    hit_ids, cand_ids, checks = [], [], 0
-    for x in sorted((x for x in winners if x.candidate), key=lambda x: -x.score):
+    # pass 2: real lodging for the top candidates; pass 3 is the daily routine's (radar.main finalize)
+    passes, cand_ids, checks, lookups = {}, [], 0, 0
+    for x in sorted((x for x in winners if x.candidate), key=lambda x: (-x.score, x.total_cad)):
         c, wid = by_key[x.trip.city_key], x.trip.window_id
-        hid = f"{today}_{c.key}_{wid}"
-        prev = previous_hit(c.key, wid, exclude_id=hid)
-        g = gates(x, c, s, prev)
-        if not (g["score_ok"] and g["realert_ok"]):
-            hc = HotelCheck((), None, "gated")   # lodging cannot change the score or the re-alert rule: save SerpApi
-        elif checks >= MAX_HOTEL_CHECKS_PER_SCAN:
-            hc = HotelCheck((), None, "cap")
-        else:
-            checks += 1
-            hc = check_hotels(c, x.trip.check_in, x.trip.nights, s, api_key=serp_key, cache_dir=day_cache, today=today)
-        x2, is_hit, reason = finalize_hit(x, c, hc, s, prev)
-        cand_ids.append(hid)
-        if s.mode == "dry-run" or is_hit:
-            evs, wx = context[(c.key, wid)]
-            j, _ = write_hit(x2, c, hc, evs, wx, s, gate=gates(x2, c, s, prev), is_hit=is_hit, scan_date=today)
-            if is_hit:
-                hit_ids.append(j.stem)
-        print(f"candidate {c.key} {wid}: {reason}", file=sys.stderr)
+        cid = candidate_id(today, c.key, wid)
+        prev = previous_candidate(c.key, wid, today=today)   # today's own file counts: a re-run spends nothing
+        if prev and not fare_dropped(x.trip.flights_cad_2pax, prev, s.realert_drop_pct):
+            passes[id(x)] = (2, prev["id"])   # looked at within 7 days and the fare has not dropped enough: no new lookups
+            print(f"candidate {c.key} {wid}: seen as {prev['id']}", file=sys.stderr)
+            continue
+        if checks >= MAX_CANDIDATES_PER_SCAN:
+            print(f"candidate {c.key} {wid}: over the {MAX_CANDIDATES_PER_SCAN} a scan", file=sys.stderr)
+            continue
+        checks += 1
+        check = check_lodging(c, x.trip.check_in, x.trip.check_out, s, api_key=serp_key, cache_dir=day_cache, today=today)
+        lookups += check.searches
+        write_candidate(x, c, refs[c.key], pass2(x, c, check, s), weather[(c.key, wid)], s, scan_date=today)
+        passes[id(x)] = (2, cid)
+        cand_ids.append(cid)
+        print(f"candidate {c.key} {wid}: pass 2, {len(check.options)} lodging options, {check.skipped or 'ok'}", file=sys.stderr)
+    none = (1, None)
+    rows = [quote_row(x, today, scan_ts, win, pass_=passes.get(id(x), none)[0], candidate_id=passes.get(id(x), none)[1])
+            for x, win in logged]
 
     today_file = Path("data/history") / f"{today}.jsonl"
     today_file.unlink(missing_ok=True)   # a re-run on the same day replaces that day's rows
@@ -155,15 +153,26 @@ def scan(args) -> int:
         "cache_hits": cache_hits, "budget_skipped": skipped, "fetch_error_count": len(errors),
         "fetch_errors": errors[:50], "blocked": blocked, "no_nonstop": no_nonstop,
         "windows": len(windows), "city_windows_with_trips": len(winners), "history_rows": len(rows),
+        "candidates": sum(x.candidate for x in winners), "pass2_checks": checks, "serpapi_lookups": lookups,
         "serpapi_used_this_month": used_this_month(today.strftime("%Y-%m")), "serpapi_cap": s.serpapi_monthly_cap,
-        "events_source": "ticketmaster" if tm_key else "none (no key)",
         "host": "github-actions" if os.environ.get("GITHUB_ACTIONS") else ("offline" if args.offline else "local"),
         "duration_s": round(time.time() - t0),
     }
-    write_latest(winners, list(cheapest_city.values()), cities, health, scan_date=today, scan_ts=scan_ts,
-                 mode=s.mode, hits=hit_ids, candidates=cand_ids)
+    classes = {k: {"enabled": v["enabled"], "candidate_threshold": v["candidate_threshold"], "hit_threshold": v["hit_threshold"]}
+               for k, v in s.trip_classes.items()}
+    classes["dayoff"]["min_weeks"] = s.dayoff_min_weeks
+    write_latest(winners, cities, refs, health, scan_date=today, scan_ts=scan_ts, mode=s.mode,
+                 candidates=cand_ids, passes=passes, classes=classes)
     export()
     write_weekly_summary(read_history(90, today=today), today=today)
+    return 0
+
+
+def finalize_cmd(args) -> int:
+    """Pass 3 for one candidate: the routine writes the research file, this does the arithmetic and the files."""
+    path = finalize(args.id, args.research, load_scoring(), load_interests())
+    write_hits_index()
+    print(path.as_posix())
     return 0
 
 
@@ -189,10 +198,13 @@ def main(argv=None) -> int:
     sp.add_argument("--cities", help="comma-separated city keys")
     sp.add_argument("--budget", type=int, default=900, help="max Google Flights fetch attempts")
     sp.add_argument("--deadline-min", type=float, default=110, help="stop starting new fetches after this many minutes")
+    fp = sub.add_parser("finalize")
+    fp.add_argument("id", help="candidate id, the file name in hits/candidates/ without .json")
+    fp.add_argument("--research", required=True, help="data/research/<city>-<window>.json")
     sub.add_parser("export")
     sub.add_parser("summarize")
     args = ap.parse_args(argv)
-    return {"scan": scan, "export": export, "summarize": summarize}[args.cmd](args)
+    return {"scan": scan, "finalize": finalize_cmd, "export": export, "summarize": summarize}[args.cmd](args)
 
 
 if __name__ == "__main__":

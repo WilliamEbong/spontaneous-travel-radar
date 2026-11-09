@@ -1,0 +1,169 @@
+# Route ladders: what each city normally costs, so a deal is judged against its own route (v2, D-57).
+# flights: CAD per person, round trip, carry-on included, any fare family (basic allowed). From
+#   docs/research/2026-11-09-fare-references.md (Google Flights typical floors, YYC Deals posts).
+# rooms: per night, before tax, in the city's hotel_currency (cities.yaml), for a 4-5 star room rated
+#   4.3+ in the listed neighbourhoods. winter = check-in Nov to Mar, summer = Apr to Oct.
+#   source: research (Vancouver winter), google-hotels <date> (scripts/room_references.py), or estimate
+#   (the old v1 hotel tiers, summer +30%) until that script has run for the city.
+# confidence: how solid the flight ladder is. nonstop: year-round | seasonal | none (from YYC).
+# Loader rule: exceptional < good < typical for every ladder, and every city in cities.yaml is here.
+
+new_york:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 650, good: 420, exceptional: 320}
+  rooms:
+    winter: {typical: 170, good: 130, exceptional: 95, source: google-hotels 2026-11-09}
+    summer: {typical: 275, good: 205, exceptional: 155, source: google-hotels 2026-11-09}
+
+chicago:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 550, good: 350, exceptional: 260}
+  rooms:
+    winter: {typical: 110, good: 80, exceptional: 65, source: google-hotels 2026-11-09}
+    summer: {typical: 335, good: 250, exceptional: 190, source: google-hotels 2026-11-09}
+
+montreal:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 520, good: 330, exceptional: 240}
+  rooms:
+    winter: {typical: 170, good: 130, exceptional: 100, source: google-hotels 2026-11-09}
+    summer: {typical: 355, good: 265, exceptional: 205, source: google-hotels 2026-11-09}
+
+san_francisco:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 480, good: 300, exceptional: 210}
+  rooms:
+    winter: {typical: 190, good: 140, exceptional: 110, source: google-hotels 2026-11-09}
+    summer: {typical: 430, good: 325, exceptional: 245, source: estimate}
+
+vancouver:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 200, good: 150, exceptional: 120}
+  rooms:
+    winter: {typical: 230, good: 170, exceptional: 130, source: research 2026-11-09}
+    summer: {typical: 510, good: 380, exceptional: 290, source: google-hotels 2026-11-09}
+
+seattle:
+  confidence: medium
+  nonstop: year-round
+  flights: {typical: 280, good: 200, exceptional: 160}
+  rooms:
+    winter: {typical: 130, good: 100, exceptional: 75, source: google-hotels 2026-11-09}
+    summer: {typical: 295, good: 220, exceptional: 170, source: google-hotels 2026-11-09}
+
+las_vegas:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 340, good: 230, exceptional: 170}
+  rooms:
+    winter: {typical: 200, good: 150, exceptional: 115, source: google-hotels 2026-11-09}
+    summer: {typical: 210, good: 160, exceptional: 120, source: google-hotels 2026-11-09}
+
+toronto:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 400, good: 280, exceptional: 200}
+  rooms:
+    winter: {typical: 180, good: 135, exceptional: 105, source: google-hotels 2026-11-09}
+    summer: {typical: 320, good: 240, exceptional: 185, source: google-hotels 2026-11-09}
+
+portland:
+  confidence: low
+  nonstop: seasonal
+  flights: {typical: 450, good: 300, exceptional: 200}
+  rooms:
+    winter: {typical: 115, good: 85, exceptional: 65, source: google-hotels 2026-11-09}
+    summer: {typical: 145, good: 105, exceptional: 80, source: google-hotels 2026-11-09}
+
+denver:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 500, good: 300, exceptional: 220}
+  rooms:
+    winter: {typical: 155, good: 115, exceptional: 90, source: google-hotels 2026-11-09}
+    summer: {typical: 245, good: 185, exceptional: 140, source: google-hotels 2026-11-09}
+
+san_diego:
+  confidence: medium
+  nonstop: seasonal
+  flights: {typical: 600, good: 380, exceptional: 260}
+  rooms:
+    winter: {typical: 195, good: 145, exceptional: 110, source: google-hotels 2026-11-09}
+    summer: {typical: 340, good: 255, exceptional: 195, source: google-hotels 2026-11-09}
+
+los_angeles:
+  confidence: high
+  nonstop: year-round
+  flights: {typical: 480, good: 300, exceptional: 220}
+  rooms:
+    winter: {typical: 230, good: 175, exceptional: 130, source: google-hotels 2026-11-09}
+    summer: {typical: 245, good: 185, exceptional: 140, source: google-hotels 2026-11-09}
+
+nashville:
+  confidence: medium
+  nonstop: seasonal
+  flights: {typical: 620, good: 400, exceptional: 280}
+  rooms:
+    winter: {typical: 140, good: 105, exceptional: 80, source: google-hotels 2026-11-09}
+    summer: {typical: 180, good: 135, exceptional: 105, source: google-hotels 2026-11-09}
+
+austin:
+  confidence: medium
+  nonstop: seasonal
+  flights: {typical: 650, good: 400, exceptional: 280}
+  rooms:
+    winter: {typical: 160, good: 120, exceptional: 90, source: google-hotels 2026-11-09}
+    summer: {typical: 160, good: 120, exceptional: 90, source: google-hotels 2026-11-09}
+
+palm_springs:
+  confidence: low
+  nonstop: seasonal
+  flights: {typical: 450, good: 300, exceptional: 230}
+  rooms:
+    winter: {typical: 370, good: 280, exceptional: 210, source: google-hotels 2026-11-09}
+    summer: {typical: 270, good: 205, exceptional: 155, source: google-hotels 2026-11-09}
+
+new_orleans:
+  confidence: low
+  nonstop: none
+  flights: {typical: 900, good: 550, exceptional: 380}
+  rooms:
+    winter: {typical: 230, good: 170, exceptional: 130, source: estimate}   # google-hotels 2026-11-09 saw 620 a night on 15-17 Jan 2027, an event weekend (D-68)
+    summer: {typical: 185, good: 140, exceptional: 105, source: google-hotels 2026-11-09}
+
+mexico_city:
+  confidence: medium
+  nonstop: year-round
+  flights: {typical: 850, good: 550, exceptional: 400}
+  rooms:
+    winter: {typical: 70, good: 55, exceptional: 40, source: google-hotels 2026-11-09}
+    summer: {typical: 85, good: 65, exceptional: 50, source: google-hotels 2026-11-09}
+
+quebec_city:
+  confidence: medium
+  nonstop: seasonal
+  flights: {typical: 720, good: 450, exceptional: 330}
+  rooms:
+    winter: {typical: 140, good: 105, exceptional: 80, source: google-hotels 2026-11-09}
+    summer: {typical: 285, good: 215, exceptional: 165, source: google-hotels 2026-11-09}
+
+boston:
+  confidence: medium
+  nonstop: seasonal
+  flights: {typical: 700, good: 420, exceptional: 300}
+  rooms:
+    winter: {typical: 160, good: 120, exceptional: 90, source: google-hotels 2026-11-09}
+    summer: {typical: 320, good: 240, exceptional: 185, source: google-hotels 2026-11-09}
+
+washington_dc:
+  confidence: medium
+  nonstop: none
+  flights: {typical: 650, good: 420, exceptional: 300}
+  rooms:
+    winter: {typical: 140, good: 105, exceptional: 80, source: google-hotels 2026-11-09}
+    summer: {typical: 180, good: 135, exceptional: 105, source: google-hotels 2026-11-09}

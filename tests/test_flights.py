@@ -79,7 +79,7 @@ def test_weekend_queries_are_non_stop_short_hops_with_basic_fares():
     qs = build_queries(load_cities(), ws, date(2026, 11, 10), CLASSES)
     dests = {q.dest for q in qs if q.origin == "YYC"}
     assert dests == {"SFO", "YVR", "SEA", "LAS", "PDX", "DEN", "PSP"}                  # air time <= 180 min, first airport
-    assert all(q.max_stops == 0 and not q.exclude_basic and q.key().endswith("-weekend") for q in qs)
+    assert all(q.max_stops == 0 and q.key().endswith("-weekend") for q in qs)
     fri = [q for q in qs if q.dest == "YVR" and q.day == date(2026, 11, 13)]
     sat = [q for q in qs if q.dest == "YVR" and q.day == date(2026, 11, 14)]
     sun = [q for q in qs if q.origin == "YVR" and q.day == date(2026, 11, 15)]
@@ -87,12 +87,11 @@ def test_weekend_queries_are_non_stop_short_hops_with_basic_fares():
 
 
 def test_classes_never_share_a_query():
-    s = load_scoring()
     today = date(2026, 11, 10)   # both classes over the same weekends, to force same-day legs
     ws = generate_windows(today, set()) + weekend_windows(today, 3, 42, "17:30", "12:00")
     qs = build_queries([c for c in load_cities() if c.key == "vancouver"], ws, today, EVERY_DAY)
     both = {(q.origin, q.dest, q.day) for q in qs if q.trip_class == "weekend"} & {(q.origin, q.dest, q.day) for q in qs if q.trip_class == "dayoff"}
-    assert both and all(q.exclude_basic == s.trip_classes[q.trip_class]["exclude_basic"] for q in qs)   # same day, two queries
+    assert both                                                                                         # same day, two queries
     assert len({q.key() for q in qs}) == len(qs)
 
 
@@ -103,12 +102,12 @@ def test_disabled_city_gets_no_queries():
     assert qs and not any("YVR" in (q.origin, q.dest) for q in qs)
 
 
-def test_daily_volume_stays_under_todays_702():
+def test_daily_volume_stays_at_or_under_688():
+    """Acceptance check 10 (v2): the dry-run query build over six weeks of scan days plans 572 to 688 a day (D-54)."""
     s = load_scoring()
-    for i in range(7):
-        today = date(2026, 11, 10) + timedelta(days=i)
-        n = len(build_queries(load_cities(), class_windows(today, s, set()), today, s.trip_classes))
-        assert 500 <= n <= 702, (today, n)                                              # D-52 budget
+    ns = [len(build_queries(load_cities(), class_windows(d, s, set()), d, s.trip_classes))
+          for d in (date(2026, 11, 10) + timedelta(days=i) for i in range(42))]
+    assert 500 <= min(ns) and max(ns) <= 688, (min(ns), max(ns))
 
 
 def test_slim_items_parse_the_same():
@@ -123,3 +122,26 @@ def test_corrupt_cache_file_is_a_miss(tmp_path):
     (tmp_path / f"{q.key()}.json").write_text("[[half-writ")
     with pytest.raises(FetchError, match="budget"):       # re-fetch attempted (no budget), no JSONDecodeError
         fetch_leg(q, Budget(max_attempts=0), cache_dir=tmp_path)
+
+
+def test_every_query_allows_basic_fares_with_a_carry_on(monkeypatch):
+    import radar.flights as fl
+    seen = {}
+    monkeypatch.setattr(fl, "create_query", lambda **kw: seen.update(kw))
+    monkeypatch.setattr(fl, "fetch_flights_html", lambda q: "")
+    monkeypatch.setattr(fl, "parse_items", lambda html: [])
+    fl._fetch_items(LegQuery("YYC", "YVR", date(2026, 12, 11)))
+    assert seen["exclude_basic_economy"] is False and seen["carry_on_bags"] == 1
+
+
+def test_fresh_fetch_shows_basic_fares():
+    """Live fetch 2026-11-09, YYC-YVR Fri 11 Dec, two adults, carry-on (acceptance check 3): with basic fares
+    allowed Flair appears and WestJet's own flight is cheaper (WestJet Basic carries the bag)."""
+    raw = load_fixture("ff_yyc_yvr_basic.json")
+    legs = {k: [to_leg(it, "YYC", "YVR", "America/Edmonton", "America/Vancouver") for it in raw[k]]
+            for k in ("exclude_basic_true", "exclude_basic_false")}
+    assert not any("F8" in leg.airlines for leg in legs["exclude_basic_true"])
+    assert any("F8" in leg.airlines for leg in legs["exclude_basic_false"])
+    price = lambda k, num: min(leg.price_cad_2pax for leg in legs[k] if num in leg.flight_numbers)  # noqa: E731
+    assert price("exclude_basic_false", "WS 101") < price("exclude_basic_true", "WS 101")        # 343 vs 450
+    assert min(leg.price_cad_2pax for leg in legs["exclude_basic_false"]) == 241

@@ -80,12 +80,14 @@ def weekend_windows(today: date, min_days: int, max_days: int, depart_from: str,
 
 def class_windows(today: date, s, holidays: set[date], extra: set[date] = frozenset(),
                   blocked: set[date] = frozenset()) -> list[Window]:
-    """Both trip classes from config/scoring.yaml: day-off blocks far enough out to get time approved,
-    plus weekend-only trips close in (when switched on)."""
-    lo = 7 * s.dayoff_min_weeks
-    out = generate_windows(today, holidays, lo, lo + 7 * s.trip_classes["dayoff"]["span_weeks"], extra=extra, blocked=blocked)
-    if s.weekend_trips:
-        wk = s.trip_classes["weekend"]
+    """Both trip classes from config/scoring.yaml, each when switched on: day-off blocks far enough out to get
+    time approved, plus weekend-only trips close in."""
+    tc, out = s.trip_classes, []
+    if tc["dayoff"]["enabled"]:
+        lo = 7 * s.dayoff_min_weeks
+        out += generate_windows(today, holidays, lo, lo + 7 * tc["dayoff"]["span_weeks"], extra=extra, blocked=blocked)
+    if tc["weekend"]["enabled"]:
+        wk = tc["weekend"]
         out += weekend_windows(today, wk["min_days"], wk["max_days"], wk["depart_from"], wk["depart_to"], blocked)
     return out
 

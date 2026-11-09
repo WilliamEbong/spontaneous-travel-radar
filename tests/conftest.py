@@ -23,6 +23,11 @@ def city(key):
     return next(c for c in load_cities() if c.key == key)
 
 
+def ref(key):
+    from radar.config import load_references
+    return load_references()[key]
+
+
 @pytest.fixture
 def vancouver_trip_fixture():
     from radar.itineraries import Trip
@@ -43,4 +48,4 @@ def nyc_one_stop_trip():
 def scored_vancouver(vancouver_trip_fixture):
     from radar.config import load_scoring
     from radar.score import score_trip
-    return score_trip(vancouver_trip_fixture, city("vancouver"), load_scoring(), n_events=2, weather_score=8, history_pct=None)
+    return score_trip(vancouver_trip_fixture, city("vancouver"), ref("vancouver"), load_scoring(), weather_score=8, history_pct=None)

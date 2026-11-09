@@ -4,42 +4,51 @@ From 2026-11-09 to about 2026-12-09 the radar collects, scores and logs every da
 alerts (`config/scoring.yaml: mode: dry-run`). The goal is to tune the scoring on real data before
 anything is allowed to interrupt you.
 
+Since v2 (D-57 to D-72) every trip is judged against what its own route normally costs
+(`config/references.yaml`), and the month also exercises the two closer looks on real candidates:
+pass 2 (real hotels and rentals within about 20 minutes of the centre, at most three a day, 2 SerpApi
+lookups each) and pass 3 (the daily routine researches what is on for those dates against
+`config/interests.yaml`). Learning-run hits land in `hits/dry-run/`, near misses in `hits/near-miss/`;
+nothing is emailed. Expect most days to have no candidate at all: quiet is correct.
+
 ## Every day (automatic)
 
 - The `scan` workflow runs at 10:17 UTC (03:17 MST), commits `data/` and `hits/dry-run/`, and
   redeploys the dashboard: https://williamebong.github.io/spontaneous-travel-radar/
 - The `radar-daily` routine (Opus 5.5) runs at 12:30 UTC (05:30 Calgary), 2026-11-10 to 2026-12-08.
-  It merges or drops yesterday's change after reading Codex's review, checks today's data, makes at
+  It merges or drops yesterday's change after reading Codex's review, runs pass 3 on today's
+  candidates, checks today's data, makes at
   most one change as a pull request, writes a short note to `data/digests/<date>.md` (shown on the
   dashboard), and logs one line in `docs/iteration-log.md`. Most days it changes nothing.
   Prompt and rules: `routine/PROMPT-daily.md`.
-- Check the Health panel now and then: coverage above 80%, no "Blocked by Google", SerpApi under 60.
+- Check the Health panel now and then: coverage above 80%, no "Blocked by Google", SerpApi under 200.
 - Two kinds of trip are scanned (D-52). Day-off trips start 6 weeks out (change it in Settings, 2 to
   12 weeks) so you can both get the time approved. Weekend-only trips run the next 6 weeks, leave
-  Friday after 5:30 pm, come home Sunday by 4 pm, non-stop and short hops only, and fire only when
-  exceptional. Turn them off in Settings if you don't want them. A city's card lists them under
-  "Weekend trips, no day off".
+  Friday after 5:30 pm, come home Sunday by 4 pm, non-stop and short hops only. Both classes use the
+  same lines (70 for a closer look, 80 for a hit), each with its own switch and hit line in Settings.
+  Weekend trips are the gold ones on the page ("No day off needed").
 
 ## Every Monday (15 minutes)
 
 1. The Monday note from `radar-daily` is the weekly digest: up to 20 lines with the week's summary
    and two config changes to consider.
-2. Open the dashboard and the digest side by side. Look at "Would have fired": would you really have
-   booked those? Look at the band pills in "Best right now": is everything "bad" (bands too tight)
-   or everything "amazing" (too loose)?
+2. Open the dashboard and the digest side by side. Look at the hits and the Passed list: would you
+   really have booked those? Open a brief: are the lodging and the what's-on finds the kind you would
+   pick? Look at the ladder pills on the city cards: is everything "above typical" (ladders too low) or
+   everything "exceptional" (too high)?
 3. Look over the week's pull requests and `docs/iteration-log.md`. To undo a merged change, revert
    its commit; each PR body says how. You can still edit `config/scoring.yaml` or
    `config/cities.yaml` yourself; the routine reads the decisions log before changing anything.
 
 ## Exit checklist (all must hold before going live)
 
-- [ ] 21+ days of history for every city (`data/history/` has 21+ files; the dashboard's
-      "vs history" column shows percentiles instead of "building").
-- [ ] Dry-run hits reviewed: false positives understood and fixed by tuning.
-- [ ] Flight bands and per-city `bar_cad` adjusted from the data.
-- [ ] The hotel check ran on at least 3 dry-run candidates, and one total was checked by hand
-      against Google Hotels.
-- [ ] `data/serpapi_usage.json` stayed under the cap every month.
+- [ ] 21+ days of history for every city (`data/history/` has 21+ files; each city's price
+      history on the dashboard has 21+ points).
+- [ ] Dry-run hits and near misses reviewed: false positives understood and fixed by tuning.
+- [ ] Route ladders checked against the data (the 2026-12-09 tune refits the flight ladders).
+- [ ] Pass 2 ran on at least 3 candidates, and one total was checked by hand against Google Hotels.
+- [ ] Pass 3 ran on at least 3 candidates, and its what's-on finds looked right to you.
+- [ ] `data/serpapi_usage.json` stayed under the cap (200) every month.
 - [ ] Coverage in Health consistently above 80%.
 
 ## Going live
@@ -55,18 +64,18 @@ anything is allowed to interrupt you.
 - 2026-12-08: the last `radar-daily` run writes a month-one summary instead of a daily note: what
   changed, open issues, band state. It makes no change that day.
 - 2026-12-09 06:00 Calgary: the one-shot `radar-tune` routine (Opus) follows
-  `docs/TUNING-PLAN.md`. It builds an offline backtest over all of `data/history/`, switches flight
-  bands to rolling percentiles of each route's own last 60 days (static bands stay as the fallback
-  until a route has 14 scan days), then tunes `config/scoring.yaml` in at most 60 keep-or-revert
-  trials. It opens one PR, `radar/tune-2026-12-09`, with the metric before and after, and writes a
+  `docs/TUNING-PLAN.md`. It builds an offline backtest over all of `data/history/`, switches the
+  flight ladders to rolling percentiles of each route's own last 60 days (the static ladders stay as
+  the fallback until a route has 14 scan days), then tests the price anchors and tunes
+  `config/scoring.yaml` in at most 60 keep-or-revert trials. It opens one PR, `radar/tune-2026-12-09`, with the metric before and after, and writes a
   note to the dashboard. If fewer than 21 scan days exist, the PR is a draft.
-- You: read the PR and its review comments, then merge it (or not). Rolling bands mean no more hand
-  retunes; `flight_band_mode: static` in `config/scoring.yaml` undoes it.
+- You: read the PR and its review comments, then merge it (or not). Rolling ladders mean no more hand
+  retunes; `ladder_mode: static` in `config/scoring.yaml` undoes it.
 - Known bias: Christmas and New Year windows inflate fares, so the tune excludes 2026-12-18 to
-  2027-01-04 from band percentiles.
+  2027-01-04 from ladder percentiles.
 - The metric uses your "book / skip" taps once 30 exist (`data/labels.jsonl`, a future dashboard
-  button). Until then it checks that each route's "amazing" fires on 1 to 5% of fares and "good"
-  on 10 to 20%.
+  button). Until then it checks that each route's "exceptional" covers 1 to 5% of fares, "good or
+  better" 10 to 25%, and that a few trips a week earn a closer look.
 
 ## Usage guard
 

@@ -1,6 +1,6 @@
 # The 20 tracked cities (design section 5). Edit freely; the loader validates every field.
-# bar_cad: complete-trip bar for two = ceil50(2 x amazing flight threshold + good-band hotel midpoint
-#   (cheap 240, mid 380, expensive 550; USD converted at 1.40) + 4 x transfer). Lower it to make a city harder to trigger.
+# Route ladders (typical, good and exceptional fares and room rates) live in config/references.yaml.
+# hotel_tax: room taxes and fees as a factor on the pre-tax rate; optional, defaults 1.15 CA, 1.16 US, 1.19 MX.
 # climate: month -> [mean high C, mean low C, days with precipitation]; approximate 1991-2020 normals, seeds only.
 # airports: the first is the preferred (usually non-stop) airport; the rest are queried on alternating days.
 # season_months: empty = year-round. BNA, AUS and SAN routes are likely seasonal (health flags no non-stop found).
@@ -14,18 +14,15 @@ cities:
     rank: 10
     airports: [EWR, JFK, LGA]
     tz: America/New_York
-    lat: 40.7128
-    lon: -74.006
+    lat: 40.7359             # Union Square: between the listed neighbourhoods (City Hall put Midtown 4-6 km out)
+    lon: -73.9911
     airport_to_core_min: 45
     air_time_min: 270
     transfer_cost_cad_pp_each_way: 23
     car_needed: false
     neighbourhoods: [Midtown Manhattan, Lower East Side, Williamsburg]
     season_months: []
-    flight_group: nyc_tier2
-    hotel_group: expensive
     hotel_currency: USD
-    bar_cad: 1550
     climate:
       1: [3.9, -2.6, 11]
       2: [5.5, -1.7, 10]
@@ -54,10 +51,7 @@ cities:
     car_needed: false
     neighbourhoods: [The Loop, River North, West Loop]
     season_months: []
-    flight_group: yul_ord
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1100
     climate:
       1: [-0.6, -8.2, 11]
       2: [1.7, -6.5, 9]
@@ -86,10 +80,7 @@ cities:
     car_needed: false
     neighbourhoods: [Old Montreal, Plateau Mont-Royal, Downtown Montreal]
     season_months: []
-    flight_group: yul_ord
-    hotel_group: cheap
     hotel_currency: CAD
-    bar_cad: 800
     climate:
       1: [-5.3, -14.0, 17]
       2: [-3.2, -12.2, 13]
@@ -118,10 +109,7 @@ cities:
     car_needed: false
     neighbourhoods: [Union Square, SoMa, Nob Hill]
     season_months: []
-    flight_group: medium
-    hotel_group: expensive
     hotel_currency: USD
-    bar_cad: 1300
     climate:
       1: [14.3, 7.6, 11]
       2: [15.9, 8.6, 10]
@@ -150,10 +138,8 @@ cities:
     car_needed: false
     neighbourhoods: [Downtown Vancouver, Gastown, Yaletown]
     season_months: []
-    flight_group: yvr
-    hotel_group: mid
     hotel_currency: CAD
-    bar_cad: 700
+    hotel_tax: 1.185         # GST 5% + PST 8% + MRDT 3% + fees, as Google Hotels showed 2026-11-09
     climate:
       1: [6.9, 1.4, 19]
       2: [8.2, 1.6, 15]
@@ -182,10 +168,7 @@ cities:
     car_needed: false
     neighbourhoods: [Downtown Seattle, Capitol Hill, Belltown]
     season_months: []
-    flight_group: sea_pdx
-    hotel_group: cheap
     hotel_currency: USD
-    bar_cad: 800
     climate:
       1: [8.4, 2.3, 18]
       2: [9.9, 2.4, 15]
@@ -214,10 +197,7 @@ cities:
     car_needed: false
     neighbourhoods: [The Strip, Downtown Las Vegas]
     season_months: []
-    flight_group: medium
-    hotel_group: mid      # every window has a Fri/Sat night, when Vegas hotels price as mid
     hotel_currency: USD
-    bar_cad: 1050
     climate:
       1: [14.6, 4.2, 3]
       2: [17.2, 6.4, 3]
@@ -246,10 +226,7 @@ cities:
     car_needed: false
     neighbourhoods: [Downtown Toronto, King West, Yorkville]
     season_months: []
-    flight_group: yyz
-    hotel_group: mid
     hotel_currency: CAD
-    bar_cad: 850
     climate:
       1: [-0.7, -6.7, 16]
       2: [0.4, -6.0, 12]
@@ -278,10 +255,7 @@ cities:
     car_needed: false
     neighbourhoods: [Pearl District, Downtown Portland]
     season_months: []
-    flight_group: sea_pdx
-    hotel_group: cheap
     hotel_currency: USD
-    bar_cad: 800
     climate:
       1: [8.6, 2.1, 18]
       2: [10.7, 2.3, 15]
@@ -310,10 +284,7 @@ cities:
     car_needed: false
     neighbourhoods: [LoDo, RiNo]
     season_months: []
-    flight_group: medium
-    hotel_group: cheap
     hotel_currency: USD
-    bar_cad: 850
     climate:
       1: [7.2, -7.8, 4]
       2: [8.1, -7.0, 5]
@@ -342,10 +313,7 @@ cities:
     car_needed: false
     neighbourhoods: [Gaslamp Quarter, Little Italy]
     season_months: []
-    flight_group: medium
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1050
     climate:
       1: [19.7, 9.9, 7]
       2: [19.6, 10.9, 7]
@@ -372,12 +340,9 @@ cities:
     air_time_min: 192
     transfer_cost_cad_pp_each_way: 28
     car_needed: false
-    neighbourhoods: [Santa Monica, Downtown Los Angeles, Silver Lake]
+    neighbourhoods: [Downtown Los Angeles, Silver Lake, Santa Monica]   # first = lodging search; Santa Monica is 22 km from the centre
     season_months: []
-    flight_group: medium
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1100
     climate:
       1: [20.0, 9.3, 6]
       2: [20.4, 9.9, 6]
@@ -406,10 +371,7 @@ cities:
     car_needed: false
     neighbourhoods: [Downtown Nashville, The Gulch]
     season_months: []
-    flight_group: yul_ord
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1150
     climate:
       1: [9.0, -1.4, 11]
       2: [11.6, 0.6, 11]
@@ -438,10 +400,7 @@ cities:
     car_needed: false
     neighbourhoods: [Downtown Austin, South Congress]
     season_months: []
-    flight_group: yul_ord
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1150
     climate:
       1: [17.4, 4.7, 8]
       2: [19.5, 6.6, 7]
@@ -470,10 +429,7 @@ cities:
     car_needed: false
     neighbourhoods: [Downtown Palm Springs, Uptown Design District]
     season_months: [11, 12, 1, 2, 3, 4]
-    flight_group: medium
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1050
     climate:
       1: [21.3, 7.7, 3]
       2: [23.0, 9.3, 3]
@@ -502,10 +458,7 @@ cities:
     car_needed: false
     neighbourhoods: [French Quarter, Warehouse District, Garden District]
     season_months: []
-    flight_group: nyc_tier2
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1300
     climate:
       1: [17.4, 7.6, 10]
       2: [19.6, 9.6, 9]
@@ -526,18 +479,15 @@ cities:
     rank: 9
     airports: [MEX, NLU]
     tz: America/Mexico_City
-    lat: 19.4326
-    lon: -99.1332
+    lat: 19.4194             # Roma Norte (the Zocalo put every listed neighbourhood 3-4 km out)
+    lon: -99.1617
     airport_to_core_min: 30
     air_time_min: 420
     transfer_cost_cad_pp_each_way: 10
     car_needed: false
     neighbourhoods: [Roma Norte, Condesa, Polanco]
     season_months: []
-    flight_group: nyc_tier2
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1250
     climate:
       1: [21.9, 5.4, 3]
       2: [23.6, 6.5, 3]
@@ -566,10 +516,7 @@ cities:
     car_needed: false
     neighbourhoods: [Old Quebec, Saint-Roch]
     season_months: []
-    flight_group: nyc_tier2
-    hotel_group: cheap
     hotel_currency: CAD
-    bar_cad: 1000
     climate:
       1: [-7.9, -17.7, 19]
       2: [-5.6, -15.7, 15]
@@ -598,10 +545,7 @@ cities:
     car_needed: false
     neighbourhoods: [Back Bay, Downtown Boston, Seaport]
     season_months: []
-    flight_group: nyc_tier2
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1200
     climate:
       1: [2.2, -5.7, 11]
       2: [3.6, -4.3, 10]
@@ -630,10 +574,7 @@ cities:
     car_needed: false
     neighbourhoods: [Penn Quarter, Dupont Circle]
     season_months: []
-    flight_group: nyc_tier2
-    hotel_group: mid
     hotel_currency: USD
-    bar_cad: 1200
     climate:
       1: [6.8, -1.7, 10]
       2: [8.9, -0.6, 9]
