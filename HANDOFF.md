@@ -16,15 +16,14 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   are in the local `.env` (gitignored).
 - Routines (month one on Opus 5.5, D-28; Gmail connector only):
   - `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *` (05:30 Calgary),
-    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Still disabled**:
-    the probe passed, but the auto-mode permission check refused to let this session enable it.
-    William turns it on at https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw (or approves
-    the call). The next 12:30 UTC slot is its first run.
-  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, still **enabled** as the fallback. Disable it
-    right after `radar-daily` is on (D-30).
+    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Enabled**
+    2026-11-09 16:10 UTC from the main session on William's say-so; first run 2026-11-10 12:36 UTC.
+    Manage at https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw.
+  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, **disabled** 2026-11-09 16:10 UTC (folded into
+    `radar-daily`, D-30; William does not want the separate email).
   - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, Sonnet, **disabled**, no schedule, no webhook.
   - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, done. The re-run at 15:43 UTC passed for push
-    auth, PR open and comment read; Codex did not review the probe PR (D-36). Results in
+    auth, PR open and comment read; Codex did not review the probe PR (D-37). Results in
     `routine/CAPABILITIES.md`.
   - first probe `trig_01XmaxqFZGSsnebpkB8VweMi`, done (read yes, push no, email yes).
 - Codex review: William enabled automatic review on the repo (On PR open), but it did not review
@@ -32,8 +31,8 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   fallback is doing the reviewing. Check the first PR's comments.
 - Merged `radar/iter-*` branches stay on GitHub (the routine cannot delete branches). Turning on
   "Automatically delete head branches" in the repo settings would clean them up.
-- Dashboard redesign is on branch `worktree-dashboard-v2` (not merged). `index.html` and `site/` are
-  off-limits to the routine either way.
+- Dashboard v2 merged to `main` (0ef0b69) and live on Pages, 2026-11-09. `index.html` and `site/` stay
+  off-limits to the routine.
 
 ## Enable procedure for `radar-daily` (done 2026-11-09; kept for a re-enable)
 

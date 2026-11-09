@@ -32,7 +32,7 @@ Same routine, session https://claude.ai/code/session_01Gg7wyfFw3xwuy2BJwjMnW8.
 | (a) push to `main` | **Auth passes.** `git push --dry-run origin main` no longer returns 403; it was rejected only as non-fast-forward (the run's detached checkout was behind). The daily prompt pulls and rebases before every push, and emails the note if a push still fails. |
 | (b) branch push and PR | **Yes.** `radar/probe-202611091543` pushed; `create_pull_request` opened PR #1 (author `WilliamEbong`). |
 | (c) read PR comments | **Yes.** Unauthenticated REST (`/pulls/1/reviews`, `/pulls/1/comments`, `/issues/1/comments`) and `pull_request_read get_reviews` all return 200. |
-| Codex review | **None arrived.** No review, comment or reaction in the 8 minutes before the probe closed the PR, and none since (checked 16:00 UTC). The daily prompt therefore falls back to a fresh-context reviewer subagent whenever a PR has no review (D-36). |
+| Codex review | **None arrived.** No review, comment or reaction in the 8 minutes before the probe closed the PR, and none since (checked 16:00 UTC). The daily prompt therefore falls back to a fresh-context reviewer subagent whenever a PR has no review (D-37). |
 | Close PR | **Yes**, `update_pull_request state: closed`. |
 | Delete remote branch | **No.** The git proxy refuses branch deletes and there is no tool for it, so merged `radar/iter-*` branches will stay unless the repo setting "Automatically delete head branches" is turned on. The probe branch was deleted from this PC. |
 | Python | `python` is 3.11 but bare `pip` installs into 3.13. The prompt now uses `python -m pip` and `python -m pytest`. 58 tests pass. |
