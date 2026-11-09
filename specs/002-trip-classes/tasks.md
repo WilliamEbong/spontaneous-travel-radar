@@ -6,7 +6,7 @@
 - [x] T204 Trips, scoring, gates: `Trip.trip_class`, weekend candidate rule, per-class gates (FR-203)
 - [x] T205 Scan loop: class-keyed legs, per-class percentile, `trip_class` on rows, latest and hits; day-off-only series and summary stats (FR-206, FR-207)
 - [x] T206 Tests: window boundaries, city filter, gates, rotation count, offline scan with `trip_class` (SC-201, SC-202)
-- [ ] T207 Dashboard: class labels, weekend grouping, hero gates text, hint copy (FR-208)
-- [ ] T208 Settings panel: weeks slider and weekend switch (FR-209)
-- [ ] T209 Playwright check at 375 px and desktop width (SC-203)
+- [x] T207 Dashboard: class labels, weekend grouping, hero gates text, hint copy (FR-208)
+- [x] T208 Settings panel: weeks slider and weekend switch (FR-209)
+- [x] T209 Playwright check at 375 px and desktop width (SC-203)
 - [ ] T210 Docs: design doc, spec 001 FRs, decisions with budget numbers, HANDOFF, LEARNING-RUN, TUNING-PLAN, PROMPT-daily

@@ -3,7 +3,7 @@
 
 const TZ = "America/Edmonton";
 const STALE_HOURS = 30;
-const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Thu stat, 4 days", "stat-tue-4d": "Tue stat, 4 days" };
+const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Thu stat, 4 days", "stat-tue-4d": "Tue stat, 4 days", weekend: "Weekend" };
 const BANDS = ["amazing", "good", "average", "bad"];
 
 const $ = (id) => document.getElementById(id);
@@ -54,7 +54,7 @@ function span(a, b) {
   const sameMonth = a.slice(0, 7) === b.slice(0, 7);
   return `${dayOf(a, sameMonth ? { weekday: "short", day: "numeric" } : { weekday: "short", day: "numeric", month: "short" })} – ${dayOf(b, { weekday: "short", day: "numeric", month: "short" })}`;
 }
-// The long weekend itself (days off), from the window id "<day 1>_<pattern>": a 3-day block, or 4 with a stat.
+// The trip's days, from the window id "<day 1>_<pattern>": a 3-day block, 4 with a stat, or Fri to Sun for "weekend".
 function windowLabel(r) {
   const [first, pattern] = r.window_id.split("_");
   const last = new Date(first + "T12:00:00Z");
@@ -197,7 +197,7 @@ function renderMd(md, base = 3) {
 // Hit ids are "<scan date>_<city>_<window id>"; the window id is the tail after the city key.
 const hitWindowId = (r) => r.id.slice(r.id.indexOf(r.city) + r.city.length + 1);
 const hitWindow = (r) => windowLabel({ window_id: hitWindowId(r) });
-const GATES = "an amazing fare (or a good one in the cheapest tenth of its history), a score of 80 or more, and a complete trip under the city's bar";
+const GATES = "an amazing fare (or a good one in the cheapest tenth of its history), a score of 80 or more, and a complete trip under the city's bar; a weekend-only trip needs an amazing fare, a score of 88 or more and a complete trip under 70% of the bar";
 function hitCard(r, note, base) {
   const d = el("details", {});
   d.append(el("summary", {},
@@ -262,13 +262,16 @@ function cityCard(r, ctx) {
 
 function cityBody(r, { series, windows }) {
   const body = el("div", { class: "body" });
-  const left = el("div", {}, el("h3", { class: "sub-h", text: "Cheapest fare per person on any long weekend, by scan day" }), history(series[r.city], r.city_name));
+  const left = el("div", {}, el("h3", { class: "sub-h", text: "Cheapest fare per person on any day-off trip, by scan day" }), history(series[r.city], r.city_name));
   const right = el("div", {});
   const ws = windows.filter((w) => w.city === r.city).sort((a, b) => a.dates.check_in.localeCompare(b.dates.check_in));
-  if (ws.length) {
-    right.append(el("h3", { class: "sub-h", text: "Every long weekend" }));
+  // Weekend-only trips (no day off, basic fares allowed) get their own table below the long weekends.
+  for (const [title, rows] of [["Every long weekend", ws.filter((w) => w.trip_class !== "weekend")],
+                               ["Weekend trips, no day off", ws.filter((w) => w.trip_class === "weekend")]]) {
+    if (!rows.length) continue;
+    right.append(el("h3", { class: "sub-h", text: title }));
     const tbody = el("tbody");
-    for (const w of ws) {
+    for (const w of rows) {
       tbody.append(el("tr", { class: w.window_id === r.window_id ? "is-best" : null },
         el("th", { scope: "row" }, el("span", { text: windowLabel(w) }), el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)}` })),
         el("td", {}, bandPill(w.band)),

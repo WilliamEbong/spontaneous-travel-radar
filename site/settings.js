@@ -71,7 +71,8 @@ async function loadConfig() {
   if (!Array.isArray(c.cities) || !c.cities.length) throw new Error("config/cities.yaml on GitHub has no cities list.");
   S.cities = c.cities.map((x) => ({ key: String(x.key), name: String(x.name), airports: (x.airports || []).join(" · "), enabled: x.enabled !== false, bar: Number(x.bar_cad) }));
   S.days = { extra: new Set((d.extra || []).map(String)), blocked: new Set((d.blocked || []).map(String)) };
-  S.alerts = { mode: String(s.mode), threshold: Number(s.score_threshold), drop: Number(s.realert_drop_pct) };
+  S.alerts = { mode: String(s.mode), threshold: Number(s.score_threshold), drop: Number(s.realert_drop_pct),
+    weeks: Number(s.dayoff_min_weeks), weekend: s.weekend_trips === true };
   S.stats = new Set((h[h.calendar] || []).map(String));
   S.base = snapshot();
 }
@@ -110,6 +111,8 @@ function validate() {
   if (a.mode !== "dry-run" && a.mode !== "live") return "Mode must be learning run or live.";
   if (!Number.isInteger(a.threshold) || a.threshold < 0 || a.threshold > 100) return "The score threshold must be a whole number from 0 to 100.";
   if (!Number.isInteger(a.drop) || a.drop < 0 || a.drop > 100) return "The re-alert drop must be a whole number from 0 to 100.";
+  if (!Number.isInteger(a.weeks) || a.weeks < 2 || a.weeks > 12) return "Day-off trips must start a whole number of weeks out, from 2 to 12.";
+  if (typeof a.weekend !== "boolean") return "Weekend trips must be on or off.";
   for (const k of ["extra", "blocked"]) {
     for (const d of S.days[k]) {
       const t = Date.parse(d + "T12:00:00Z");
@@ -166,7 +169,7 @@ function editCities(orig) {
 }
 
 function editScoring(orig) {
-  const keys = { mode: "mode", threshold: "score_threshold", drop: "realert_drop_pct" };
+  const keys = { mode: "mode", threshold: "score_threshold", drop: "realert_drop_pct", weeks: "dayoff_min_weeks", weekend: "weekend_trips" };
   let next = lf(orig);
   for (const [k, yk] of Object.entries(keys)) {
     if (S.alerts[k] === S.base.alerts[k]) continue;                              // untouched here: keep whatever the daily routine wrote
@@ -255,7 +258,7 @@ function notice(text, retry) {
 }
 
 function render() {
-  $("settings-body").replaceChildren(connectSection(), citiesSection(), daysSection(), alertsSection(), scanSection());
+  $("settings-body").replaceChildren(connectSection(), citiesSection(), daysSection(), tripsSection(), alertsSection(), scanSection());
   refreshFoot();
 }
 
@@ -461,6 +464,23 @@ function dayCell(d, n, today) {
   return b;
 }
 
+const WEEKEND_HINT = (on) => on
+  ? "Weekend-only trips (leave Friday after 5:30 pm, home Sunday by 4 pm, non-stop, 3 hours or less) are scanned for the next 6 weeks. They need no day off, so they fire only when exceptional."
+  : "Off: only trips that use a day off are scanned.";
+function tripsSection() {
+  const sec = el("section", { class: "pset", "aria-labelledby": "s-trips" });
+  const cb = el("input", { type: "checkbox", role: "switch", "aria-labelledby": "weekend-l", checked: S.alerts.weekend ? "" : null });
+  const hint = el("p", { class: "hint", text: WEEKEND_HINT(S.alerts.weekend) });
+  cb.addEventListener("change", () => { S.alerts.weekend = cb.checked; hint.textContent = WEEKEND_HINT(cb.checked); touched(); });
+  sec.append(el("h3", { id: "s-trips", text: "Trips" }),
+    slider("weeks", "Day-off trips at least", 2, 12, " weeks", (v) => `Trips that need a day off start ${v} weeks out and run to ${Number(v) + 10} weeks, so you both have time to get it approved.`),
+    el("div", { class: "field" },
+      el("div", { class: "field-head" }, el("span", { class: "flabel", id: "weekend-l", text: "Weekend trips" }),
+        el("label", { class: "switch" }, cb, el("span", { class: "track", "aria-hidden": "true" }))),
+      hint));
+  return sec;
+}
+
 function alertsSection() {
   const sec = el("section", { class: "pset", "aria-labelledby": "s-alerts" });
   const seg = el("fieldset", { class: "seg wide" }, el("legend", { class: "sr", text: "Mode" }));
@@ -497,7 +517,7 @@ function scanSection() {
   if (!token()) return sec;
   const label = el("span", { text: "Run scan now" });
   const btn = el("button", { class: "btn", type: "button" }, icon("i-play"), label);
-  const note = el("p", { class: "hint", text: "Needs the token to have Actions: Read and write. A full scan is about 700 Google requests, so at most once a day." });
+  const note = el("p", { class: "hint", text: "Needs the token to have Actions: Read and write. A full scan is about 600 to 700 Google requests, so at most once a day." });
   let armed = 0;
   btn.addEventListener("click", async () => {
     if (!armed) {                                                              // two taps, so a stray tap cannot start an hour-long run
