@@ -107,6 +107,22 @@ fixed budget per trial, and keep or revert.
 - Stay out of `radar/windows.py`, `radar/flights.py`, `config/days_off.yaml`, `index.html` and
   `site/` unless they are already merged on `main` and the change truly needs them.
 
+## (d2) Round-trip reprice for candidates only (if `radar-daily` has not shipped it)
+
+The one-way sums we scan with run above what William sees in Google. Evidence (2026-11-09):
+- YYC-YYZ, Air Canada, Nov 27 out, Dec 6 back, 1 adult, carry-on, no basic: one-way sum
+  417 + 402 = 819, round-trip query 793 (3% lower). Google's own headline for those flights was 708
+  (Standard fare, carry-on included).
+- LAS (day-one smoke test, two adults): round trip 1,778 vs one-way sum 2,050 (13% lower).
+- So the sums run about 10 to 15% above Google's headline.
+
+Check `docs/iteration-log.md`. If no `radar/iter-*` PR shipped this, add it on the tune branch as its
+own commit after (d) and before the loop: for candidates only, before the hotel check, one
+fast-flights round-trip query for the same flights, counted inside the existing scan budget. Use the
+lower of the two prices in the brief and the trip total; keep one-way sums for scanning, bands,
+scores and history, so the backtest is unaffected. Test with a fixture round-trip payload. If
+`radar/flights.py` has unmerged work from another session, skip this and say so in the PR.
+
 ## (e) Deliverable
 
 - One branch and PR, `radar/tune-2026-12-09`, into `main`. Body: data span (scan days, rows),

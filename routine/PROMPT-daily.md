@@ -52,11 +52,20 @@ Look for:
 Only for a high-confidence finding. Either a code fix with a test, or a config tweak backed by the
 numbers. Do not change a parameter class that a PR merged in the last 3 days already changed (its
 effect is not in the data yet). Classes: flight bands, hotel bands, weights, score threshold,
-per-city `bar_cad`, airports, code fix. One class per day.
+per-city `bar_cad`, airports, round-trip reprice, code fix. One class per day.
 - Band retune rule: a band group changes only when every city in it has 7 or more scan days. Set
   amazing/good/average at about p10/p25/p50 of those cities' `price_pp`, never below the lowest
   observed `min`.
-- Never: new dependencies, paid services, more requests (cron, `--budget`, lookahead), the hard
+- Round-trip reprice (a one-time feature; check `docs/iteration-log.md` that it is not already
+  done): for candidates only, before the hotel check, make one fast-flights round-trip query for
+  the same flights. Use the lower of the round-trip price and the one-way sum in the brief and in the
+  trip total. Keep one-way sums for scanning, bands and scores. At most one query per candidate,
+  inside the existing `--budget`, with a test. Evidence (2026-11-09): YYC-YYZ (Air Canada, Nov 27 out,
+  Dec 6 back, 1 adult, carry-on, no basic) one-way sum 417+402 = 819, round trip 793 (3% lower);
+  LAS smoke test round trip 13% lower (1,778 vs 2,050 for two). Google's own headline for the YYZ
+  flights was 708, so one-way sums run 10 to 15% above what William sees.
+- Never: new dependencies, paid services, more requests (cron, `--budget`, lookahead; the
+  round-trip reprice above is the one exception), the hard
   window rule (`radar/windows.py` and its times), secrets or `.env`, `.github/workflows/`,
   `routine/` (your own instructions), `index.html`, `site/`.
 - Work on a new branch `radar/iter-<date>`. `python -m pytest -q` must pass. Commit with a
