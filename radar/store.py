@@ -15,6 +15,9 @@ def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool) -> dict:
         "airlines": "+".join(dict.fromkeys(t.out.airlines + t.back.airlines)),
         "stops_out": t.out.stops, "stops_back": t.back.stops, "flights_cad_2pax": t.flights_cad_2pax,
         "price_pp": x.price_pp, "band": x.band, "score": x.score, "candidate": x.candidate, "winner": winner,
+        # the backtest (docs/TUNING-PLAN.md) re-scores a config variant as score - price_pts + new price points
+        "price_pts": round(x.components.price, 2),
+        "history_pct": None if x.history_pct is None else round(x.history_pct, 1),
     }
 
 

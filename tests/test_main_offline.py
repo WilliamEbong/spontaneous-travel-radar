@@ -30,7 +30,9 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
         assert all(b["flights_cad_2pax"] <= w["flights_cad_2pax"] for w in latest["windows"] if w["city"] == b["city"])
     for f in ("data/series.json", "data/weekly-summary.json", "hits/index.json", "data/digests/index.json"):
         assert (tmp_path / f).exists(), f
-    n = len((tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines())
+    hist = [json.loads(line) for line in (tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines()]
+    assert all(0 <= r["price_pts"] <= 40 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input
+    n = len(hist)
     assert n > 0 and radar_main.main(ARGS) == 0                        # a re-run replaces the day, no duplicates
     assert len((tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines()) == n
 
