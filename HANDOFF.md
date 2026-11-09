@@ -38,6 +38,12 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   "Automatically delete head branches" in the repo settings would clean them up.
 - Dashboard v2 merged to `main` (0ef0b69) and live on Pages, 2026-11-09. `index.html` and `site/` stay
   off-limits to the routine.
+- Settings panel merged to `main` (897b491) and live, 2026-11-09 (D-43 to D-48): gear in the app bar;
+  cities on/off and order, per-city `bar_cad`, days off (`config/days_off.yaml`, read by
+  `generate_windows`), alert mode and threshold; Save writes through the GitHub Contents API with a
+  fine-grained token William pastes once (steps in `README.md`, "Settings from the dashboard"). The
+  token lives in the browser only. The routine may edit `config/scoring.yaml`; the panel retries on a
+  sha conflict. William has not created the token yet as of this note.
 
 ## Enable procedure for `radar-daily` (done 2026-11-09; kept for a re-enable)
 
