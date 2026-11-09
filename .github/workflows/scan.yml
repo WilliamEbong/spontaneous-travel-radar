@@ -1,5 +1,5 @@
 name: scan
-# Daily collector + Pages deploy. A push that touches the dashboard only redeploys Pages (no scan).
+# Daily collector + Pages deploy. A push that touches the dashboard or the digests only redeploys Pages (no scan).
 on:
   schedule:
     - cron: "17 10 * * *"   # 03:17 MST / 04:17 MDT; a full scan takes about 80 min, done before the Monday 07:00 digest
@@ -15,7 +15,7 @@ on:
         default: "900"
   push:
     branches: [main]
-    paths: ["index.html", "site/**"]
+    paths: ["index.html", "site/**", "data/digests/**"]   # the daily routine's note shows up the same morning
 
 concurrency:   # Pages-only pushes get their own queue so they never cancel a waiting scan
   group: ${{ github.event_name == 'push' && 'pages' || 'scan' }}
