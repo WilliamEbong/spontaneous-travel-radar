@@ -2,7 +2,7 @@
 name = "radar"
 version = "0.1.0"
 description = "Spontaneous Travel Radar: daily weekend-trip fare collector from Calgary (YYC)"
-requires-python = ">=3.12"
+requires-python = ">=3.11"   # Claude's cloud sandbox has 3.11; the scan workflow uses 3.12
 dependencies = [
     "fast-flights==3.1.0",
     "typing-extensions",  # fast-flights 3.1.0 imports it without declaring it

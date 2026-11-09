@@ -14,8 +14,10 @@ cloned). Do exactly these steps, then reply with the report. Never print token o
 4. (c) Read review comments. If a PR exists, every 2 minutes for up to 10 minutes fetch
    `/pulls/<n>/reviews`, `/pulls/<n>/comments` and `/issues/<n>/comments` from
    `https://api.github.com/repos/WilliamEbong/spontaneous-travel-radar` (unauthenticated curl first;
-   `gh api` if that fails). Record HTTP status, and the login and first 100 characters of any review
-   or comment that appears (Codex reviews on PR open). Stop polling once a review appears.
+   `gh api` if that fails), and once with the `pull_request_read` GitHub tool. Record HTTP status, and
+   the login and first 100 characters of any review or comment that appears (Codex reviews on PR
+   open). Stop polling once a review appears. Note: `gh pr ...` fails in this sandbox (GraphQL is
+   blocked); use the GitHub tools or `gh api` REST.
 5. Tests: `pip install -q -e ".[dev]" && python -m pytest -q`; record the last line.
 6. Clean up: close the PR (API or tool), and `git push origin --delete <branch>`. Confirm the PR shows
    closed.

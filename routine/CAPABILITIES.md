@@ -1,8 +1,28 @@
 # Claude routine capabilities (probed 2026-11-09)
 
-Routines are created through the `RemoteTrigger` API (environment `Default`). The digest and hit
-routines run on `claude-sonnet-5-5` (switched from Haiku 5.5 on 2026-11-09, D-27); the probe ran on
-Haiku. Each routine is limited to the Gmail connector.
+Routines are created through the `RemoteTrigger` API (environment `Default`). Month one runs on
+`claude-opus-5-5` (D-28): `radar-daily` and the weekly digest. The hit routine is on Sonnet 5.5 (it
+only runs after go-live). Each routine is limited to the Gmail connector. `radar-daily` and the
+GitHub probe carry a one-line prompt that reads their instructions from `routine/PROMPT-*.md` in the
+repo, so editing the file is enough (D-35).
+
+## GitHub probe, 2026-11-09 14:38 UTC (before the Claude GitHub App was installed)
+
+Routine `radar-probe-github` (`trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, no connectors), session
+https://claude.ai/code/session_01Gg7wycMRsTfLmpuTs6pkfv. Prompt: `routine/PROMPT-probe-github.md`.
+
+| Check | Result |
+|---|---|
+| Sandbox | Python 3.11.18 (the package now allows 3.11, D-34); `gh` installed; `GH_TOKEN`/`GITHUB_TOKEN` set; `api.github.com` reachable. |
+| GitHub tools | `mcp__github__*` present: `create_pull_request`, `pull_request_read`, `merge_pull_request`, `update_pull_request`, `list_pull_requests` and more. |
+| `gh pr ...` | Never works here: "GitHub GraphQL is not available from Claude Code sessions; use the REST API". `gh api` (REST) is the CLI route. |
+| (a) push to `main` | **No**, 403: "Claude doesn't have GitHub access to WilliamEbong/spontaneous-travel-radar". |
+| (b) branch push and PR | **No**: the branch push got the same 403, and `create_pull_request` returned 403 "Resource not accessible by integration". |
+| (c) read PR comments | Not tested (no PR could be opened). Unauthenticated REST reads return 200, so reading comments on a public PR works without the App. |
+| Tests | Failed only because `requires-python` was `>=3.12`. Fixed (D-34); 58 pass on 3.11. |
+
+All the failures trace back to the missing Claude GitHub App. Re-run the probe after it is installed
+(steps in `HANDOFF.md`).
 
 ## Probe run
 

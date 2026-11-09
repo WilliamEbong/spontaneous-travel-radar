@@ -14,11 +14,29 @@ Read this first if you are picking the build up in a fresh session. Then read `S
 - Dashboard: https://williamebong.github.io/spontaneous-travel-radar/ (Pages source = GitHub Actions).
 - Secrets `SERPAPI_KEY` and `TICKETMASTER_KEY` are set as Actions secrets (William set them) and
   are in the local `.env` (gitignored).
-- Routines (Sonnet 5.5 since 2026-11-09, D-27; Gmail connector only):
-  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Mondays 14:00 UTC (07:00 Calgary), real work only
-    2026-11-16 to 2026-12-07; emails the digest because routines cannot push yet.
-  - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, **disabled**, no schedule, no webhook.
-  - probe `trig_01XmaxqFZGSsnebpkB8VweMi`, one-shot, done (read yes, push no, email yes).
+- Routines (month one on Opus 5.5, D-28; Gmail connector only):
+  - `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *` (05:30 Calgary),
+    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Disabled** until
+    the enable procedure below passes.
+  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, Mondays 14:00 UTC, real work 2026-11-16 to
+    2026-12-07. Still **enabled**, as the fallback until `radar-daily` is on; then disable it (D-30).
+  - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, Sonnet, **disabled**, no schedule, no webhook.
+  - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, disabled; its first run (14:38 UTC) found
+    no GitHub write access (App not installed). Results in `routine/CAPABILITIES.md`.
+  - first probe `trig_01XmaxqFZGSsnebpkB8VweMi`, done (read yes, push no, email yes).
+
+## Enable procedure for `radar-daily` (after William installs the Claude GitHub App and Codex review)
+
+1. Re-arm the GitHub probe: `RemoteTrigger update trig_01NCvvPT6cUDiLLFkr7HN6tv` with
+   `{"enabled": true, "run_once_at": "<now + 3 min, UTC>"}`. It reads `routine/PROMPT-probe-github.md`.
+2. Read the result: `RemoteTrigger list_runs`, then `get_run_log` on the newest session. Record it in
+   `routine/CAPABILITIES.md`. Check the probe PR is closed and its branch deleted.
+3. If (a) push to main and (b) opening a PR both pass: keep the PR flow. If (b) fails but (a)
+   passes: remove Phase A from `routine/PROMPT-daily.md`, make Phase C always use the fresh-context
+   reviewer and commit to `main`, and say plainly here that Codex review is not in the loop. If (a)
+   fails: do not enable; the routine could only email.
+4. Enable `radar-daily` (`{"enabled": true}`), then disable the weekly digest
+   (`trig_01V9gJ6rL1sDuSsqDkE11oxo`, `{"enabled": false}`). The hit routine stays disabled.
 
 ## Open threads
 
