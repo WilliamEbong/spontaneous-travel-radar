@@ -71,6 +71,11 @@ anything notable, what changed (PR link) or why nothing did, and one line on wha
 Mondays: title `# Weekly digest <date>`, at most 20 lines, adding the week from
 `data/weekly-summary.json`: would-have-fired and near misses, band fit per group, cities with
 `nonstop_share` 0, request health, and two concrete config changes to consider, with numbers.
+On 2026-12-08 (the last run): title `# Month one summary 2026-12-08`, at most 25 lines: what
+changed over the month (from `docs/iteration-log.md` and the merged `radar/iter-*` PRs), open
+issues, the state of each flight band group against its `price_pp` percentiles, and that
+`radar-tune` runs tomorrow at 06:00 Calgary and opens one PR with self-adjusting bands
+(`docs/TUNING-PLAN.md`). Make no change in Phase C that day; leave the tuning to `radar-tune`.
 Plain language, CAD, no jargon.
 
 ## E. Iteration log
