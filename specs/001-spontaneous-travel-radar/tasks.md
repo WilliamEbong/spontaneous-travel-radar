@@ -24,7 +24,7 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 - [x] T012 Dashboard on GitHub Pages (`index.html`, `site/app.js`, `site/style.css`)
 
 ## Phase 5: US4 routines (P3)
-- [ ] T013 Routine prompts, capability probe, routines (`routine/*.md`)
+- [x] T013 Routine prompts, capability probe, routines (`routine/*.md`)
 
 ## Phase 6: Polish
 - [ ] T014 Learning-run procedure and handover (`docs/LEARNING-RUN.md`, `README.md`)
