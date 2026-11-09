@@ -33,16 +33,15 @@ def _row(x: Scored, city: City) -> dict:
     }
 
 
-def write_latest(winners: list[Scored], cities: list[City], health: dict, *, scan_date: date, scan_ts: str,
-                 mode: str, hits: list[str], candidates: list[str], path="data/latest.json") -> None:
+def write_latest(winners: list[Scored], cheapest: list[Scored], cities: list[City], health: dict, *, scan_date: date,
+                 scan_ts: str, mode: str, hits: list[str], candidates: list[str], path="data/latest.json") -> None:
+    """best_by_city: each city's cheapest in-window trip (design 6.3); windows: the top-scoring trip per city-window."""
     by_key = {c.key: c for c in cities}
-    rows = sorted((_row(x, by_key[x.trip.city_key]) for x in winners), key=lambda r: (-r["score"], r["total_cad"]))
-    best = {}
-    for r in rows:
-        best.setdefault(r["city"], r)
+    order = lambda r: (-r["score"], r["total_cad"])  # noqa: E731
+    rows = sorted((_row(x, by_key[x.trip.city_key]) for x in winners), key=order)
     write_json(path, {
         "scan_date": scan_date.isoformat(), "scan_ts": scan_ts, "mode": mode,
-        "best_by_city": list(best.values()), "windows": rows,
+        "best_by_city": sorted((_row(x, by_key[x.trip.city_key]) for x in cheapest), key=order), "windows": rows,
         "cities": [{"key": c.key, "name": c.name, "tier": c.tier, "rank": c.rank} for c in cities],
         "hits": hits, "candidates": candidates, "health": health,
     })

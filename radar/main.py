@@ -93,7 +93,7 @@ def scan(args) -> int:
             pct_memo[k] = route_percentile(price_pp, city_key, by_city_hist.get(city_key, []))
         return pct_memo[k]
 
-    winners, rows, context = [], [], {}
+    winners, rows, context, cheapest_city = [], [], {}, {}
     for c in cities:
         for w in windows:
             outs = [leg for d in w.out_dates for a in c.airports for leg in legs.get((HOME, a, d), [])]
@@ -108,6 +108,9 @@ def scan(args) -> int:
                   for t in trips]
             win = max(sc, key=lambda x: (x.score, -x.total_cad))
             winners.append(win)
+            low = min(sc, key=lambda x: (x.trip.flights_cad_2pax, -x.score))
+            if c.key not in cheapest_city or low.trip.flights_cad_2pax < cheapest_city[c.key].trip.flights_cad_2pax:
+                cheapest_city[c.key] = low   # design 6.3: "Best right now" = cheapest realistic fare per city
             context[(c.key, w.id)] = (evs, wx)
             cheapest = {}
             for x in sc:
@@ -152,8 +155,8 @@ def scan(args) -> int:
         "host": "github-actions" if os.environ.get("GITHUB_ACTIONS") else ("offline" if args.offline else "local"),
         "duration_s": round(time.time() - t0),
     }
-    write_latest(winners, cities, health, scan_date=today, scan_ts=scan_ts, mode=s.mode, hits=hit_ids,
-                 candidates=cand_ids)
+    write_latest(winners, list(cheapest_city.values()), cities, health, scan_date=today, scan_ts=scan_ts,
+                 mode=s.mode, hits=hit_ids, candidates=cand_ids)
     export()
     write_weekly_summary(read_history(90, today=today), today=today)
     return 0

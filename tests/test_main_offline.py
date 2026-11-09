@@ -26,6 +26,8 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
     ids = [(b["city"], b["window_id"]) for b in latest["windows"]]
     assert len(ids) == len(set(ids))                                   # one winner per city-window
     assert len({b["city"] for b in latest["best_by_city"]}) == len(latest["best_by_city"])
+    for b in latest["best_by_city"]:                                   # design 6.3: cheapest fare per city
+        assert all(b["flights_cad_2pax"] <= w["flights_cad_2pax"] for w in latest["windows"] if w["city"] == b["city"])
     for f in ("data/series.json", "data/weekly-summary.json", "hits/index.json", "data/digests/index.json"):
         assert (tmp_path / f).exists(), f
     n = len((tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines())
