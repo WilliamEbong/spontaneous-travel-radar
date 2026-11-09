@@ -39,7 +39,6 @@ class LegQuery:
     max_stops: int = 1
     origin_tz: str = HOME_TZ
     dest_tz: str = HOME_TZ
-    exclude_basic: bool = True     # per trip class (config trip_classes; day-off = William's rule, D-03)
     trip_class: str = "dayoff"
 
     def key(self) -> str:
@@ -184,8 +183,7 @@ def build_queries(cities: list[City], windows: list[Window], scan_date: date, cl
     qs = []
     for (o, d, day, tz, cls), rs in sorted(roles.items(), key=lambda kv: order[kv[0]]):
         qs.append(LegQuery(o, d, day, **_merge(rs), max_stops=0 if cls == "weekend" else 1,
-                           origin_tz=HOME_TZ if o == HOME else tz, dest_tz=HOME_TZ if d == HOME else tz,
-                           exclude_basic=classes[cls]["exclude_basic"], trip_class=cls))
+                           origin_tz=HOME_TZ if o == HOME else tz, dest_tz=HOME_TZ if d == HOME else tz, trip_class=cls))
     return qs
 
 
@@ -195,7 +193,7 @@ def _fetch_items(q: LegQuery) -> list:
                              earliest_departure_hour=q.earliest_dep_hour, latest_departure_hour=q.latest_dep_hour,
                              earliest_arrival_hour=q.earliest_arr_hour, latest_arrival_hour=q.latest_arr_hour)],
         trip="one-way", passengers=Passengers(adults=2), currency="CAD", max_stops=q.max_stops,
-        carry_on_bags=1, exclude_basic_economy=q.exclude_basic,
+        carry_on_bags=1, exclude_basic_economy=False,   # basic fares in both classes (v2): AC/WestJet Basic carry a bag, Google prices Flair's
     )
     return parse_items(fetch_flights_html(query))
 

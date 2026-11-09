@@ -13,14 +13,12 @@ time_curve:              # time score vs share of the window's best possible wak
 trip_classes:            # D-52. Window ranges and hard rules are William's; the weekend gate_* values are tunable
   dayoff:                # fri-off, mon-off and stat blocks; Day 1 from dayoff_min_weeks to + span_weeks out
     span_weeks: 10
-    exclude_basic: true  # William's standing rule (D-03)
     rotate_days: 3       # each city-weekend is scanned every 3rd day (crc32 rotation)
   weekend:               # leave Friday after work, home Sunday; no day off needed
     min_days: 3          # Friday at least this many days out
     max_days: 42
     depart_from: "17:30" # Friday (reading of "leave friday after work")
     depart_to: "12:00"   # Saturday
-    exclude_basic: false # a cheap basic-fare hop is the weekend deal; one line to undo
     max_air_min: 180     # non-stop only, 3 h or less in the air (cities.yaml air_time_min)
     gate_band: amazing   # candidate only at this band or better
     gate_min_score: 88
