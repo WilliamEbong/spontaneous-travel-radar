@@ -184,7 +184,7 @@ Everything the dashboard needs is produced by the collector; Claude adds judgmen
 
 | Factor | Weight | Measure |
 |---|---|---|
-| Price | 40 | Realistic total for two (flights + estimated 2 nights lodging + airport transfers) against the route's band (7.3) and history percentile. |
+| Price | 40 | Realistic total for two (flights + estimated 2 nights lodging + airport transfers) against the route's band (7.3) and history percentile. Past the bad line the points go negative, -10 per bad-line width down to -40, so a cheaper all-bad trip still beats a dearer one (D-56). |
 | Time there | 15 | Waking hours on the ground: destination arrival + 1h to departure − 2h, minus 8h per night, computed in local times. Scaled against the best possible for that window (49.5h for a 3-day block): 0 points at 10% of it, full points at 70% (real trips top out near 70-75% once flight time is counted), linear between; under 10% the trip is dropped. Anchors in `config/scoring.yaml: time_curve` (D-51). |
 | Convenience | 10 | Non-stop 10, direct 9, one connection under 2.5h 5, longer 2. Minus for airport-to-core over 45 min, car needed, red-eye arrivals after midnight. |
 | City rank | 15 | Fixed per city from config. |

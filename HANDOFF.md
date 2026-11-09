@@ -88,6 +88,9 @@ Read this first if you are picking the build up in a fresh session. Then read `S
 
 ## Gotchas
 
+- Price points go negative past the bad line (-10 per bad-line width, floor -40; D-56), so among
+  all-bad trips the cheaper wins: the Toronto 21-23 Nov card picked $1,357 pp over about $1,000 pp
+  because both scored 0 on price. Winner ties already break on lower total. `price_pts` can be negative.
 - fast-flights 3.1.0's `get_flights` drops Google's "best flights" list; we parse the page
   ourselves (`radar/flights.py: parse_items`). It also imports `typing_extensions` undeclared.
 - tzdata 2026f has Alberta and BC on permanent daylight time from November 2026; the workflow sets

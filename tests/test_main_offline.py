@@ -31,7 +31,7 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
     for f in ("data/series.json", "data/weekly-summary.json", "hits/index.json", "data/digests/index.json"):
         assert (tmp_path / f).exists(), f
     hist = [json.loads(line) for line in (tmp_path / "data/history/2026-10-08.jsonl").read_text().splitlines()]
-    assert all(0 <= r["price_pts"] <= 40 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input
+    assert all(-40 <= r["price_pts"] <= 40 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input (D-56)
     assert {r["trip_class"] for r in hist} == {"dayoff", "weekend"}                     # both classes, every row (D-52)
     assert all(r["trip_class"] == ("weekend" if r["window_id"].endswith("_weekend") else "dayoff")
                for r in latest["windows"] + latest["best_by_city"])

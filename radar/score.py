@@ -23,14 +23,16 @@ def hotel_band(total_2n: float, group: str, bands: dict) -> str:
 
 
 def band_price_score(price_pp: float, b: dict) -> float:
-    """Piecewise linear through (amazing, 40), (good, 28), (average, 14), (average + (average - good), 0)."""
+    """Piecewise linear through (amazing, 40), (good, 28), (average, 14), (average + (average - good), 0).
+    Past that bad line it keeps falling, -10 per bad-line width down to -40 (D-56), so among all-bad trips
+    the cheaper one still scores higher instead of extra hours buying the dearest way to do the weekend."""
     xs = (b["amazing"], b["good"], b["average"], 2 * b["average"] - b["good"])
     if price_pp <= xs[0]:
         return 40.0
     for (x0, y0), (x1, y1) in zip(zip(xs, PRICE_ANCHORS), zip(xs[1:], PRICE_ANCHORS[1:])):
         if price_pp <= x1:
             return y0 + (y1 - y0) * (price_pp - x0) / (x1 - x0)
-    return 0.0
+    return max(-40.0, -10.0 * (price_pp - xs[3]) / xs[3])
 
 
 def time_points(hours: float, best: float, curve: dict) -> float:

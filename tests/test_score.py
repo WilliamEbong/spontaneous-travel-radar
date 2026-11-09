@@ -1,9 +1,10 @@
 from dataclasses import replace
+from datetime import date
 
 import pytest
 
 from radar.config import load_scoring
-from radar.score import (best_per_window, flight_band, hotel_band, lodging_estimate_cad, score_trip, time_points,
+from radar.score import (band_price_score, best_per_window, flight_band, hotel_band, lodging_estimate_cad, score_trip, time_points,
                          worth_flying)
 from tests.conftest import city
 
@@ -82,3 +83,20 @@ def test_weekend_gates_are_harsh(vancouver_trip_fixture):
     good = replace(wk, flights_cad_2pax=2 * 140)                                     # yvr good band, cheapest tenth of history
     assert not score_trip(good, c, s, n_events=0, weather_score=5, history_pct=5).candidate
     assert score_trip(replace(good, trip_class="dayoff"), c, s, n_events=0, weather_score=5, history_pct=5).candidate
+
+
+def test_cheaper_all_bad_trip_wins_despite_fewer_hours():
+    """Toronto 2026-11-21 mon-off: 01:20 out / 12:10 back at $1,357 pp kept 34.9 h on the ground, 07:30 out /
+    06:15 back at $1,002 pp kept 22.8 h. Both are far past the bad line; the cheaper one must win (D-56)."""
+    from tests.conftest import make_leg
+    from radar.itineraries import Trip
+    s, c = load_scoring(), city("toronto")
+    out = make_leg("YYC", "YYZ", "2026-11-21T07:30", "2026-11-21T13:20", "America/Edmonton", "America/Toronto", 1000)
+    back = make_leg("YYZ", "YYC", "2026-11-23T06:15", "2026-11-23T08:45", "America/Toronto", "America/Edmonton", 1004)
+    trip = lambda price_2pax, hours: Trip("toronto", "YYZ", "2026-11-21_mon-off", out, back, price_2pax,  # noqa: E731
+                                          date(2026, 11, 21), date(2026, 11, 23), 2, hours, 49.5)
+    dear = score_trip(trip(2714, 34.9), c, s, n_events=0, weather_score=5, history_pct=None)
+    cheap = score_trip(trip(2004, 22.8), c, s, n_events=0, weather_score=5, history_pct=None)
+    assert dear.band == cheap.band == "bad" and dear.components.time > cheap.components.time
+    assert best_per_window([dear, cheap]) == [cheap]
+    assert band_price_score(460, s.flight_bands["yyz"]) > band_price_score(900, s.flight_bands["yyz"]) >= -40
