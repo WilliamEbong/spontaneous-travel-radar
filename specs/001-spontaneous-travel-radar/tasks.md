@@ -8,7 +8,7 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 
 ## Phase 2: Foundational
 - [x] T002 Config files and loader (`config/*.yaml`, `radar/config.py`, `tests/test_config.py`)
-- [ ] T003 Window generator (`radar/windows.py`, `tests/test_windows.py`)
+- [x] T003 Window generator (`radar/windows.py`, `tests/test_windows.py`)
 - [ ] T004 Flight fetcher (`radar/flights.py`, `tests/test_flights.py`)
 - [ ] T005 Itineraries and trip-window filter (`radar/itineraries.py`, `tests/test_itineraries.py`)
 
