@@ -1,0 +1,9 @@
+# William's interests profile (BUILD-PLAN-v2 T7). The daily routine's pass 3 judges what is on during a candidate's
+# dates against it; `python -m radar.main finalize` turns those judgments into up to 10 points (radar/hits.py).
+# Each find scores uniqueness (0-3) x fit (0-1) x affordability: free 1.0, up to $30 0.8, up to the lesser-known
+# concert line 0.6, up to the famous line 0.3 and only for someone famous, else 0. Per person, CAD.
+music_love: [hip-hop, R&B, jazz, Afrobeats, Black music broadly]
+interests: [art, history, markets, nightlife, street and neighbourhood festivals]
+dislikes: [country music, big-ticket arena and stadium shows]
+concert_price_cad: {lesser_known: 60, famous: 100}   # cheap concerts only: over $60 only for a famous act, never over $100
+uniqueness_test: "Would this be possible in Calgary? Then it is worth 0."
