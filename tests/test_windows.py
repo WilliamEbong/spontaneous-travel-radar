@@ -3,6 +3,21 @@ from datetime import date, datetime
 from radar.windows import CALGARY, generate_windows, scan_dates
 
 
+def test_extra_day_off_counts_like_a_stat():
+    ws = generate_windows(date(2026, 11, 20), set(), extra={date(2026, 12, 10)})   # a Thursday taken as vacation
+    w = next(w for w in ws if w.id == "2026-12-10_stat-thu-4d")
+    assert w.days_off == (date(2026, 12, 10), date(2026, 12, 11), date(2026, 12, 12), date(2026, 12, 13))
+    assert w.vacation_days == 1                                                      # only the Friday still costs a day
+    assert "2026-12-10_stat-thu-4d" not in {w.id for w in generate_windows(date(2026, 11, 20), set())}
+
+
+def test_blocked_date_drops_every_window_touching_it():
+    ws = generate_windows(date(2026, 11, 20), set(), blocked={date(2026, 12, 12)})  # a Saturday
+    ids = {w.id for w in ws}
+    assert ws and all(date(2026, 12, 12) not in w.days_off for w in ws)
+    assert not ids & {"2026-12-11_fri-off", "2026-12-12_mon-off"} and "2026-12-18_fri-off" in ids
+
+
 def test_plain_weekend_two_patterns():
     ws = generate_windows(date(2026, 11, 10), set())
     ids = {w.id for w in ws}

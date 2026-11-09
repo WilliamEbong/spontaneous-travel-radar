@@ -14,7 +14,47 @@ no alerts. See `docs/LEARNING-RUN.md`.
 - Design: `docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md`
 - Build plan: `BUILD-PLAN.md`; build decisions: `docs/notes/decisions.md`; day-one smoke test:
   `docs/notes/day-one-smoke.md`
-- Config: `config/` (cities and bars, stat holidays, scoring bands and weights, airline surcharges)
+- Config: `config/` (cities and bars, stat holidays, days off, scoring bands and weights, airline
+  surcharges). Everything the Settings panel on the dashboard changes lives here too, as plain YAML.
+
+## Settings from the dashboard
+
+The gear button on the dashboard opens Settings: which cities the scan covers and in what order,
+each city's complete-trip bar, extra days off and blocked dates, the alert mode and thresholds, and a
+"Run scan now" button. Everything is live to look at without signing in. Saving writes the config
+files to `main` as a normal commit (`chore: settings from dashboard`), and the change applies at the
+next scan, 04:17 Calgary. No terminal, no YAML by hand.
+
+Saving needs a GitHub token that can write to this one repository. You create it once (about two
+minutes) and paste it into the panel; it stays in your browser only.
+
+1. Open https://github.com/settings/personal-access-tokens/new (a fine-grained token).
+2. Token name: Radar dashboard. Expiration: as long as you like; when it runs out, make a new one
+   and paste it again.
+3. Repository access: Only select repositories, then pick `spontaneous-travel-radar`.
+4. Permissions, Repository permissions: Contents, Read and write. Optional: Actions, Read and
+   write, which makes "Run scan now" work. Leave everything else at No access.
+5. Generate token, copy it, paste it into the panel's GitHub field and tap Connect.
+
+What the controls do:
+
+- Cities: the switch turns a city off (the scan skips it and spends no requests on it). Drag a row,
+  or use the arrows, to set the order the dashboard's "Mine" sort uses. The bar is the all-in price
+  for two that a complete trip must beat to alert, in $50 steps.
+- Days off: tap a weekday once for an extra day off (it counts like a stat holiday, so a Thursday or
+  Tuesday off makes a 4-day long weekend and a Friday or Monday off costs no vacation day), again to
+  block it (no trips touching that date), again to clear. Weekends and stat holidays only block.
+  Stored in `config/days_off.yaml`.
+- Alerts: learning run (nothing alerts, would-have-fired trips are logged) or live; the score a trip
+  needs; how much further a fare must drop before the same city and weekend alerts again.
+- Scan: "Run scan now" starts the GitHub Actions scan (two taps, about an hour, around 700 Google
+  requests, so at most once a day).
+
+Saving touches only the files whose values changed and only the lines you changed, so comments
+and the daily routine's own edits survive. If GitHub answers 401 the token was rejected (Disconnect
+and paste a new one); 403 on save means the token lacks Contents write, or the API limit for the
+hour is used up; if the daily routine committed in the same minute, the panel re-reads the file and
+retries once. Disconnect clears the token from the browser.
 
 ## How it works
 

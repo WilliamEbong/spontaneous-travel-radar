@@ -149,6 +149,8 @@ def build_queries(cities: list[City], windows: list[Window], scan_date: date) ->
     for w in windows:
         wk = weekends.index(_weekend(w))
         for c in cities:
+            if not c.enabled:
+                continue   # switched off on the dashboard: no requests spent on it
             for i, apt in enumerate(c.airports):
                 if (i > 0 or wk >= 3) and not _rotates_in(apt, scan_date):
                     continue  # ponytail: fixed rotation; smarter coverage if health shows gaps

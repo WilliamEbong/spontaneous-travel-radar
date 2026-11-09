@@ -1,6 +1,41 @@
 from datetime import date
+from pathlib import Path
 
-from radar.config import load_airline_surcharges, load_cities, load_holidays, load_scoring
+import pytest
+
+from radar.config import load_airline_surcharges, load_cities, load_days_off, load_holidays, load_scoring
+
+
+def test_enabled_defaults_true_and_must_be_a_bool(tmp_path):
+    assert all(c.enabled for c in load_cities())
+    src = Path("config/cities.yaml").read_text(encoding="utf-8")
+    p = tmp_path / "c.yaml"
+    p.write_text(src.replace("key: vancouver\n", "key: vancouver\n    enabled: false\n", 1), encoding="utf-8")
+    assert not next(c for c in load_cities(p) if c.key == "vancouver").enabled
+    p.write_text(src.replace("key: vancouver\n", "key: vancouver\n    enabled: nope\n", 1), encoding="utf-8")
+    with pytest.raises(ValueError, match="vancouver: enabled"):
+        load_cities(p)
+
+
+def test_days_off_repo_file_and_both_date_forms(tmp_path):
+    extra, blocked = load_days_off()
+    assert isinstance(extra, set) and isinstance(blocked, set)
+    p = tmp_path / "d.yaml"
+    p.write_text("extra: [2026-12-24, '2026-12-31']\nblocked:\n", encoding="utf-8")   # bare YAML date, quoted ISO string, empty key
+    assert load_days_off(p) == ({date(2026, 12, 24), date(2026, 12, 31)}, set())
+
+
+@pytest.mark.parametrize("text, msg", [
+    ("extra: 2026-12-24\n", "must be a list"),
+    ("extra: ['someday']\n", "invalid date"),
+    ("extra: [2026-12-24]\nblocked: [2026-12-24]\n", "both extra and blocked"),
+    ("extra: []\nvacation: []\n", "only the keys"),
+])
+def test_days_off_bad_file_fails_loudly(tmp_path, text, msg):
+    p = tmp_path / "d.yaml"
+    p.write_text(text, encoding="utf-8")
+    with pytest.raises(ValueError, match=msg):
+        load_days_off(p)
 
 
 def test_cities_load_and_are_consistent():

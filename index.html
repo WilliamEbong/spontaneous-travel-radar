@@ -26,6 +26,13 @@
     <symbol id="i-plane" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
     <symbol id="i-note" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8l-5-5z"/><path d="M14 3v5h5M8 13h8M8 17h8"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></g></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8V4z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
   </svg>
 
   <header class="bar">
@@ -34,6 +41,9 @@
       <span id="scan-age" class="chip" aria-live="polite">Loading…</span>
       <button id="health-btn" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="health" aria-label="Scan health">
         <span id="health-dot" class="dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-pulse"/></svg>
+      </button>
+      <button id="settings-btn" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="settings" aria-label="Settings" title="Settings">
+        <svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg>
       </button>
     </div>
   </header>
@@ -51,6 +61,7 @@
           <label><input type="radio" name="sort" value="score" checked><span>Score</span></label>
           <label><input type="radio" name="sort" value="price"><span>Price</span></label>
           <label><input type="radio" name="sort" value="city"><span>A–Z</span></label>
+          <label><input type="radio" name="sort" value="mine"><span>Mine</span></label>
         </fieldset>
       </div>
       <p class="hint">Cheapest trip per city for the long weekends in the next 45 days (out after 7:30 pm the evening before, home by 4 pm on the last day off). Fares are for two adults with a carry-on each, basic fares excluded. Tap a city for its price history.</p>
@@ -77,12 +88,30 @@
     <div id="health-body"></div>
   </dialog>
 
+  <dialog id="settings" class="sheet panel" aria-labelledby="settings-h">
+    <div class="sheet-head panel-head">
+      <div>
+        <h2 id="settings-h">Settings</h2>
+        <p class="panel-sub">Changes apply at the next scan, 04:17 Calgary.</p>
+      </div>
+      <button id="settings-close" class="icon-btn" type="button" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div id="settings-body" class="panel-body"></div>
+    <div class="panel-foot">
+      <p id="save-status" class="save-status" role="status"></p>
+      <button id="save-btn" class="btn primary" type="button" disabled>Save</button>
+    </div>
+  </dialog>
+
   <footer>
     <p>Free collector on GitHub Actions. Data from Google Flights, SerpApi Google Hotels, Ticketmaster and Open-Meteo.
       <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a> ·
       <a href="https://github.com/WilliamEbong/spontaneous-travel-radar/blob/main/docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md">Design</a></p>
   </footer>
   <div id="tip" class="tip" role="status" hidden></div>
-  <script src="site/app.js"></script>
+  <!-- js-yaml, pinned, the only external script: the Settings panel parses config/*.yaml with it. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js" integrity="sha384-+pxiN6T7yvpryuJmE1gM9PX7yQit15auDb+ZwwvJOd/4be2Cie5/IuVXgQb/S9du" crossorigin="anonymous" defer></script>
+  <script src="site/app.js" defer></script>
+  <script src="site/settings.js" defer></script>
 </body>
 </html>

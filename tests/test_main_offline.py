@@ -37,6 +37,21 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
     assert len((tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines()) == n
 
 
+def test_settings_files_steer_the_scan(tmp_path, monkeypatch):
+    setup(tmp_path, monkeypatch)
+    assert radar_main.main(ARGS) == 0
+    before = json.loads((tmp_path / "data/latest.json").read_text())
+    p = tmp_path / "config/cities.yaml"
+    p.write_text(p.read_text(encoding="utf-8").replace("key: las_vegas\n", "key: las_vegas\n    enabled: false\n", 1), encoding="utf-8")
+    (tmp_path / "config/days_off.yaml").write_text("extra: []\nblocked: [2026-11-21]\n", encoding="utf-8")
+    assert radar_main.main(ARGS) == 0
+    latest = json.loads((tmp_path / "data/latest.json").read_text())
+    assert "las_vegas" not in {c["key"] for c in latest["cities"]}                  # a disabled city is out of the scan
+    assert all(r["city"] != "las_vegas" for r in latest["best_by_city"] + latest["windows"])
+    assert latest["health"]["windows"] < before["health"]["windows"]              # the blocked Saturday removed windows
+    assert latest["health"]["queries_planned"] < before["health"]["queries_planned"]
+
+
 def test_fetch_error_is_recorded_not_fatal(tmp_path, monkeypatch):
     setup(tmp_path, monkeypatch)
     real = radar_main.fetch_leg

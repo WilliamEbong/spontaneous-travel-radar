@@ -61,6 +61,13 @@ def test_rotation_keeps_secondary_airports_alternating():
     assert "EWR" in a and "EWR" in b and (a ^ b) <= {"JFK", "LGA"} and (a | b) == {"EWR", "JFK", "LGA"}
 
 
+def test_disabled_city_gets_no_queries():
+    from dataclasses import replace
+    cities = [replace(c, enabled=c.key != "vancouver") for c in load_cities() if c.key in ("vancouver", "seattle")]
+    qs = build_queries(cities, generate_windows(date(2026, 11, 10), set()), scan_date=date(2026, 11, 10))
+    assert qs and not any("YVR" in (q.origin, q.dest) for q in qs)
+
+
 def test_full_matrix_fits_the_budget():
     ws = generate_windows(date(2026, 11, 10), set())
     assert len(build_queries(load_cities(), ws, scan_date=date(2026, 11, 10))) <= 800   # headroom for retries

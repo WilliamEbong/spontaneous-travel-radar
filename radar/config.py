@@ -1,6 +1,6 @@
 """Load and validate the YAML config (config/*.yaml) into dataclasses."""
-from dataclasses import dataclass, fields
-from datetime import date
+from dataclasses import MISSING, dataclass, fields
+from datetime import date, datetime
 
 import yaml
 
@@ -26,6 +26,7 @@ class City:
     hotel_currency: str                # CAD | USD
     bar_cad: int                       # complete-trip bar for two
     climate: dict[int, tuple[float, float, int]]  # month -> (mean_high_c, mean_low_c, rain_days)
+    enabled: bool = True               # false = the scan skips the city (set from the dashboard's Settings panel)
 
 
 @dataclass(frozen=True)
@@ -49,7 +50,7 @@ def _read(path):
 
 
 def load_cities(path="config/cities.yaml") -> list[City]:
-    names = [f.name for f in fields(City)]
+    names = [f.name for f in fields(City) if f.default is MISSING]
     out = []
     for raw in _read(path)["cities"]:
         missing = [n for n in names if n not in raw]
@@ -61,6 +62,9 @@ def load_cities(path="config/cities.yaml") -> list[City]:
         v["climate"] = {int(m): tuple(x) for m, x in v["climate"].items()}
         if len(v["climate"]) != 12:
             raise ValueError(f"city {v['key']}: climate needs 12 months")
+        v["enabled"] = raw.get("enabled", True)
+        if not isinstance(v["enabled"], bool):
+            raise ValueError(f"city {v['key']}: enabled must be true or false, not {raw['enabled']!r}")
         out.append(City(**v))
     return out
 
@@ -68,6 +72,32 @@ def load_cities(path="config/cities.yaml") -> list[City]:
 def load_holidays(path="config/holidays.yaml") -> set[date]:
     raw = _read(path)
     return set(raw[raw["calendar"]])   # yaml.safe_load parses ISO dates to date
+
+
+def load_days_off(path="config/days_off.yaml") -> tuple[set[date], set[date]]:
+    """(extra, blocked) from the dashboard's Settings panel: extra days off count like stat holidays,
+    blocked dates get no trips. Dates may be bare (YAML dates) or quoted ISO strings."""
+    raw = _read(path) or {}
+    if not isinstance(raw, dict) or set(raw) - {"extra", "blocked"}:
+        raise ValueError(f"{path}: expected only the keys extra and blocked")
+    out = []
+    for k in ("extra", "blocked"):
+        vals = raw.get(k) or []
+        if not isinstance(vals, list):
+            raise ValueError(f"{path}: {k} must be a list of dates")
+        days = set()
+        for v in vals:
+            if isinstance(v, datetime):
+                v = v.date()
+            try:
+                days.add(v if isinstance(v, date) else date.fromisoformat(str(v)))
+            except ValueError:
+                raise ValueError(f"{path}: {k} has an invalid date {v!r} (use YYYY-MM-DD)") from None
+        out.append(days)
+    both = out[0] & out[1]
+    if both:
+        raise ValueError(f"{path}: {min(both)} is both extra and blocked")
+    return out[0], out[1]
 
 
 def load_scoring(path="config/scoring.yaml") -> Scoring:
