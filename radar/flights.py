@@ -5,6 +5,7 @@ fast-flights 3.1.0's parser reads only payload[3][0] ("other flights") and drops
 parse_items reads both lists from the raw page.
 """
 import json
+import os
 import random
 import sys
 import time
@@ -194,9 +195,11 @@ def slim(it) -> list:
 def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=None, retry_wait=30.0) -> list[Leg]:
     """Cached per scan day; every network attempt (retries too) takes one unit of budget."""
     path = Path(cache_dir or f"data/cache/{date.today()}") / f"{q.key()}.json"
-    if path.exists():
+    try:
         items = json.loads(path.read_text(encoding="utf-8"))
-    else:
+    except (OSError, ValueError):   # missing or half-written cache file = cache miss
+        items = None
+    if items is None:
         items, err = None, None
         for attempt in range(2):
             if not budget.take():
@@ -213,5 +216,7 @@ def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=
         if items is None:
             raise FetchError(f"{type(err).__name__}: {err}")
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(items), encoding="utf-8")
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(json.dumps(items), encoding="utf-8")
+        os.replace(tmp, path)
     return [leg for it in items if (leg := to_leg(it, q.origin, q.dest, q.origin_tz, q.dest_tz))]

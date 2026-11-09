@@ -71,3 +71,10 @@ def test_slim_items_parse_the_same():
     for name, dest, tz in (("ff_yyc_yvr_oneway.json", "YVR", "America/Vancouver"), ("ff_one_stop.json", "LAS", "America/Los_Angeles")):
         for raw in load_fixture(name):
             assert to_leg(slim(raw), "YYC", dest, "America/Edmonton", tz) == to_leg(raw, "YYC", dest, "America/Edmonton", tz)
+
+
+def test_corrupt_cache_file_is_a_miss(tmp_path):
+    q = LegQuery("YYC", "YVR", date(2026, 12, 4))
+    (tmp_path / f"{q.key()}.json").write_text("[[half-writ")
+    with pytest.raises(FetchError, match="budget"):       # re-fetch attempted (no budget), no JSONDecodeError
+        fetch_leg(q, Budget(max_attempts=0), cache_dir=tmp_path)

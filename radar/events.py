@@ -1,5 +1,6 @@
 """Ticketmaster Discovery v2: events in the city during a window. Never raises; [] on any failure."""
 import json
+import os
 import re
 import sys
 import time
@@ -69,18 +70,23 @@ def fetch_events(city: City, start: date, end: date, *, api_key: str | None, cac
     if not api_key:
         return []
     path = Path(cache_dir) / f"tm-{city.key}-{start}-{end}.json"
-    if not path.exists():
-        lo, hi = event_bounds(city, start, end)
-        try:
-            time.sleep(0.25)   # Ticketmaster allows 5 requests per second
-            r = httpx.get(URL, params={"apikey": api_key, "city": city.name, "countryCode": city.country,
-                                       "startDateTime": lo, "endDateTime": hi, "size": 200, "sort": "date,asc"},
-                          timeout=10)
-            r.raise_for_status()
-            payload = r.json()
-        except (httpx.HTTPError, ValueError) as e:
-            print(f"ticketmaster {city.key} {start}: {type(e).__name__}", file=sys.stderr)  # never log the URL: it has the key
-            return []
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(payload), encoding="utf-8")
-    return parse_events(json.loads(path.read_text(encoding="utf-8")))
+    try:
+        return parse_events(json.loads(path.read_text(encoding="utf-8")))
+    except (OSError, ValueError):   # missing or half-written cache file = cache miss
+        pass
+    lo, hi = event_bounds(city, start, end)
+    try:
+        time.sleep(0.25)   # Ticketmaster allows 5 requests per second
+        r = httpx.get(URL, params={"apikey": api_key, "city": city.name, "countryCode": city.country,
+                                   "startDateTime": lo, "endDateTime": hi, "size": 200, "sort": "date,asc"},
+                      timeout=10)
+        r.raise_for_status()
+        payload = r.json()
+    except (httpx.HTTPError, ValueError) as e:
+        print(f"ticketmaster {city.key} {start}: {type(e).__name__}", file=sys.stderr)  # never log the URL: it has the key
+        return []
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(payload), encoding="utf-8")
+    os.replace(tmp, path)
+    return parse_events(payload)

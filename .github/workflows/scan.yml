@@ -17,8 +17,8 @@ on:
     branches: [main]
     paths: ["index.html", "site/**"]
 
-concurrency:
-  group: scan
+concurrency:   # Pages-only pushes get their own queue so they never cancel a waiting scan
+  group: ${{ github.event_name == 'push' && 'pages' || 'scan' }}
   cancel-in-progress: false
 
 jobs:
@@ -45,13 +45,14 @@ jobs:
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
           TICKETMASTER_KEY: ${{ secrets.TICKETMASTER_KEY }}
+          PYTHONTZPATH: ""   # use the pip tzdata package (Alberta/BC rule changes), not the runner's older zone files
           CITIES: ${{ inputs.cities }}
           BUDGET: ${{ inputs.budget }}
         run: |
           python -m radar.main scan --budget "${BUDGET:-900}" ${CITIES:+--cities "$CITIES"}
           python -c "import json; h=json.load(open('data/latest.json'))['health']; h.pop('fetch_errors'); print(h)"
       - name: Commit data
-        if: github.event_name != 'push'
+        if: always() && github.event_name != 'push'   # keep the SerpApi counter even if the scan failed
         run: |
           git config user.name "radar-bot"
           git config user.email "radar-bot@users.noreply.github.com"

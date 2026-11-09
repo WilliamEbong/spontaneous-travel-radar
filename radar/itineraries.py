@@ -1,6 +1,6 @@
 """Pair one-way legs into trips per window; enforce the trip-window rule; hours on the ground."""
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, timedelta, timezone
 
 from radar.config import City
 from radar.flights import Leg
@@ -44,12 +44,13 @@ def hotel_dates(out: Leg, back: Leg) -> tuple[date, date]:
 
 
 def hours_on_ground(out: Leg, back: Leg, nights: int) -> float:
-    h = (back.dep - out.arr).total_seconds() / 3600   # aware datetimes: UTC-correct across zones and DST
+    h = (back.dep.astimezone(timezone.utc) - out.arr.astimezone(timezone.utc)).total_seconds() / 3600  # UTC: DST-safe
     return max(0.0, h - OVERHEAD_H - SLEEP_H * nights)
 
 
 def best_possible_hours(w: Window) -> float:
-    return (w.return_to - w.depart_from).total_seconds() / 3600 - OVERHEAD_H - SLEEP_H * w.window_nights
+    span = w.return_to.astimezone(timezone.utc) - w.depart_from.astimezone(timezone.utc)
+    return span.total_seconds() / 3600 - OVERHEAD_H - SLEEP_H * w.window_nights
 
 
 def assemble(city: City, w: Window, outs: list[Leg], backs: list[Leg]) -> list[Trip]:

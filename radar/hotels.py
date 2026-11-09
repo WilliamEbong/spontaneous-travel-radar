@@ -35,7 +35,7 @@ class HotelOption:
 class HotelCheck:
     options: tuple[HotelOption, ...]
     band: str | None
-    skipped: str | None           # None | "cap" | "no-key" | "error"
+    skipped: str | None           # None | "cap" | "no-key" | "error" | "gated" (score/re-alert gate failed first)
 
 
 def serpapi_reserve(month: str, s: Scoring, path=None) -> bool:
@@ -89,7 +89,11 @@ def check_hotels(city: City, check_in: date, nights: int, s: Scoring, *, api_key
     found, skipped = [], None
     for i, nb in enumerate(city.neighbourhoods[: s.serpapi_per_candidate_cap]):
         path = Path(cache_dir) / f"serpapi-{city.key}-{check_in}-{nights}-{i}.json"
-        if not path.exists():
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):   # missing or half-written cache file = cache miss
+            payload = None
+        if payload is None:
             if not serpapi_reserve(month, s):
                 skipped = "cap"
                 break
@@ -109,7 +113,9 @@ def check_hotels(city: City, check_in: date, nights: int, s: Scoring, *, api_key
             payload.pop("search_parameters", None)
             payload.pop("search_metadata", None)
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(payload), encoding="utf-8")
-        found += parse_properties(json.loads(path.read_text(encoding="utf-8")), city, nights, s, nb).options
+            tmp = path.with_name(path.name + ".tmp")
+            tmp.write_text(json.dumps(payload), encoding="utf-8")
+            os.replace(tmp, path)
+        found += parse_properties(payload, city, nights, s, nb).options
     opts = tuple(sorted(found, key=lambda o: o.total_pre_tax)[:3])
     return HotelCheck(opts, band_for(opts[0].total_pre_tax, city, nights, s) if opts else None, skipped)

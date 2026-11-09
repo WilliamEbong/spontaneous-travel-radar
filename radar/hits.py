@@ -36,10 +36,11 @@ def finalize_hit(scored: Scored, city: City, hotels: HotelCheck, s: Scoring, pre
     return x, not failed, failed[0] if failed else "hit"
 
 
-def previous_hit(city_key: str, window_id: str, root="hits") -> dict | None:
+def previous_hit(city_key: str, window_id: str, root="hits", exclude_id: str | None = None) -> dict | None:
+    """Latest earlier hit for this city-window; exclude_id skips the file a same-day re-run is about to overwrite."""
     best = None
     for p in list(Path(root).glob("*.json")) + list(Path(root).glob("dry-run/*.json")):
-        if p.name == "index.json":
+        if p.name == "index.json" or p.stem == exclude_id:
             continue
         h = json.loads(p.read_text(encoding="utf-8"))
         if h.get("city") == city_key and h.get("window_id") == window_id and h.get("is_hit"):
@@ -92,6 +93,11 @@ def write_hit(scored: Scored, city: City, hotels: HotelCheck, events: list[Event
     return j, m
 
 
+def _plain(s: str) -> str:
+    """API-supplied names must not inject markdown links or emphasis into the brief."""
+    return s.replace("[", "(").replace("]", ")").replace("*", "")
+
+
 def _fmt_leg(leg: dict) -> str:
     dep, arr = datetime.fromisoformat(leg["dep"]), datetime.fromisoformat(leg["arr"])
     via = "non-stop" if not leg["stops"] else f"1 stop, {leg['layover_min'] // 60}h{leg['layover_min'] % 60:02d} layover"
@@ -124,13 +130,13 @@ def render_brief(hit: dict) -> str:
         for o in h["options"]:
             all_in = f"${o['total_all_in']:,.0f} all-in" if o["total_all_in"] else "all-in unknown"
             fc = {True: "free cancellation", False: "no free cancellation", None: "cancellation unknown"}[o["free_cancel"]]
-            lines.append(f"- [{o['name']}]({o['link']}) in {o['neighbourhood']}: ${o['total_pre_tax']:,.0f} {o['currency']} "
+            lines.append(f"- [{_plain(o['name'])}]({o['link']}) in {_plain(o['neighbourhood'])}: ${o['total_pre_tax']:,.0f} {o['currency']} "
                          f"before taxes ({all_in}), {o['stars']}-star, rating {o['rating']}, {fc}, check-in {o['check_in'] or '?'}")
         lines.append(f"- Hotel band: {h['band']}" + (f" (check stopped early: {h['skipped']})" if h["skipped"] else ""))
     else:
         lines.append(f"- Hotel check skipped: {h['skipped'] or 'no options met the floor'}")
     lines += ["", "## Events"]
-    lines += [f"- {e['date']}: {e['name']} at {e['venue']}" for e in hit["events"]] or ["- none found"]
+    lines += [f"- {e['date']}: {_plain(e['name'])} at {_plain(e['venue'])}" for e in hit["events"]] or ["- none found"]
     if hit.get("hotel_spike"):
         lines.append("- Big events this weekend: hotel prices may spike.")
     lines += ["", f"[Google Flights]({hit['links']['google_flights']}) · [Google Hotels]({hit['links']['google_hotels']})", ""]

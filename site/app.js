@@ -38,6 +38,9 @@ async function getText(path) {
 const money = (n) => (n == null ? "–" : "$" + Math.round(n).toLocaleString("en-CA"));
 const fmt = (iso, opts) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, ...opts }).format(new Date(iso));
 const when = (iso) => fmt(iso, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+// Leg times are stored as local wall time + offset; show that wall time as written (YYC legs = Calgary time),
+// so an out-of-date browser zone database cannot shift them.
+const wall = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso.slice(0, 19) + "Z"));
 const day = (d) => new Intl.DateTimeFormat("en-CA", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(d + "T12:00:00Z"));
 
 function bandPill(band) {
@@ -151,8 +154,8 @@ function renderBest(latest, series) {
     const cells = [
       el("td", { class: "lead" }, el("span", { class: "city", text: r.city_name }), el("div", { class: "small", text: `${r.airport} · ${r.airlines} · ${stops}` })),
       el("td", { "data-label": head[1] }, el("span", {},
-        el("span", { text: `Leave ${when(r.dates.out_dep)}` }), el("br"),
-        el("span", { text: `Home ${when(r.dates.back_arr)}` }), el("br"),
+        el("span", { text: `Leave ${wall(r.dates.out_dep)}` }), el("br"),
+        el("span", { text: `Home ${wall(r.dates.back_arr)}` }), el("br"),
         el("a", { href: flightsLink(r), rel: "noopener", target: "_blank", class: "small", text: "Google Flights" }))),
       el("td", { "data-label": head[2], class: "num" }, el("span", {}, el("span", { text: money(r.flights_cad_2pax) }), el("div", { class: "small", text: `${money(r.price_pp)} pp` }))),
       el("td", { "data-label": head[3] }, bandPill(r.band)),

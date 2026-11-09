@@ -94,3 +94,20 @@ def test_write_hit_goes_to_dry_run(tmp_path, scored_vancouver):
 def test_realert_only_on_15pct_drop():
     assert not should_realert({"price": {"flights_cad_2pax": 300}}, {"price": {"flights_cad_2pax": 320}}, 15)
     assert should_realert({"price": {"flights_cad_2pax": 250}}, {"price": {"flights_cad_2pax": 320}}, 15)
+
+
+def test_same_day_rerun_does_not_see_its_own_hit(tmp_path, scored_vancouver):
+    s = replace(load_scoring(), mode="dry-run")
+    j, _ = write_hit(scored_vancouver, city("vancouver"), HotelCheck((), None, "no-key"), [], (7.0, "forecast"), s,
+                     root=tmp_path, scan_date=date(2026, 11, 10))
+    wid = scored_vancouver.trip.window_id
+    assert previous_hit("vancouver", wid, root=tmp_path, exclude_id=j.stem) is None
+
+
+def test_brief_neutralises_markdown_in_api_names(tmp_path, scored_vancouver):
+    from radar.events import Event
+    s = replace(load_scoring(), mode="dry-run")
+    evil = Event("[Tickets](https://phish.example) **now**", date(2026, 12, 5), "Music", "Arena", "")
+    _, m = write_hit(scored_vancouver, city("vancouver"), HotelCheck((), None, "no-key"), [evil], (7.0, "forecast"), s, root=tmp_path)
+    text = m.read_text(encoding="utf-8")
+    assert "](https://phish.example)" not in text and "**now**" not in text

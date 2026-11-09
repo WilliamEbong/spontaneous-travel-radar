@@ -69,3 +69,9 @@ def test_assemble_keeps_only_in_window_pairs_and_sums_prices():
     backs = [leg("LAX", "YYC", "2026-11-22T09:00", "2026-11-22T12:30", "America/Los_Angeles", "America/Edmonton", 250)]
     trips = assemble(la, W, outs, backs)
     assert len(trips) == 1 and trips[0].flights_cad_2pax == 550 and trips[0].nights == 2
+
+
+def test_hours_on_ground_counts_the_dst_hour():
+    out = leg("YYC", "LAS", "2027-03-13T06:00", "2027-03-13T09:00", "America/Edmonton", "America/Los_Angeles")
+    back = leg("LAS", "YYC", "2027-03-15T09:00", "2027-03-15T12:00", "America/Los_Angeles", "America/Edmonton")
+    assert hours_on_ground(out, back, 2) == pytest.approx(47 - 3 - 16)   # clocks spring forward on 2027-03-14

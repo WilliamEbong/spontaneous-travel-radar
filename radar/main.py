@@ -56,8 +56,8 @@ def scan(args) -> int:
     legs, errors, skipped, cache_hits, streak, blocked = {}, [], 0, 0, 0, False
     for q in queries:
         cached = (flight_cache / f"{q.key()}.json").exists()
-        if blocked and not cached:
-            skipped += 1
+        if (blocked or time.time() - t0 > args.deadline_min * 60) and not cached:
+            skipped += 1   # past the deadline: score what we have rather than lose the day to the job timeout
             continue
         try:
             legs[(q.origin, q.dest, q.day)] = fetch_leg(q, budget, cache_dir=flight_cache,
@@ -81,7 +81,7 @@ def scan(args) -> int:
 
     tm_key = None if args.offline else os.environ.get("TICKETMASTER_KEY")
     serp_key = None if args.offline else os.environ.get("SERPAPI_KEY")
-    history = read_history(90, today=today)
+    history = [r for r in read_history(90, today=today) if r["scan_date"] != today.isoformat()]  # a re-run must not see itself
     by_city_hist: dict[str, list] = {}
     for r in history:
         by_city_hist.setdefault(r["city"], []).append(r)
@@ -116,14 +116,21 @@ def scan(args) -> int:
             logged = list(cheapest.values()) + ([win] if win not in cheapest.values() else [])
             rows += [quote_row(x, today, scan_ts, x is win) for x in logged]
 
-    hit_ids, cand_ids = [], []
-    for i, x in enumerate(sorted((x for x in winners if x.candidate), key=lambda x: -x.score)):
+    hit_ids, cand_ids, checks = [], [], 0
+    for x in sorted((x for x in winners if x.candidate), key=lambda x: -x.score):
         c, wid = by_key[x.trip.city_key], x.trip.window_id
-        prev = previous_hit(c.key, wid)
-        hc = (check_hotels(c, x.trip.check_in, x.trip.nights, s, api_key=serp_key, cache_dir=day_cache, today=today)
-              if i < MAX_HOTEL_CHECKS_PER_SCAN else HotelCheck((), None, "cap"))
+        hid = f"{today}_{c.key}_{wid}"
+        prev = previous_hit(c.key, wid, exclude_id=hid)
+        g = gates(x, c, s, prev)
+        if not (g["score_ok"] and g["realert_ok"]):
+            hc = HotelCheck((), None, "gated")   # lodging cannot change the score or the re-alert rule: save SerpApi
+        elif checks >= MAX_HOTEL_CHECKS_PER_SCAN:
+            hc = HotelCheck((), None, "cap")
+        else:
+            checks += 1
+            hc = check_hotels(c, x.trip.check_in, x.trip.nights, s, api_key=serp_key, cache_dir=day_cache, today=today)
         x2, is_hit, reason = finalize_hit(x, c, hc, s, prev)
-        cand_ids.append(f"{today}_{c.key}_{wid}")
+        cand_ids.append(hid)
         if s.mode == "dry-run" or is_hit:
             evs, wx = context[(c.key, wid)]
             j, _ = write_hit(x2, c, hc, evs, wx, s, gate=gates(x2, c, s, prev), is_hit=is_hit, scan_date=today)
@@ -173,6 +180,7 @@ def main(argv=None) -> int:
     sp.add_argument("--today", help="scan date YYYY-MM-DD (default: today in Calgary)")
     sp.add_argument("--cities", help="comma-separated city keys")
     sp.add_argument("--budget", type=int, default=900, help="max Google Flights fetch attempts")
+    sp.add_argument("--deadline-min", type=float, default=110, help="stop starting new fetches after this many minutes")
     sub.add_parser("export")
     sub.add_parser("summarize")
     args = ap.parse_args(argv)
