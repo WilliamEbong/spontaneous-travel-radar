@@ -28,7 +28,10 @@ and deleting remote branches is blocked. Plain `curl` to `https://api.github.com
   closest safe thing, write down why, and keep going. Do not stop silently.
 
 ## 2. Never
-New dependencies, paid services, more requests (cron, `--budget`, lookahead), the trip-window rule,
+New dependencies, paid services, more requests (cron, `--budget`, lookahead; the plan's (d2)
+round-trip reprice is the one exception), the trip-window rule (leave 19:30 the evening before Day 1
+to 23:59 Day 1, home by 16:00: `radar/windows.py` and the Day-1 query) and the `time_curve` block in
+`config/scoring.yaml` (William's floor, D-51),
 secrets or `.env`, `.github/workflows/`, `routine/`, `index.html`, `site/`, `config/days_off.yaml`,
 `config/cities.yaml`. Do not merge your own PR, and do not push to `main` except the note in step 4.
 

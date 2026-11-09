@@ -37,7 +37,7 @@ For the first month it runs in **learning mode**: it collects, scores and logs, 
 
 ## 3. Hard constraints
 
-1. **Trip window** (the only hard filter, Section 4).
+1. **Trip window** (the only hard filter, Section 4): leave from 7:30pm the evening before Day 1 through the end of Day 1, home in Calgary by 4pm on the last day off. Since 2026-11-09 (D-50) a later Day-1 start is not filtered out: the time score charges for it, and a trip with under 10% of the window's possible waking hours is dropped (D-51).
 2. **Two adults**, round trip from Calgary (YYC). Single tickets are useless.
 3. **$0 new spend.** Free tiers and free hosting only. Nothing with a credit card on file.
 4. **Claude usage is scarce.** Runs on William's Max plan but must be rare and short; William saves usage for coding. Target: at most 4 to 8 Claude runs per month, each on a cheap model where the task allows, each reading a pre-computed JSON summary rather than raw data.
@@ -47,21 +47,21 @@ For the first month it runs in **learning mode**: it collects, scores and logs, 
 
 Given a block of three consecutive days off, Day 1, Day 2, Day 3 (Day 3 is the last day off; work resumes Day 4):
 
-- **Depart:** from 7:30pm Calgary time on the evening before Day 1, up to noon Calgary time on Day 1.
+- **Depart:** from 7:30pm Calgary time on the evening before Day 1, up to 11:59pm Calgary time on Day 1. Until 2026-11-09 this ended at noon; William softened it (D-50) because good Day-1 afternoon flights were never priced. A late start costs time-score points instead (Section 7).
 - **Return:** land in Calgary from the evening of Day 2 (after about 5pm) until **4:00pm Calgary time on Day 3**. 4pm is the absolute latest, not the goal; earlier landings score higher.
 
-Both bounds are evaluated in Calgary local time regardless of the destination's zone. An itinerary outside this window is discarded before scoring.
+Both bounds are evaluated in Calgary local time regardless of the destination's zone. An itinerary outside this window is discarded before scoring, and so is one with less than 10% of the window's best possible waking hours (D-51).
 
 **Window generation.** Day-off blocks come from weekends plus one vacation day, and from stat holidays:
 
 | Pattern | Day 1..3 | Depart | Return |
 |---|---|---|---|
-| Friday off | Fri, Sat, Sun | Thu 7:30pm to Fri noon | Sat ~5pm to Sun 4pm |
-| Monday off | Sat, Sun, Mon | Fri 7:30pm to Sat noon | Sun ~5pm to Mon 4pm |
+| Friday off | Fri, Sat, Sun | Thu 7:30pm to Fri 11:59pm | Sat ~5pm to Sun 4pm |
+| Monday off | Sat, Sun, Mon | Fri 7:30pm to Sat 11:59pm | Sun ~5pm to Mon 4pm |
 | Stat on Fri or Mon | same as above, no vacation day used | | |
-| Stat on Thu or Tue | 4-day block with one vacation day (Thu+Fri+Sat+Sun, or Sat+Sun+Mon+Tue) | 7:30pm the evening before Day 1 to noon Day 1 | evening of Day 3 to 4pm Day 4 |
+| Stat on Thu or Tue | 4-day block with one vacation day (Thu+Fri+Sat+Sun, or Sat+Sun+Mon+Tue) | 7:30pm the evening before Day 1 to 11:59pm Day 1 | evening of Day 3 to 4pm Day 4 |
 
-The general form: for a block of N consecutive days off, depart from 7:30pm the evening before Day 1 to noon Day 1; return from the evening of Day N−1 to 4pm Day N. Hotel nights are counted from the itinerary, not the window: a Thursday-evening arrival with a Sunday departure is 3 nights (an arrival before 5am books the previous night). The time-there score is normalised to the best possible for that window's length (about 49.5 waking hours for a 3-day block). The 3-day windows embedded in a 4-day block are generated too; they are just other windows, and a cheaper shorter trip can outscore the longer one.
+The general form: for a block of N consecutive days off, depart from 7:30pm the evening before Day 1 to 11:59pm Day 1; return from the evening of Day N−1 to 4pm Day N. Hotel nights are counted from the itinerary, not the window: a Thursday-evening arrival with a Sunday departure is 3 nights (an arrival before 5am books the previous night). The time-there score is normalised to the best possible for that window's length (about 49.5 waking hours for a 3-day block). The 3-day windows embedded in a 4-day block are generated too; they are just other windows, and a cheaper shorter trip can outscore the longer one.
 
 Stat holidays are hard-coded in `config/holidays.yaml` for the current and next year, with a selectable calendar: `alberta` (default), `ontario`, or `federal`. William's employer is Ontario-based, so this is an open question (Section 11). The window generator looks 3 to 45 days ahead. Both the Friday-off and Monday-off pattern are generated for every weekend; they share scan dates (Thu, Fri, Sat out; Sat, Sun, Mon back), so one set of date queries covers both.
 
@@ -183,7 +183,7 @@ Everything the dashboard needs is produced by the collector; Claude adds judgmen
 | Factor | Weight | Measure |
 |---|---|---|
 | Price | 40 | Realistic total for two (flights + estimated 2 nights lodging + airport transfers) against the route's band (7.3) and history percentile. |
-| Time there | 15 | Waking hours on the ground: destination arrival + 1h to departure − 2h, minus 8h per night, computed in local times. Scaled against the best possible for that window (~55h). |
+| Time there | 15 | Waking hours on the ground: destination arrival + 1h to departure − 2h, minus 8h per night, computed in local times. Scaled against the best possible for that window (49.5h for a 3-day block): 0 points at 10% of it, full points at 70% (real trips top out near 70-75% once flight time is counted), linear between; under 10% the trip is dropped. Anchors in `config/scoring.yaml: time_curve` (D-51). |
 | Convenience | 10 | Non-stop 10, direct 9, one connection under 2.5h 5, longer 2. Minus for airport-to-core over 45 min, car needed, red-eye arrivals after midnight. |
 | City rank | 15 | Fixed per city from config. |
 | Things on | 10 | Ticketmaster events in the window, weighted by venue size. Large events raise the score but set a "hotel spike" flag. |

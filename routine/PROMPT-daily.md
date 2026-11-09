@@ -41,8 +41,9 @@ Look for:
 - cities with no non-stop all week: is the route really absent, or are the airports in
   `config/cities.yaml` wrong?
 - parse anomalies: price outliers (over 3x the city median), impossible times, zero-hour trips;
-- hard window rule violations (leave before 19:30 Calgary the evening before day 1, home in Calgary
-  by 16:00 on the last day off): any row that breaks it is a bug;
+- hard window rule violations (leave from 19:30 Calgary the evening before day 1 through 23:59 on
+  day 1, home in Calgary by 16:00 on the last day off) or a trip under the `time_curve.zero_at`
+  floor: any row that breaks it is a bug;
 - scoring results no human would pick (for example a one-stop red-eye ranked above a cheaper non-stop);
 - band fit: compare each `flight_bands` group in `config/scoring.yaml` with the `price_pp`
   percentiles (`min`, `p10`, `p25`, `p50`) in `data/weekly-summary.json`;
@@ -65,8 +66,9 @@ per-city `bar_cad`, airports, round-trip reprice, code fix. One class per day.
   LAS smoke test round trip 13% lower (1,778 vs 2,050 for two). Google's own headline for the YYZ
   flights was 708, so one-way sums run 10 to 15% above what William sees.
 - Never: new dependencies, paid services, more requests (cron, `--budget`, lookahead; the
-  round-trip reprice above is the one exception), the hard
-  window rule (`radar/windows.py` and its times), secrets or `.env`, `.github/workflows/`,
+  round-trip reprice above is the one exception), the trip-window rule (leave 19:30 the evening
+  before Day 1 to 23:59 Day 1, home by 16:00: `radar/windows.py`, the Day-1 query in
+  `radar/flights.py`) and the `time_curve` block in `config/scoring.yaml`, secrets or `.env`, `.github/workflows/`,
   `routine/` (your own instructions), `index.html`, `site/`.
 - Work on a new branch `radar/iter-<date>`. `python -m pytest -q` must pass. Commit with a
   conventional message, push the branch, and open a PR into `main` titled `iter <date>: <what>`.

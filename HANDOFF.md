@@ -44,6 +44,11 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   fine-grained token William pastes once (steps in `README.md`, "Settings from the dashboard"). The
   token lives in the browser only. The routine may edit `config/scoring.yaml`; the panel retries on a
   sha conflict. William has not created the token yet as of this note.
+- Window rule softened, 2026-11-09 evening (D-50, D-51): leave from 19:30 the evening before Day 1
+  through 23:59 on Day 1 (was noon); home by 16:00 stays hard. Time score is linear from 10% to 70%
+  of the window's best possible waking hours (`config/scoring.yaml: time_curve`), and trips under 10%
+  are dropped. The request suggested 0.4/0.9; the data showed that would drop the trip that motivated
+  the change, so 0.10/0.70 (details in D-51). The first scan with it is 2026-11-10.
 
 ## Enable procedure for `radar-daily` (done 2026-11-09; kept for a re-enable)
 

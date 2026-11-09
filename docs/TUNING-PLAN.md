@@ -86,7 +86,8 @@ fixed budget per trial, and keep or revert.
   length (30 to 90 days), the history blend weight in the price score (once (d) makes it a config
   value), `score_threshold` (70 to 90), the `price` weight (30 to 50, others rescaled to keep the
   total 100).
-- Guardrails: never edit `config/cities.yaml`, `days_off.yaml`, the window rule, request volume,
+- Guardrails: never edit `config/cities.yaml`, `days_off.yaml`, the window rule (leave 19:30 the
+  evening before Day 1 to 23:59 Day 1, home by 16:00), `time_curve` (William's floor, D-51), request volume,
   or anything outside `config/scoring.yaml` during the loop. If the final holdout metric is worse
   than the baseline holdout, ship only (d) with the static seeds' best percentiles and say why.
 
