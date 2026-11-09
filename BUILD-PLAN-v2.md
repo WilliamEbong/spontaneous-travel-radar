@@ -1,5 +1,11 @@
 # Build plan v2: deal model, three passes, dashboard (2026-11-09)
 
+> **Build status (branch `v2-deal-model`, 2026-11-09).** T1 to T10 done, T11 in progress; per-task
+> state in `specs/002-deal-model-and-passes/tasks.md`, judgment calls D-57 to D-72 in
+> `docs/notes/decisions.md`, run log in `SESSION-LOG.md`, hand-over in `HANDOFF.md`. Not merged.
+> Changed with evidence: the price line keeps falling past 1.30 (D-59); pass 1 assumes a good room
+> (D-58); the round-trip reprice is not built (D-61); three lodging centres moved (D-68).
+
 Owner: William. Written by the design session after a day of running v1 and a long design discussion.
 Executor: a fresh Opus session running `/build-continuously`. Read, in this order: `HANDOFF.md`,
 `docs/notes/decisions.md`, `docs/research/2026-11-09-fare-references.md`, then this plan. The

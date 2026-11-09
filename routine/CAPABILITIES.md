@@ -1,6 +1,10 @@
 # Claude routine capabilities (probed 2026-11-09)
 
-Routines are created through the `RemoteTrigger` API (environment `Default`). Month one runs on
+Routines are created through the `RemoteTrigger` API (environment `Default`). Since v2 `radar-daily` also
+runs pass 3 (research of what is on, a Sonnet subagent for Airbnb, `python -m radar.main finalize`) on at most
+three candidates a day; the collector's pass 2 uses SerpApi (Google Hotels and vacation rentals) with a
+self-cap of 200 lookups a month (free tier 250). Web search and fetch inside the routine were not probed; the
+prompt tells it to finalize with no finds and say so in the note if they fail. Month one runs on
 `claude-opus-5-5` (D-28): `radar-daily` and the weekly digest. The hit routine is on Sonnet 5.5 (it
 only runs after go-live). Each routine is limited to the Gmail connector. `radar-daily` and the
 GitHub probe carry a one-line prompt that reads their instructions from `routine/PROMPT-*.md` in the

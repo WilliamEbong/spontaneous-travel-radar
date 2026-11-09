@@ -84,6 +84,9 @@ less, about 25 at 75%, 0 at 100%, a gentle negative slope beyond so cheaper stil
 non-deals. With January weather (4/10), full time (20), convenience (10) and city (12), the "good"
 trip scores about 74 (a near-miss), $650 scores about 83 (a hit), the exceptional trip about 90.
 
+> Correction (v2 build, D-60): with these anchors as straight lines the good trip (share 0.754) scores 70.6, not 74;
+> $650 scores 83.0 and the exceptional trip 91.0. The good trip is still a near miss: it reaches pass 2 (70+), not a hit (80).
+
 ## Weak spots
 
 Seattle's Google scrape failed; Palm Springs returned nothing (winter-only route; retry needed);
@@ -97,3 +100,14 @@ Google Flights results pages (live, 2026-11-09, via Firecrawl); yycdeals.com tag
 titles; Business in Vancouver and Daily Hive on Vancouver hotel rates (CoStar data); Airbnb newsroom
 (CoStar July 2025 ADR); Gokanada (2023 downtown average); Ratepunk, Momondo, Skyscanner, Expedia,
 Priceline route pages for monthly medians and booking windows; Google Hotels via SerpApi (live).
+
+## Addendum: room ladders from Google Hotels (v2 build, 2026-11-09)
+
+`scripts/room_references.py` ran the pass-2 hotels search for 15-17 Jan and 16-18 Jul 2027 (4-5 star, rated 4.3+,
+within 6 km of the centre, cheapest first): typical = median nightly pre-tax rate of the ten cheapest acceptable
+rooms, good 0.75x, exceptional 0.57x. Results are in `config/references.yaml` (`source: google-hotels 2026-11-09`).
+Three lodging centres were moved first (D-68): New York to Union Square, Mexico City to Roma Norte, and Los Angeles
+now searches Downtown Los Angeles. Kept as estimates: San Francisco summer (2 acceptable rooms) and New Orleans
+winter (Google showed $620 a night that weekend, an event, against $185 in July). Notable: Chicago is cheap in
+January ($110) and dear in July ($335), Palm Springs the reverse ($370 and $270), Vancouver in July $510. One
+weekend per season is a thin sample.

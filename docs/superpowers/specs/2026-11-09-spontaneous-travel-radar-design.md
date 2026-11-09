@@ -3,6 +3,7 @@
 Date: 2026-11-09
 Owner: William Ebong (Calgary, YYC)
 Status: design complete; build plan to follow in a separate session; build with Opus 5.5 starting 2026-11-10.
+**v2 (2026-11-09):** the price model, the passes and the page changed; section 14 supersedes 7.3 to 7.5 and parts of 6 and 7.
 
 ## 1. Intent
 
@@ -142,6 +143,8 @@ Everything the dashboard needs is produced by the collector; Claude adds judgmen
 
 ### 6.2 Tier 1: collector (deterministic, free)
 
+> v2: Ticketmaster is gone, the hotel check is pass 2 (hotels and rentals, three candidates a scan) and pass 3 is the daily routine's; see section 14.
+
 - Python, `fast-flights` v3 (reads Google Flights; verified API: `create_query(flights=[FlightQuery(date, from_airport, to_airport, earliest_departure_hour, latest_departure_hour, earliest_arrival_hour, latest_arrival_hour, max_stops)], trip, passengers=Passengers(adults=2), currency="CAD", carry_on_bags=1, exclude_basic_economy=True)` then `get_flights(query)` returning itineraries with per-segment airports, dates, times, airline codes, duration and price). `carry_on_bags=1` makes Google price the fare with a carry-on, which is the "realistic price" for free. Its free fetcher does **not** expose Google's low/typical/high label (only its paid data-source integration does), so the cold-start baseline is the absolute bands plus our own history; recovering the label from the raw payload is an optional spike, never a dependency. Risk: Google bot detection. See 6.5.
 - One scan per day (William's call; cadence is a config knob). Each scan: for every city, every weekend in range, query the shared date set (out Thu/Fri/Sat, back Sat/Sun/Mon). Builder decides between round-trip queries and one-way sums after testing what `fast-flights` returns; the design requires per-segment departure/arrival times, airline, stop count, and total price for 2 adults in CAD.
 - Request budget: about 500 to 900 Google requests per scan. Spread them out (a few seconds between requests, randomized) and scan nearer weekends daily, farther ones every second day, if blocks appear.
@@ -152,6 +155,8 @@ Everything the dashboard needs is produced by the collector; Claude adds judgmen
 - Hosting: **GitHub Actions cron, first choice** (free, PC-independent). **Fallback: Windows Task Scheduler on William's PC** if Google blocks GitHub's IP ranges; residential IPs at this rate are rarely blocked. Day one of the build includes a block test from both. Whichever host runs the collector, it commits results to the same repo.
 
 ### 6.3 Dashboard (static, free, zero Claude)
+
+> v2 page order: hits, passed (70+), every city, notes; section 14.4.
 
 - A single static HTML page served by GitHub Pages from the repo, reading `data/latest.json`, `data/history/*.json` and `hits/`. Shareable URL, checked once a day.
 - Sections: (1) **Best right now**, one row per city: cheapest realistic fare for two in any window, dates, our band, history percentile once available, worth-it score, a 30-day sparkline. (2) **Hits**, each rendering its templated brief from `hits/`. (3) **Would-have-fired** list during month one, from `hits/dry-run/`. (4) **Weekly digests**, from `data/digests/<date>.md`. (5) **Health**: last scan time, request count, block/error status, SerpApi searches used this month, per-city "no non-stop found" flags.
@@ -179,6 +184,8 @@ Everything the dashboard needs is produced by the collector; Claude adds judgmen
 | Claude usage creep | Routine runs only on hits plus 4 digests; compact JSON input; cheap model; no browsing in the routine. |
 
 ## 7. Scoring
+
+> Superseded in part by section 14 (v2): no flight or hotel bands, no per-city bar, no events factor, basic fares allowed. The time, convenience and weather measures below still apply.
 
 ### 7.1 Worth-it score (0 to 100)
 
@@ -313,3 +320,48 @@ Answered by default so the build can start; William can change any of them in th
 Data-source scan (2026-11-09): Amadeus Self-Service decommissioned July 2026; SerpApi Google Flights/Hotels pricing and free tier; `fast-flights` v3.1.0 (github.com/AWeirdDev/flights); Travelpayouts Data API docs; Ticketmaster Discovery API limits; Open-Meteo pricing; Airbnb ToS 11.1; Booking/Expedia partner-only access.
 
 Deal calibration (2026-11-09): Going deal grades (standard deviations below route average; Top-15% ≈ −2.6 SD); Hopper "better than 95% of prices seen"; Kayak typical range (good deal = below lower bound, 19 to 28% under the 12-month average on YYC routes); Google Flights low/typical/high; Dollar Flight Club bottom-25%; YYC Deals posting floor (30%+ below typical best, ULCC +$100 to $120); Kayak 12-month YYC averages and YYC Deals posted fares 2022 to 2026 for YVR, SEA, LAS, LAX, SFO, DEN, PSP/PHX, YYZ, YUL, ORD, NYC, Mexico sun; 2025 hotel ADRs for NYC, Chicago, SF, Las Vegas, Vancouver, Toronto, Montreal, Seattle, Denver; STR weekday/weekend premiums; HotelTonight 16 to 17% typical same-day discount.
+
+## 14. v2 deal model (2026-11-09)
+
+Day one showed the v1 price model judged trips against weekends that do not exist (seeded bands, fixed per-city
+bars, Standard-only fares) and counted crowds as events. William's v2 decisions are final (`BUILD-PLAN-v2.md`);
+build decisions D-57 to D-72; spec `specs/002-deal-model-and-passes/`. This section replaces 7.3 to 7.5, the
+events factor in 7.1, the basic-fare exclusion in 7.2, the Ticketmaster call in 6.2, the would-have-fired list in
+6.3, and the routine's role in 6.4.
+
+### 14.1 Route ladders
+
+`config/references.yaml` gives every city a flights ladder (typical, good, exceptional; CAD per person, round
+trip, carry-on, any fare family) from `docs/research/2026-11-09-fare-references.md`, and a room ladder per season
+(winter = check-in Nov to Mar) per night before tax in the city's hotel currency, from Google Hotels
+(`scripts/room_references.py`, D-68) or, for two city-seasons, the old tiers as estimates. Hotel tax is a factor
+per country, Vancouver 1.185 from Google's own totals. Fares include AC and WestJet Basic and Flair, with the bag
+priced in (D-57).
+
+### 14.2 One price term
+
+Typical trip T = 2 x typical fare + nights x typical room x tax + transfers (CAD). share = complete trip / T.
+Price points (weight 45): 45 at share 0.60 or less, 25 at 0.75, 0 at 1.00, -10 at 1.30, straight lines, and the
+same slope past 1.30 down to -40 (D-59). The other weights: time 20, convenience 10, city 15, weather 10, with the
+7.1 measures. A trip's ladder label (exceptional, good, typical, above) comes from its fare per person alone and
+is shown, not scored. No budget anywhere in scoring; an optional overall cap (`cap_cad`, off) can block a hit.
+
+### 14.3 Three passes
+
+| Pass | Who | What | Cost |
+|---|---|---|---|
+| 1 | collector, every trip | score with lodging at the season's good room rate (D-58) | free |
+| 2 | collector, at most 3 candidates a scan | Google Hotels (4-5 star, 4.3+) and vacation rentals within 6 km of the centre (3 to 6 km = fringe, -3 convenience); best option by score; rescore the same price term | 2 SerpApi lookups each, cap 200 a month |
+| 3 | `radar-daily` (Opus), at most 3 a day | what is on for those dates against `config/interests.yaml` (uniqueness x fit x affordability, up to +10), Airbnb by a Sonnet subagent, then `radar.main finalize` | candidates only, cached 7 days |
+
+Candidate: fare at or under the route's good and pass-1 score 70+ (per class). Hit: final score 80+ (per class).
+A city-window checked in the last 7 days is not checked again unless its fare drops 15% (D-66). A candidate that
+cannot reach the hit line even with 10 what's-on points is dropped after pass 2 (D-67). Files: `hits/candidates/`,
+then `hits/dry-run/` (learning-run hit), `hits/` (live hit) or `hits/near-miss/` (D-69).
+
+### 14.4 The two classes on the page
+
+The dashboard leads with hits, then every trip that scored 70+ and the pass it reached, then every city's best
+deal with its ladder, then the daily note. Hits and Passed list "No day off needed" first, then "Needs a day off".
+Weekend trips carry a gold border and gold label; day-off trips stay neutral; the label is always printed (D-72).
+The Settings panel has a switch and a hit line per class, read-only ladders and the optional cap.
