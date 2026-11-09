@@ -31,7 +31,11 @@ Read this first if you are picking the build up in a fresh session. Then read `S
 3. T017: FR-006 says every quote is logged; D-12 logs the cheapest per airport plus the winner.
    William to confirm.
 4. Bands sit far below realistic carry-on, no-basic fares (D-03, D-04, D-26): all 119 city-windows
-   on day one band "bad", so there are no candidates and no hotel checks until William retunes.
+   on day one band "bad", so there are no candidates and no hotel checks until the bands move.
+   Decided 2026-11-09: William keeps basic fares excluded (`EXCLUDE_BASIC` stays `True`). Retune
+   `config/scoring.yaml` from the project's own data after two weeks of scans (target: the digest of
+   2026-11-23): per city, amazing/good/average at about p10/p25/p50 of `price_pp` from
+   `data/weekly-summary.json`.
 
 ## Gotchas
 
