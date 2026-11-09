@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Travel Radar</title>
+  <meta name="description" content="Weekend trips for two from Calgary: the best fare per city right now, scored, with scan health.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%232a78d6' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232a78d6'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="site/style.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Travel Radar</h1>
+      <p class="sub">Weekend trips for two from Calgary (YYC). Fares in CAD for two adults with a carry-on each, basic fares excluded.</p>
+    </div>
+    <p id="scan-meta" class="meta" aria-live="polite">Loading the latest scan…</p>
+  </header>
+  <p id="banner" class="banner" hidden></p>
+
+  <main>
+    <section aria-labelledby="best-h">
+      <h2 id="best-h">Best right now</h2>
+      <p class="hint">One row per city: its highest-scoring trip inside the window (leave after 7:30pm the evening before, home in Calgary by 4pm on the last day off). Times are Calgary time.</p>
+      <div id="best"></div>
+    </section>
+
+    <section aria-labelledby="hits-h">
+      <h2 id="hits-h">Hits</h2>
+      <div id="hits"></div>
+    </section>
+
+    <section aria-labelledby="dry-h">
+      <h2 id="dry-h">Would have fired</h2>
+      <p class="hint">Learning run: candidates that reached the hotel check are logged here instead of alerting.</p>
+      <div id="dry"></div>
+    </section>
+
+    <section aria-labelledby="dig-h">
+      <h2 id="dig-h">Weekly digests</h2>
+      <div id="digests"></div>
+    </section>
+
+    <section aria-labelledby="health-h">
+      <h2 id="health-h">Health</h2>
+      <div id="health"></div>
+    </section>
+
+    <section aria-labelledby="hist-h">
+      <details>
+        <summary><h2 id="hist-h">Price history table</h2></summary>
+        <p class="hint">Cheapest logged fare per person per scan day, last 30 days.</p>
+        <div id="history"></div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>Free collector on GitHub Actions; data from Google Flights, SerpApi Google Hotels, Ticketmaster and Open-Meteo.
+      <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a> ·
+      <a href="https://github.com/WilliamEbong/spontaneous-travel-radar/blob/main/docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md">Design</a></p>
+  </footer>
+  <div id="tip" class="tip" role="status" hidden></div>
+  <script src="site/app.js"></script>
+</body>
+</html>

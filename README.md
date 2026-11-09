@@ -5,7 +5,7 @@ trips that fit a one-vacation-day weekend (leave after 7:30pm the evening before
 last day off), scores complete trips (flights, two nights, context), logs every quote, and shows the
 best of them on a static dashboard. Month one is a dry-run learning period: no alerts.
 
-- Dashboard: _set up in Task 12_
+- Dashboard: https://williamebong.github.io/spontaneous-travel-radar/
 - Design: `docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md`
 - Build plan: `BUILD-PLAN.md`; build decisions: `docs/notes/decisions.md`
 - Config: `config/` (cities, holidays, scoring, airlines)

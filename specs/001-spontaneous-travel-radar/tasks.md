@@ -18,10 +18,10 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 - [x] T008 Store and history percentile (`radar/store.py`, `tests/test_store.py`)
 - [x] T009 Hotel check and hits (`radar/hotels.py`, `radar/hits.py`, `tests/test_hotels_hits.py`)
 - [x] T010 Export and CLI, offline end-to-end (`radar/export.py`, `radar/main.py`, `tests/test_main_offline.py`)
-- [ ] T011 GitHub Actions cron and PC fallback (`.github/workflows/scan.yml`, `scripts/run-scan.ps1`)
+- [x] T011 GitHub Actions cron and PC fallback (`.github/workflows/scan.yml`, `scripts/run-scan.ps1`)
 
 ## Phase 4: US1 dashboard (P1)
-- [ ] T012 Dashboard on GitHub Pages (`index.html`, `site/app.js`, `site/style.css`)
+- [x] T012 Dashboard on GitHub Pages (`index.html`, `site/app.js`, `site/style.css`)
 
 ## Phase 5: US4 routines (P3)
 - [ ] T013 Routine prompts, capability probe, routines (`routine/*.md`)

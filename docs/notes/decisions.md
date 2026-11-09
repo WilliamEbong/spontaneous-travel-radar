@@ -22,3 +22,6 @@ Items marked **check** are ones William should look at.
 - **D-17** At most 3 candidates per scan get a SerpApi hotel check (highest score first); others are written with `skipped: cap`. Spreads the 60/month cap. Tune `MAX_HOTEL_CHECKS_PER_SCAN` in `radar/main.py`.
 - **D-18** If 15 fetches in a row fail, the scan stops fetching (`health.blocked: true`) and scores what it has, rather than burning 900 attempts against a block.
 - **D-19** A re-run on the same day replaces that day's history file instead of appending duplicates. The fetch cache stores slimmed itineraries (only the fields `to_leg` reads).
+- **D-20** Scan cron is 10:17 UTC (03:17 MST / 04:17 MDT) so an ~80-minute scan finishes before the Monday 07:00 digest. A push touching `index.html` or `site/**` redeploys Pages without scanning; every deploy checks out the latest `main`.
+- **D-21** Bot commits use `chore: data scan YYYY-MM-DD` (your conventional-commit types) instead of the plan's `data:` prefix.
+- **D-22** Dashboard band pills: amazing green, good blue, average gray (a deliberate neutral, so it fails the palette validator's chroma check on purpose), bad red. Each pill always shows its text label, so colour never carries the meaning alone. The sparkline is a single 2px series with hover/focus tooltips; the same numbers are in the "Price history table".
