@@ -64,3 +64,10 @@ def test_rotation_keeps_secondary_airports_alternating():
 def test_full_matrix_fits_the_budget():
     ws = generate_windows(date(2026, 11, 10), set())
     assert len(build_queries(load_cities(), ws, scan_date=date(2026, 11, 10))) <= 800   # headroom for retries
+
+
+def test_slim_items_parse_the_same():
+    from radar.flights import slim
+    for name, dest, tz in (("ff_yyc_yvr_oneway.json", "YVR", "America/Vancouver"), ("ff_one_stop.json", "LAS", "America/Los_Angeles")):
+        for raw in load_fixture(name):
+            assert to_leg(slim(raw), "YYC", dest, "America/Edmonton", tz) == to_leg(raw, "YYC", dest, "America/Edmonton", tz)
