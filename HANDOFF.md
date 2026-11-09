@@ -16,10 +16,12 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   are in the local `.env` (gitignored).
 - Routines (month one on Opus 5.5, D-28; Gmail connector only):
   - `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *` (05:30 Calgary),
-    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Enabled**
-    2026-11-09; first run 2026-11-10 about 12:30 UTC.
-  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, **disabled** 2026-11-09 (folded into the Monday
-    note of `radar-daily`, D-30).
+    window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`. **Still disabled**:
+    the probe passed, but the auto-mode permission check refused to let this session enable it.
+    William turns it on at https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw (or approves
+    the call). The next 12:30 UTC slot is its first run.
+  - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, still **enabled** as the fallback. Disable it
+    right after `radar-daily` is on (D-30).
   - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, Sonnet, **disabled**, no schedule, no webhook.
   - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, done. The re-run at 15:43 UTC passed for push
     auth, PR open and comment read; Codex did not review the probe PR (D-36). Results in
