@@ -1,7 +1,8 @@
 # Claude routine capabilities (probed 2026-11-09)
 
-Routines are created through the `RemoteTrigger` API (environment `Default`, model `claude-haiku-5-5`,
-the cheapest offered). Each routine is limited to the Gmail connector.
+Routines are created through the `RemoteTrigger` API (environment `Default`). The digest and hit
+routines run on `claude-sonnet-5-5` (switched from Haiku 5.5 on 2026-11-09, D-27); the probe ran on
+Haiku. Each routine is limited to the Gmail connector.
 
 ## Probe run
 

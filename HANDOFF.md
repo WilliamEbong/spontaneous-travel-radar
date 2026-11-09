@@ -14,7 +14,7 @@ Read this first if you are picking the build up in a fresh session. Then read `S
 - Dashboard: https://williamebong.github.io/spontaneous-travel-radar/ (Pages source = GitHub Actions).
 - Secrets `SERPAPI_KEY` and `TICKETMASTER_KEY` are set as Actions secrets (William set them) and
   are in the local `.env` (gitignored).
-- Routines (Haiku 5.5, Gmail connector only):
+- Routines (Sonnet 5.5 since 2026-11-09, D-27; Gmail connector only):
   - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Mondays 14:00 UTC (07:00 Calgary), real work only
     2026-11-16 to 2026-12-07; emails the digest because routines cannot push yet.
   - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, **disabled**, no schedule, no webhook.
