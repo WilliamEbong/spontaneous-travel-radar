@@ -82,11 +82,13 @@ fixed budget per trial, and keep or revert.
   labels mode). Otherwise revert the file (`git checkout -- config/scoring.yaml`).
 - Log every trial to `docs/tuning-log.md`:
   `| # | change | train | holdout | kept |`.
-- Candidates, in rough order: the rolling percentiles (amazing/good/average), the rolling window
+- Candidates, in rough order: the weekend gates (`trip_classes.weekend.gate_band`, `gate_min_score`,
+  `gate_max_bar_share`, D-52), the rolling percentiles (amazing/good/average), the rolling window
   length (30 to 90 days), the history blend weight in the price score (once (d) makes it a config
   value), `score_threshold` (70 to 90), the `price` weight (30 to 50, others rescaled to keep the
   total 100).
-- Guardrails: never edit `config/cities.yaml`, `days_off.yaml`, the window rule (leave 19:30 the
+- Guardrails: never edit `config/cities.yaml`, `days_off.yaml`, the trip classes' date ranges and hard rules
+  (everything in `trip_classes` except the weekend `gate_*`, plus `dayoff_min_weeks`, `weekend_trips`), the window rule (leave 19:30 the
   evening before Day 1 to 23:59 Day 1, home by 16:00), `time_curve` (William's floor, D-51), request volume,
   or anything outside `config/scoring.yaml` during the loop. If the final holdout metric is worse
   than the baseline holdout, ship only (d) with the static seeds' best percentiles and say why.
@@ -97,6 +99,8 @@ fixed budget per trial, and keep or revert.
   `rolling_bands: {amazing: 10, good: 25, average: 50}` (percentiles), `rolling_window_days: 60`,
   `rolling_min_days: 14`, `history_blend: 0.5` (the weight `score_trip` gives `history_pct`).
   Add them to `Scoring` in `radar/config.py`, with defaults that reproduce today's behaviour.
+- Percentiles are per route and trip class (`trip_class` on each row; rows without it are `dayoff`):
+  weekend rows allow basic fares and are non-stop, so they must not set the day-off bands.
 - A route's bands = those percentiles of its own `price_pp` over the trailing
   `rolling_window_days`, from history before today. Until a route has `rolling_min_days` scan days,
   use its static `flight_bands` group (the seeds stay as the fallback). Enforce

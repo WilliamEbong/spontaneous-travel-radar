@@ -37,7 +37,7 @@ For the first month it runs in **learning mode**: it collects, scores and logs, 
 
 ## 3. Hard constraints
 
-1. **Trip window** (the only hard filter, Section 4): leave from 7:30pm the evening before Day 1 through the end of Day 1, home in Calgary by 4pm on the last day off. Since 2026-11-09 (D-50) a later Day-1 start is not filtered out: the time score charges for it, and a trip with under 10% of the window's possible waking hours is dropped (D-51).
+1. **Trip window** (the only hard filter, Section 4; since 2026-11-09 one rule per trip class, D-52). Day-off trips (Section 4) start at least 6 weeks out so both of you can get the time approved, and run to 16 weeks out. Weekend-only trips need no day off: leave Friday from 5:30pm through Saturday noon, home in Calgary by 4pm Sunday, non-stop only, 3 hours or less in the air, 3 to 42 days out, and they fire only when exceptional (amazing fare, score 88+, complete trip within 70% of the city's bar). Day-off rule: leave from 7:30pm the evening before Day 1 through the end of Day 1, home in Calgary by 4pm on the last day off. Since 2026-11-09 (D-50) a later Day-1 start is not filtered out: the time score charges for it, and a trip with under 10% of the window's possible waking hours is dropped (D-51).
 2. **Two adults**, round trip from Calgary (YYC). Single tickets are useless.
 3. **$0 new spend.** Free tiers and free hosting only. Nothing with a credit card on file.
 4. **Claude usage is scarce.** Runs on William's Max plan but must be rare and short; William saves usage for coding. Target: at most 4 to 8 Claude runs per month, each on a cheap model where the task allows, each reading a pre-computed JSON summary rather than raw data.
@@ -51,6 +51,8 @@ Given a block of three consecutive days off, Day 1, Day 2, Day 3 (Day 3 is the l
 - **Return:** land in Calgary from the evening of Day 2 (after about 5pm) until **4:00pm Calgary time on Day 3**. 4pm is the absolute latest, not the goal; earlier landings score higher.
 
 Both bounds are evaluated in Calgary local time regardless of the destination's zone. An itinerary outside this window is discarded before scoring, and so is one with less than 10% of the window's best possible waking hours (D-51).
+
+**Trip classes (D-52).** Day-off windows (the table below) are scanned with Day 1 from `dayoff_min_weeks` (default 6, set on the dashboard) to 10 weeks beyond that, basic fares excluded. Weekend windows (one per weekend, no day off, the rule in Section 3) are scanned 3 to 42 days out, basic fares allowed, for cities with `air_time_min` of 180 or less. Settings live in `config/scoring.yaml: trip_classes`.
 
 **Window generation.** Day-off blocks come from weekends plus one vacation day, and from stat holidays:
 

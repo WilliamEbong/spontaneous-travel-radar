@@ -23,7 +23,7 @@ hard rules and gates, and every quote, card and hit says which class it belongs 
   from `min_weeks` x 7 to (`min_weeks` + `span_weeks`) x 7 days out (default 42 to 112). Window
   rules unchanged: leave from 19:30 the evening before Day 1 through 23:59 Day 1, home by 16:00 on the
   last day off. Basic fares excluded (`exclude_basic: true`). Gates unchanged.
-- **FR-202** Class "weekend": one window per weekend, Saturday 3 to 42 days out. Leave Friday from
+- **FR-202** Class "weekend": one window per weekend, its Friday 3 to 42 days out. Leave Friday from
   17:30 through Saturday 12:00, home in Calgary by Sunday 16:00. Non-stop only, only cities with
   `air_time_min` of 180 or less, the city's first airport only, basic fares allowed
   (`exclude_basic: false`).
@@ -33,7 +33,8 @@ hard rules and gates, and every quote, card and hit says which class it belongs 
 - **FR-204** Each city gets `air_time_min` in `config/cities.yaml` (non-stop air time from the design
   table; door-to-door time for one-stop cities).
 - **FR-205** Request volume: weekend queries every day; day-off city-weekends rotated over
-  `rotate_days` (3) by `crc32(city:weekend) mod 3`. Planned queries per day are at or below today's
+  `rotate_days` (3) per city-airport-weekend, `(crc32(city:airport) + weekend number - scan day) mod 3`, so each
+  day carries an even share; secondary airports every 9 days (D-54). Planned queries per day are at or below today's
   volume (702) and under the 900 cap, confirmed by a dry-run query build.
 - **FR-206** Queries, cache keys and legs keep the classes apart: one class's legs never pair with the
   other's windows.

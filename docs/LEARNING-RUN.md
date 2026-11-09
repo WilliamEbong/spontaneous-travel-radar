@@ -14,6 +14,11 @@ anything is allowed to interrupt you.
   dashboard), and logs one line in `docs/iteration-log.md`. Most days it changes nothing.
   Prompt and rules: `routine/PROMPT-daily.md`.
 - Check the Health panel now and then: coverage above 80%, no "Blocked by Google", SerpApi under 60.
+- Two kinds of trip are scanned (D-52). Day-off trips start 6 weeks out (change it in Settings, 2 to
+  12 weeks) so you can both get the time approved. Weekend-only trips run the next 6 weeks, leave
+  Friday after 5:30 pm, come home Sunday by 4 pm, non-stop and short hops only, and fire only when
+  exceptional. Turn them off in Settings if you don't want them. A city's card lists them under
+  "Weekend trips, no day off".
 
 ## Every Monday (15 minutes)
 

@@ -15,8 +15,11 @@ quote, and publishes a static dashboard. During month one it runs in dry-run mod
 - **US4 (P3)** Each Monday of month one, a cheap Claude routine writes a short tuning digest.
 
 ## Functional requirements
-- **FR-001** Generate trip windows 3 to 45 days ahead from weekends and the selected stat calendar.
-- **FR-002** Query Google Flights one-way legs for 2 adults in CAD with carry-on and no basic fares,
+- **FR-001** Generate trip windows from weekends and the selected stat calendar, per trip class
+  (`specs/002-trip-classes/spec.md`): day-off windows 42 to 112 days ahead, weekend-only windows 3 to
+  42 days ahead.
+- **FR-002** Query Google Flights one-way legs for 2 adults in CAD with carry-on, no basic fares on
+  day-off trips (weekend-only trips allow them, D-52),
   within a budget of 900 fetch attempts per scan, with rotation and caching.
 - **FR-003** Drop itineraries outside the trip window (design §4: leave from 19:30 the evening before
   Day 1 through 23:59 on Day 1, home in Calgary by 16:00 on the last day off), with 2+ connections,

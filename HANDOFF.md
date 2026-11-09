@@ -49,6 +49,12 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   of the window's best possible waking hours (`config/scoring.yaml: time_curve`), and trips under 10%
   are dropped. The request suggested 0.4/0.9; the data showed that would drop the trip that motivated
   the change, so 0.10/0.70 (details in D-51). The first scan with it is 2026-11-10.
+- Two trip classes, 2026-11-09 (D-52 to D-55, `specs/002-trip-classes/`): day-off trips 42 to 112 days
+  out (lead time on the dashboard, 2 to 12 weeks), basic fares excluded, rotated so each
+  city-airport-weekend is fetched every 3 days (secondary airports every 9). Weekend-only trips 3 to 42
+  days out every day: Fri 17:30 to Sat 12:00 out, home Sun 16:00, non-stop, 7 cities within 3 h, basic
+  fares allowed, gated at amazing / score 88 / 70% of the bar. About 623 queries a day (572 to 688).
+  `trip_class` is on every row and hit. First scan with it: 2026-11-10.
 
 ## Enable procedure for `radar-daily` (done 2026-11-09; kept for a re-enable)
 
@@ -93,7 +99,7 @@ Read this first if you are picking the build up in a fresh session. Then read `S
 
 ```
 .venv\Scripts\python -m pytest -q
-.venv\Scripts\python -m radar.main scan --offline --today 2026-11-10
+.venv\Scripts\python -m radar.main scan --offline --today 2026-10-08
 gh run list --workflow scan.yml --limit 3
 ```
 Then open the dashboard URL and check Health: coverage, fetch errors, blocked, SerpApi used.

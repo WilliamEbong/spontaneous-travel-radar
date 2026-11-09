@@ -53,7 +53,8 @@ Look for:
 Only for a high-confidence finding. Either a code fix with a test, or a config tweak backed by the
 numbers. Do not change a parameter class that a PR merged in the last 3 days already changed (its
 effect is not in the data yet). Classes: flight bands, hotel bands, weights, score threshold,
-per-city `bar_cad`, airports, round-trip reprice, code fix. One class per day.
+weekend gates (`trip_classes.weekend.gate_*`), per-city `bar_cad`, airports, round-trip reprice, code fix.
+One class per day.
 - Band retune rule: a band group changes only when every city in it has 7 or more scan days. Set
   amazing/good/average at about p10/p25/p50 of those cities' `price_pp`, never below the lowest
   observed `min`.
@@ -66,7 +67,8 @@ per-city `bar_cad`, airports, round-trip reprice, code fix. One class per day.
   LAS smoke test round trip 13% lower (1,778 vs 2,050 for two). Google's own headline for the YYZ
   flights was 708, so one-way sums run 10 to 15% above what William sees.
 - Never: new dependencies, paid services, more requests (cron, `--budget`, lookahead; the
-  round-trip reprice above is the one exception), the trip-window rule (leave 19:30 the evening
+  round-trip reprice above is the one exception), each trip class's date range and hard rules (`dayoff_min_weeks`, `span_weeks`, the weekend
+  `min_days`/`max_days`/`depart_*`/`max_air_min`/`exclude_basic`, `weekend_trips`), the trip-window rule (leave 19:30 the evening
   before Day 1 to 23:59 Day 1, home by 16:00: `radar/windows.py`, the Day-1 query in
   `radar/flights.py`) and the `time_curve` block in `config/scoring.yaml`, secrets or `.env`, `.github/workflows/`,
   `routine/` (your own instructions), `index.html`, `site/`.

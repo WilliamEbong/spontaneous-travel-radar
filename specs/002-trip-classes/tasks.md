@@ -9,4 +9,4 @@
 - [x] T207 Dashboard: class labels, weekend grouping, hero gates text, hint copy (FR-208)
 - [x] T208 Settings panel: weeks slider and weekend switch (FR-209)
 - [x] T209 Playwright check at 375 px and desktop width (SC-203)
-- [ ] T210 Docs: design doc, spec 001 FRs, decisions with budget numbers, HANDOFF, LEARNING-RUN, TUNING-PLAN, PROMPT-daily
+- [x] T210 Docs: design doc, spec 001 FRs, decisions with budget numbers, HANDOFF, LEARNING-RUN, TUNING-PLAN, PROMPT-daily
