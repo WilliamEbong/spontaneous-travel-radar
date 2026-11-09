@@ -42,8 +42,8 @@ nothing is emailed. Expect most days to have no candidate at all: quiet is corre
 
 ## Exit checklist (all must hold before going live)
 
-- [ ] 21+ days of history for every city (`data/history/` has 21+ files; the dashboard's
-      "vs history" column shows percentiles instead of "building").
+- [ ] 21+ days of history for every city (`data/history/` has 21+ files; each city's price
+      history on the dashboard has 21+ points).
 - [ ] Dry-run hits and near misses reviewed: false positives understood and fixed by tuning.
 - [ ] Route ladders checked against the data (the 2026-12-09 tune refits the flight ladders).
 - [ ] Pass 2 ran on at least 3 candidates, and one total was checked by hand against Google Hotels.

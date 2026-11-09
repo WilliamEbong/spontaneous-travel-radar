@@ -83,12 +83,12 @@ function flightsLink(r) {
   return "https://www.google.com/travel/flights?q=" + encodeURIComponent(q);
 }
 // Pills always print their text: colour never carries the meaning alone (D-22).
-const ladderPill = (label) => el("span", { class: `pill lad-${label}`, text: LADDER[label] || label });
+const ladderPill = (label) => (label ? el("span", { class: `pill lad-${label}`, text: LADDER[label] || label }) : null);
 const classPill = (cls) => el("span", { class: `cls cls-${cls}`, text: CLASS[cls] || cls });
 function emptyCard(iconName, title, text) {
   return el("div", { class: "card empty-card" }, icon(iconName), el("p", {}, el("b", { text: title }), text));
 }
-const pct = (share) => `${Math.round(share * 100)}%`;
+const pct = (share) => (share == null ? "–" : `${Math.round(share * 100)}%`);
 const byClass = (rows, cls = (r) => r.trip_class) => CLASS_ORDER.map((c) => [c, rows.filter((r) => (cls(r) || "dayoff") === c)]).filter(([, rs]) => rs.length);
 
 // ---- sparkline: 2px line, end dot, crosshair + tooltip on hover/focus (dataviz skill); the table twin is below it ----
@@ -165,7 +165,7 @@ function history(points, cityName) {
 
 // ---- tiny, safe markdown for the templated briefs and notes: headings, bullets, numbered lists, **bold**, [text](https://...) ----
 function inline(node, text) {
-  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g;   // https links only
   let i = 0, m;
   while ((m = re.exec(text))) {
     node.append(text.slice(i, m.index));
@@ -248,7 +248,7 @@ function renderVerdict(latest, index, stale) {
     h1.textContent = "Nothing worth booking today.";
     const best = (latest.best_by_city || [])[0];
     const parts = [];
-    if (best) parts.push(`Best deal: ${best.city_name}, ${windowLabel(best.window_id)}, about ${money(best.total_cad)} for two, ${pct(best.share)} of what that trip normally costs.`);
+    if (best) parts.push(`Best deal: ${best.city_name}, ${windowLabel(best.window_id)}, about ${money(best.total_cad)} for two` + (best.share != null ? `, ${pct(best.share)} of what that trip normally costs.` : "."));
     else parts.push("No trip fitted a window in the last scan.");
     parts.push(`A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.`);
     if (learning) parts.push("Learning run: nothing is emailed yet.");
@@ -330,7 +330,8 @@ function cityCard(r, c, ctx) {
     el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) }), classPill(r.trip_class)),
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
     ladderLine,
-    el("span", { class: "meta" }, ladderPill(r.ladder), el("span", { text: `${pct(r.share)} of typical` }), el("span", { text: `Score ${r.score}` }), icon("i-chev", "ic chev"))));
+    el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null,
+      el("span", { text: `Score ${r.score}` }), icon("i-chev", "ic chev"))));
   d.addEventListener("toggle", () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";

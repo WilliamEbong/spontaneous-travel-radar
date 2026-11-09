@@ -7,7 +7,7 @@ serpapi_monthly_cap: 200 # free tier is 250/month; pass 2 spends 2 per candidate
 weights: {price: 45, time: 20, convenience: 10, city: 15, weather: 10}
 price_curve:             # price points vs share = complete trip for two / the route's typical trip (v2, D-57)
   points: [[0.60, 45], [0.75, 25], [1.00, 0], [1.30, -10]]   # straight lines between; full points at or under 0.60
-  floor: -40             # past 1.30 the line keeps its slope down to this, so the cheaper of two dear trips still wins (D-59)
+  floor: -100            # past 1.30 the line keeps its slope down to this (share 4.0), so the cheaper of two dear trips wins (D-59)
 time_curve:              # time score vs share of the window's best possible waking hours (D-51)
   zero_at: 0.10          # 0 points here; trips below it are dropped as not worth flying
   full_at: 0.70          # full points here (real trips top out near 0.70-0.75: flights eat the rest)

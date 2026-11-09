@@ -4,6 +4,7 @@ Layout: hits/candidates/<id>.json (written by the scan), then finalize writes th
 hits/dry-run/<id>.json (learning-run hit), hits/<id>.json (live hit) or hits/near-miss/<id>.json (D-69).
 """
 import json
+import re
 from dataclasses import asdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -18,6 +19,7 @@ ROOT = "hits"
 EVENTS_CAP = 10
 CLASS_LABEL = {"weekend": "No day off needed", "dayoff": "Needs a day off"}
 MAX_OPTIONS = 8   # options kept per candidate file, best score first
+HTTPS = re.compile(r"https://[^\s()<>\[\]]+")   # a link the brief may render: https, nothing that closes the markdown
 
 
 def candidate_id(scan_date: date, city_key: str, window_id: str) -> str:
@@ -31,14 +33,17 @@ def _write_json(path: Path, obj) -> None:
 
 def previous_candidate(city_key: str, window_id: str, *, today: date, days: int = 7, root=ROOT,
                        exclude_id: str | None = None) -> dict | None:
-    """The latest earlier candidate for this city-window within `days` whose lodging check completed (D-66).
-    A check skipped for quota, an error or no key does not count, so the next scan tries again."""
+    """The latest candidate for this city-window within `days` (today's included, so a re-run spends nothing) whose
+    lodging check completed and which the routine has decided (or which was dropped after pass 2), D-66.
+    A check skipped for quota, an error or no key does not count, and neither does a candidate still awaiting
+    pass 3: a missed routine run gets a fresh candidate the next day instead of a week's silence (review, D-73)."""
     since, best = (today - timedelta(days=days)).isoformat(), None
     for p in Path(root, "candidates").glob("*.json"):
         if p.stem == exclude_id:
             continue
         h = json.loads(p.read_text(encoding="utf-8"))
-        if (h["city"], h["window_id"]) == (city_key, window_id) and h["pass2"]["skipped"] is None and h["scan_date"] >= since:
+        settled = h["status"] != "awaiting_pass3" or h["scan_date"] == today.isoformat()
+        if (h["city"], h["window_id"]) == (city_key, window_id) and h["pass2"]["skipped"] is None and settled and h["scan_date"] >= since:
             if best is None or h["scan_date"] > best["scan_date"]:
                 best = h
     return best
@@ -84,12 +89,15 @@ def links(city: City, out_dest: str, out_day: str, back_day: str, check_in: str,
 
 def write_candidate(x: Scored, city: City, ref: Reference, p2: dict, weather: tuple[float, str], s: Scoring, *,
                     scan_date: date, root=ROOT) -> tuple[Path, Path]:
-    """hits/candidates/<id>.json and .md. Status awaiting_pass3, or dropped when even the full what's-on points
-    cannot reach the hit line, or the optional cap blocks it (D-67): no Opus research is spent on those."""
+    """hits/candidates/<id>.json and .md. Status awaiting_pass3, or dropped when the lodging check did not run (the
+    next scan retries), when even the full what's-on points cannot reach the hit line, or when the optional cap
+    blocks it (D-67): no Opus research is spent on those."""
     t, cls = x.trip, s.trip_classes[x.trip.trip_class]
     cid = candidate_id(scan_date, city.key, t.window_id)
     drop = None
-    if p2["score"] + EVENTS_CAP < cls["hit_threshold"]:
+    if p2["skipped"] and p2["chosen"] is None:
+        drop = f"no lodging check ({p2['skipped']}); the next scan tries again"
+    elif p2["score"] + EVENTS_CAP < cls["hit_threshold"]:
         drop = f"pass-2 score {p2['score']} cannot reach the hit line {cls['hit_threshold']} even with {EVENTS_CAP} what's-on points"
     elif s.cap_cad is not None and p2["total_cad"] > s.cap_cad:
         drop = f"complete trip ${p2['total_cad']:,.0f} is over the ${s.cap_cad:,} cap"
@@ -135,25 +143,29 @@ def affordability(price_cad: float, famous: bool, interests: dict) -> float:
 
 
 def _check_research(r: dict, path) -> None:
-    items = r.get("items")
+    items = r.get("items") if isinstance(r, dict) else None
     if not isinstance(items, list):
         raise ValueError(f"{path}: items must be a list (empty when nothing fits)")
     for i, it in enumerate(items):
-        ok = (isinstance(it.get("name"), str) and isinstance(it.get("reason"), str)
+        ok = (isinstance(it, dict) and isinstance(it.get("name"), str) and isinstance(it.get("reason"), str)
               and isinstance(it.get("uniqueness"), (int, float)) and 0 <= it["uniqueness"] <= 3
               and isinstance(it.get("fit"), (int, float)) and 0 <= it["fit"] <= 1
               and isinstance(it.get("price_cad"), (int, float)) and it["price_cad"] >= 0
               and isinstance(it.get("famous"), bool))
         if not ok:
             raise ValueError(f"{path}: item {i} needs name, reason, uniqueness 0-3, fit 0-1, price_cad >= 0 and famous true/false")
-    a = r.get("airbnb") or {}
+    a = r.get("airbnb")
+    if a is not None and not isinstance(a, dict):
+        raise ValueError(f"{path}: airbnb must be an object ({{\"hint\": ...}} when there is no price)")
+    a = a or {}
     if a.get("total_cad") is not None and (not isinstance(a["total_cad"], (int, float)) or a["total_cad"] <= 0
-                                           or not str(a.get("link", "")).startswith("https://")):
+                                           or not HTTPS.fullmatch(str(a.get("link", "")))):
         raise ValueError(f"{path}: an Airbnb price counts only with a positive total_cad and an https link")
 
 
 def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT) -> Path:
-    """Pass 3: what's on (+ up to 10) and an Airbnb price that beats the lodging found, then the hit decision."""
+    """Pass 3: what's on (+ up to 10) and an Airbnb price that beats the lodging found, then the hit decision.
+    A hit needs real lodging (pass 2 or a concrete Airbnb total for these exact dates), never the pass-1 estimate."""
     cpath = Path(root, "candidates", f"{cid}.json")
     cand = json.loads(cpath.read_text(encoding="utf-8"))
     research = json.loads(Path(research_path).read_text(encoding="utf-8"))
@@ -165,19 +177,30 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
     events = round(min(EVENTS_CAP, sum(it["points"] for it in items)), 1)
     base = {k: cand["pass2"][k] for k in ("components", "score", "total_cad", "share", "lodging_cad", "lodging_source")}
     airbnb = research.get("airbnb") or {}
-    if airbnb.get("total_cad") is not None and airbnb["total_cad"] < base["lodging_cad"]:
+    same_stay = (airbnb.get("check_in"), airbnb.get("check_out")) == (cand["dates"]["check_in"], cand["dates"]["check_out"])
+    if airbnb.get("total_cad") is not None and same_stay and (base["lodging_source"] == "estimate" or airbnb["total_cad"] < base["lodging_cad"]):
         r = rescore(cand["pass2"]["components"], flights_cad=cand["flights"]["cad_2pax"], lodging_cad=airbnb["total_cad"],
                     transfers=cand["transfers_cad"], typical_cad=cand["typical_cad"], conv_pts=cand["conv_pts"], fringe=False, s=s)
         base = {**r, "lodging_source": "airbnb"}   # listed neighbourhoods only, so never fringe
     final = round(base["score"] + events)
     cls = s.trip_classes[cand["trip_class"]]
-    is_hit = final >= cls["hit_threshold"] and (s.cap_cad is None or base["total_cad"] <= s.cap_cad)
+    why = None
+    if base["lodging_source"] == "estimate":
+        why = "no real lodging found (no hotel or rental within 6 km, no Airbnb total for these dates)"
+    elif s.cap_cad is not None and base["total_cad"] > s.cap_cad:
+        why = f"complete trip ${base['total_cad']:,.0f} is over the ${s.cap_cad:,} cap"
+    elif final < cls["hit_threshold"]:
+        why = f"final {final} is under the hit line {cls['hit_threshold']}"
+    is_hit = why is None
     out = {**cand, "mode": s.mode, "stage": "hit" if is_hit else "near_miss", "status": "done", "is_hit": is_hit,
-           "hit_threshold": cls["hit_threshold"], "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+           "drop_reason": why, "hit_threshold": cls["hit_threshold"], "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "pass3": {"events_pts": events, "items": items, "negatives": [str(n) for n in research.get("negatives") or []],
-                     "airbnb": airbnb or None, "research": Path(research_path).as_posix(),
-                     "researched": research.get("researched"), **base},
+                     "airbnb": airbnb or None, "airbnb_used": base["lodging_source"] == "airbnb",
+                     "research": Path(research_path).as_posix(), "researched": research.get("researched"), **base},
            "final_score": final, "score": final, "total_cad": base["total_cad"]}
+    for old in ("", "dry-run", "near-miss"):   # a re-run with other research must not leave the earlier verdict behind
+        for ext in (".json", ".md"):
+            Path(root, old, cid + ext).unlink(missing_ok=True)
     sub = ("dry-run" if s.mode == "dry-run" else "") if is_hit else "near-miss"
     j = Path(root, sub, f"{cid}.json")
     _write_json(j, out)
@@ -192,6 +215,11 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
 def _plain(s) -> str:
     """API- and research-supplied text must not inject markdown links or emphasis into the brief."""
     return str(s).replace("[", "(").replace("]", ")").replace("*", "").replace("\n", " ")
+
+
+def _link(text, url) -> str:
+    """[text](url) only for a plain https URL; anything else (empty, http, brackets) prints the text alone."""
+    return f"[{_plain(text)}]({url})" if HTTPS.fullmatch(str(url or "")) else _plain(text)
 
 
 def _fmt_leg(leg: dict) -> str:
@@ -243,14 +271,15 @@ def render_brief(h: dict) -> str:
     for o in p2["options"][:5]:
         stars = f"{o['stars']}-star, " if o.get("stars") else ""
         deal = f", Google: {_plain(o['deal'])}" if o.get("deal") else ""
-        lines.append(f"- [{_plain(o['name'])}]({o['link']}) {o['kind']}, {stars}rated {o['rating']}, {o['km']} km"
+        lines.append(f"- {_link(o['name'], o['link'])} {o['kind']}, {stars}rated {o['rating']}, {o['km']} km"
                      f"{' (fringe)' if o['fringe'] else ''}: {_money(o['total'])} {o['currency']} all-in{deal}. Trip score {o['trip_score']}")
     if not p2["options"]:
         lines.append(f"- None found: {p2.get('skipped') or 'no 4-5 star place rated 4.3+ within 6 km'}")
     if p3:
         a = p3.get("airbnb") or {}
         if a.get("total_cad") is not None:
-            lines.append(f"- Airbnb: [{_plain(a.get('title') or 'listing')}]({a['link']}) {_money(a['total_cad'])} all-in")
+            used = "" if p3.get("airbnb_used") else " (not used: other dates, or not cheaper)"
+            lines.append(f"- Airbnb: {_link(a.get('title') or 'listing', a.get('link'))} {_money(a['total_cad'])} all-in{used}")
         elif a.get("hint"):
             lines.append(f"- Airbnb: {_plain(a['hint'])}")
         lines += ["", "## What's on"]

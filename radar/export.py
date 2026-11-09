@@ -142,7 +142,7 @@ def write_weekly_summary(history: list[dict], hits_root="hits", path="data/weekl
         "period": [since, today.isoformat()], "scan_days": len({r["scan_date"] for r in week}),
         "history_days_total": len({r["scan_date"] for r in history}),
         "passes": {"candidates": len(latest), "awaiting_pass3": stages["candidate"], "near_misses": stages["near_miss"],
-                   "hits": stages["hit"], "pass2_lookups": sum(h["pass2"]["searches"] for h in files)},
+                   "hits": stages["hit"], "pass2_lookups": sum(h["pass2"]["searches"] for h in latest.values())},
         "hits": [{"id": h["id"], "final_score": h["final_score"], "total_cad": h["total_cad"], "trip_class": h["trip_class"]}
                  for h in latest.values() if h["is_hit"]],
         "near_misses": [{"id": h["id"], "score": h["score"], "pass": 3 if h.get("pass3") else 2, "why": h.get("drop_reason")}

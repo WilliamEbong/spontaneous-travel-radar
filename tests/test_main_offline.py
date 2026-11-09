@@ -32,7 +32,7 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
     for f in ("data/series.json", "data/weekly-summary.json", "hits/index.json", "data/digests/index.json"):
         assert (tmp_path / f).exists(), f
     hist = [json.loads(line) for line in (tmp_path / "data/history/2026-10-08.jsonl").read_text().splitlines()]
-    assert all(-40 <= r["price_pts"] <= 45 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input
+    assert all(-100 <= r["price_pts"] <= 45 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input
     for r in hist + latest["windows"] + latest["best_by_city"]:       # acceptance check 9
         assert r["ladder"] in ("exceptional", "good", "typical", "above") and r["share"] > 0 and r["pass"] in (1, 2)
         assert "final_score" in r and r["final_score"] is None
@@ -90,7 +90,7 @@ def test_candidates_get_pass_two_and_a_file(tmp_path, monkeypatch):
     r = tmp_path / "config/references.yaml"
     r.write_text(r.read_text(encoding="utf-8").replace("good: ", "good: 9").replace("typical: ", "typical: 99"), encoding="utf-8")
     calls = []
-    monkeypatch.setattr(radar_main, "check_lodging", lambda *a, **k: calls.append(a[0].key) or LodgingCheck((), "no-key", 0))
+    monkeypatch.setattr(radar_main, "check_lodging", lambda *a, **k: calls.append((a[0].key, a[1].isoformat())) or LodgingCheck((), "no-key", 0))
     assert radar_main.main(ARGS) == 0
     latest = json.loads((tmp_path / "data/latest.json").read_text())
     assert len(calls) == 3 == len(latest["candidates"]) and latest["health"]["pass2_checks"] == 3
@@ -101,12 +101,16 @@ def test_candidates_get_pass_two_and_a_file(tmp_path, monkeypatch):
     index = json.loads((tmp_path / "hits/index.json").read_text())
     assert {i["id"] for i in index} == set(latest["candidates"]) and all(i["stage"] in ("candidate", "near_miss") for i in index)
     calls.clear()
-    assert radar_main.main(ARGS) == 0                   # same day again: its own files do not count as earlier ones
+    assert radar_main.main(ARGS) == 0                   # same day again: its own files count only once their check completed
     assert len(calls) == 3
-    for f in files:                                     # as if the lodging check had completed (offline has no key)
+    assert all(json.loads(f.read_text())["status"] == "dropped" for f in files)   # no key: no lodging check, retried next scan
+    for f in files:                                     # as if the lodging check had completed and pass 3 had run
         h = json.loads(f.read_text())
-        h["pass2"]["skipped"] = None
+        h["pass2"]["skipped"], h["status"] = None, "done"
         f.write_text(json.dumps(h))
+    calls.clear()
+    done = {(h["city"], h["dates"]["check_in"]) for h in (json.loads(f.read_text()) for f in files)}
+    assert radar_main.main(ARGS) == 0 and len(calls) == 3 and not done & set(calls)   # a same-day re-run spends nothing on them
     calls.clear()
     day1 = {(h["city"], h["window_id"]): h["id"] for h in (json.loads(f.read_text()) for f in files)}
     assert radar_main.main(ARGS[:3] + ["2026-10-09"] + ARGS[4:]) == 0

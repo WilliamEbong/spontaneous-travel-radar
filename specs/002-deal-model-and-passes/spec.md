@@ -50,7 +50,7 @@ correct outcome on most days.
 - **FR-302** Typical trip T = 2 x flights.typical + nights x rooms[season].typical x hotel tax (in
   CAD) + 4 x transfer. Season is winter for check-in months Nov to Mar. `share` = complete trip /
   T. Price points (weight 45): 45 at share <= 0.60, 25 at 0.75, 0 at 1.00, -10 at 1.30, straight
-  lines between, the same slope past 1.30 down to a floor of -40.
+  lines between, the same slope past 1.30 down to a floor of -100 (share 4.0; D-59, D-73).
 - **FR-303** Hotel tax per city: `hotel_tax` in `cities.yaml` where set (Vancouver 1.185), else
   1.15 CA, 1.16 US, 1.19 MX.
 - **FR-304** Weights `{price: 45, time: 20, convenience: 10, city: 15, weather: 10}`. No events
@@ -112,7 +112,7 @@ correct outcome on most days.
 - Q: Lodging estimate in pass 1? A: the season's `good` room rate (an optimistic placeholder that
   pass 2 replaces). With `typical`, an exceptional Vancouver fare in January scores 62 and no trip
   would ever reach pass 2.
-- Q: Past share 1.30, flat or falling? A: falling at the same slope to -40, because flat ties the
+- Q: Past share 1.30, flat or falling? A: falling at the same slope to -100, because flat ties the
   day-one Toronto case (shares 1.77 and 2.29) and check 2 requires the cheaper to win.
 - Q: Where do learning-run hits go? A: `hits/dry-run/`, so `hits/*.json` keeps meaning "live hit"
   for the go-live trigger.

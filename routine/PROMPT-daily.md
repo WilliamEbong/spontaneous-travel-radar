@@ -34,19 +34,21 @@ works for reads. Deleting a remote branch is blocked: leave merged or closed bra
 - Finish on `main`, up to date: `git checkout main && git pull -q origin main`.
 
 ## P. Pass 3: what is on, for today's candidates
-List them:
-`python -c "import json; [print(r['id'], r['score'], r['trip_class']) for r in json.load(open('hits/index.json')) if r['status'] == 'awaiting_pass3' and r['scan_date'] == '<date>']"`.
-None: go to B. Otherwise take at most three, highest score first. For each, read its
+List the latest scan's (`data/latest.json` `scan_date`, call it <scan>; normally <date>):
+`python -c "import json; s = json.load(open('data/latest.json'))['scan_date']; [print(r['id'], r['score'], r['trip_class']) for r in json.load(open('hits/index.json')) if r['status'] == 'awaiting_pass3' and r['scan_date'] == s]"`.
+None: go to B. (A candidate you miss is not lost: the next scan makes a fresh one for the same trip.) Otherwise take at most three, highest score first. For each, read its
 `hits/candidates/<id>.json` (city, dates, trip class, lodging options, links) and do:
 
 1. **Research file.** Path `data/research/<city>-<window_id>.json`. If it exists and its `researched`
-   date is within 7 days of <date>, reuse it as it is (skip 2 and 3). Otherwise build it:
+   date is within 7 days of <date>, reuse its `items` and `negatives` (skip 3); redo step 2 unless its
+   `airbnb` has this candidate's exact `check_in` and `check_out`. Otherwise build it:
 2. **Airbnb (Sonnet subagent).** Start one subagent on `claude-sonnet-5-5` with this brief: search Airbnb
    for <city> in the neighbourhoods `<cities.yaml neighbourhoods>`, check-in <check_in>, check-out
    <check_out>, 2 guests, an entire place or a private room, well reviewed. Return JSON only:
-   `{"total_cad": <number>, "link": "https://...", "title": "..."}` when it read a concrete total for
-   exactly those dates and 2 guests on a listing page (convert USD at 1.40), otherwise
-   `{"hint": "<one line: what it saw, e.g. lofts from about $280 a night>"}`. A price never comes from
+   `{"total_cad": <number>, "link": "https://...", "title": "...", "check_in": "<check_in>", "check_out": "<check_out>"}`
+   when it read a concrete total for exactly those dates and 2 guests on a listing page (convert USD
+   at 1.40), otherwise `{"hint": "<one line: what it saw, e.g. lofts from about $280 a night>"}`.
+   `finalize` uses a total only for the candidate's exact dates. A price never comes from
    memory or a search snippet. If the subagent cannot browse, use `{"hint": "Airbnb not reachable"}`.
 3. **What is on (you).** For those exact dates (the days off in the window id, plus the evening before
    a day-off trip), look for events and things to do: the official city and tourism calendars,
@@ -67,7 +69,8 @@ None: go to B. Otherwise take at most three, highest score first. For each, read
    the note. Do not invent finds.
 4. **Finalize.** `python -m radar.main finalize <id> --research data/research/<city>-<window_id>.json`.
    It does the arithmetic (what's on adds up to 10 points; a concrete Airbnb total that beats the
-   lodging found rescores the trip), decides the hit at the class's `hit_threshold`, writes the result
+   lodging found rescores the trip; a trip with no real lodging at all cannot be a hit), decides the hit
+   at the class's `hit_threshold`, writes the result
    to `hits/dry-run/` (learning-run hit), `hits/` (live hit) or `hits/near-miss/`, and refreshes
    `hits/index.json`. If it refuses the research file, fix the file and run it again.
 5. In the learning run, never email anything. A hit shows on the dashboard after your push.

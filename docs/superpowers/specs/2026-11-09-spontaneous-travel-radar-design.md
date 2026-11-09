@@ -342,7 +342,7 @@ priced in (D-57).
 
 Typical trip T = 2 x typical fare + nights x typical room x tax + transfers (CAD). share = complete trip / T.
 Price points (weight 45): 45 at share 0.60 or less, 25 at 0.75, 0 at 1.00, -10 at 1.30, straight lines, and the
-same slope past 1.30 down to -40 (D-59). The other weights: time 20, convenience 10, city 15, weather 10, with the
+same slope past 1.30 down to -100 (D-59). The other weights: time 20, convenience 10, city 15, weather 10, with the
 7.1 measures. A trip's ladder label (exceptional, good, typical, above) comes from its fare per person alone and
 is shown, not scored. No budget anywhere in scoring; an optional overall cap (`cap_cad`, off) can block a hit.
 
@@ -355,7 +355,8 @@ is shown, not scored. No budget anywhere in scoring; an optional overall cap (`c
 | 3 | `radar-daily` (Opus), at most 3 a day | what is on for those dates against `config/interests.yaml` (uniqueness x fit x affordability, up to +10), Airbnb by a Sonnet subagent, then `radar.main finalize` | candidates only, cached 7 days |
 
 Candidate: fare at or under the route's good and pass-1 score 70+ (per class). Hit: final score 80+ (per class).
-A city-window checked in the last 7 days is not checked again unless its fare drops 15% (D-66). A candidate that
+A city-window checked in the last 7 days is not checked again unless its fare drops 15% (D-66). A hit needs real
+lodging, from pass 2 or a concrete Airbnb total for the exact dates (D-73). A candidate that
 cannot reach the hit line even with 10 what's-on points is dropped after pass 2 (D-67). Files: `hits/candidates/`,
 then `hits/dry-run/` (learning-run hit), `hits/` (live hit) or `hits/near-miss/` (D-69).
 

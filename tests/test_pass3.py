@@ -81,7 +81,11 @@ def test_events_cap_at_ten(tmp_path):
 
 def test_concrete_airbnb_price_rescores_a_hint_does_not(tmp_path):
     cand = candidate(tmp_path, lodging=1500)
-    cheap = {"total_cad": 500, "link": "https://www.airbnb.ca/rooms/1", "title": "Loft"}
+    dates = {"check_in": cand["dates"]["check_in"], "check_out": cand["dates"]["check_out"]}
+    cheap = {"total_cad": 500, "link": "https://www.airbnb.ca/rooms/1", "title": "Loft", **dates}
+    other = {**cheap, "check_out": cand["dates"]["check_in"]}                 # review finding 2: a cached total for other dates
+    h = json.loads(finalize(cand["id"], research(tmp_path, [], other), S, I, root=tmp_path).read_text())
+    assert h["pass3"]["lodging_source"] == "hotel" and not h["pass3"]["airbnb_used"]
     h = json.loads(finalize(cand["id"], research(tmp_path, [], cheap), S, I, root=tmp_path).read_text())
     assert h["pass3"]["lodging_source"] == "airbnb" and h["pass3"]["lodging_cad"] == 500 and h["pass3"]["score"] > cand["pass2"]["score"]
     assert "Airbnb beat it" in Path(tmp_path, "near-miss" if not h["is_hit"] else "dry-run", f"{cand['id']}.md").read_text(encoding="utf-8")
@@ -89,10 +93,34 @@ def test_concrete_airbnb_price_rescores_a_hint_does_not(tmp_path):
     assert h["pass3"]["lodging_source"] == "hotel" and h["pass3"]["score"] == cand["pass2"]["score"]
 
 
+def test_no_real_lodging_is_never_a_hit(tmp_path):
+    """Review finding 1: pass 2 found nothing acceptable, so the lodging is still the pass-1 estimate."""
+    x, c = _nyc_nonstop(), city("new_york")
+    cand = json.loads(write_candidate(x, c, ref("new_york"), pass2(x, c, LodgingCheck((), None, 2), S), (6.0, "normals"), S,
+                                      scan_date=date(2026, 11, 10), root=tmp_path)[0].read_text())
+    assert cand["status"] == "awaiting_pass3" and cand["pass2"]["lodging_source"] == "estimate"
+    h = json.loads(finalize(cand["id"], research(tmp_path), S, I, root=tmp_path).read_text())
+    assert not h["is_hit"] and h["final_score"] >= 80 and "no real lodging" in h["drop_reason"]
+    airbnb = {"total_cad": 600, "link": "https://www.airbnb.ca/rooms/2", **{k: cand["dates"][k] for k in ("check_in", "check_out")}}
+    h = json.loads(finalize(cand["id"], research(tmp_path, airbnb=airbnb), S, I, root=tmp_path).read_text())
+    assert h["is_hit"] and h["pass3"]["lodging_source"] == "airbnb"                 # a concrete Airbnb total is real lodging
+    assert not (tmp_path / "near-miss" / f"{cand['id']}.json").exists()            # review finding 5: the old verdict is gone
+
+
+def test_weekly_summary_counts_each_candidates_lookups_once(tmp_path):
+    from radar.export import write_weekly_summary
+    cand = candidate(tmp_path)
+    finalize(cand["id"], research(tmp_path), S, I, root=tmp_path)
+    write_weekly_summary([], hits_root=tmp_path, path=tmp_path / "w.json", latest_path=tmp_path / "none.json", today=date(2026, 11, 12))
+    assert json.loads((tmp_path / "w.json").read_text())["passes"]["pass2_lookups"] == 2   # review finding 6
+
+
 @pytest.mark.parametrize("item, airbnb, msg", [
     ({**ITEMS[0], "fit": 2}, None, "fit 0-1"),
     ({k: v for k, v in ITEMS[0].items() if k != "price_cad"}, None, "price_cad"),
     (ITEMS[0], {"total_cad": 400, "link": "http://x"}, "https link"),
+    ("Jazz festival", None, "item 0"),                                            # review finding 8
+    (ITEMS[0], "not found", "airbnb must be an object"),
 ])
 def test_bad_research_file_is_refused(tmp_path, item, airbnb, msg):
     cand = candidate(tmp_path)

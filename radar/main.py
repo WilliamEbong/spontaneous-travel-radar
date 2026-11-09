@@ -125,7 +125,7 @@ def scan(args) -> int:
     for x in sorted((x for x in winners if x.candidate), key=lambda x: (-x.score, x.total_cad)):
         c, wid = by_key[x.trip.city_key], x.trip.window_id
         cid = candidate_id(today, c.key, wid)
-        prev = previous_candidate(c.key, wid, today=today, exclude_id=cid)
+        prev = previous_candidate(c.key, wid, today=today)   # today's own file counts: a re-run spends nothing
         if prev and not fare_dropped(x.trip.flights_cad_2pax, prev, s.realert_drop_pct):
             passes[id(x)] = (2, prev["id"])   # looked at within 7 days and the fare has not dropped enough: no new lookups
             print(f"candidate {c.key} {wid}: seen as {prev['id']}", file=sys.stderr)

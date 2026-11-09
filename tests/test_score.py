@@ -17,7 +17,8 @@ def test_price_points_through_the_anchors():
     assert [price_points(x, c) for x in (0.4, 0.6, 0.75, 1.0, 1.3)] == pytest.approx([45, 45, 25, 0, -10])
     assert price_points(0.675, c) == pytest.approx(35) and price_points(0.875, c) == pytest.approx(12.5)
     assert price_points(1.6, c) == pytest.approx(-20)          # past 1.30 the slope continues (D-59)
-    assert price_points(2.2, c) == pytest.approx(-40) and price_points(9, c) == -40   # floor
+    assert price_points(2.2, c) == pytest.approx(-40) and price_points(4.0, c) == pytest.approx(-100)
+    assert price_points(9, c) == -100                                                # floor
 
 
 def test_vancouver_worked_example(vancouver_trip_fixture):
@@ -59,6 +60,8 @@ def test_cheaper_above_typical_trip_wins_despite_fewer_hours():
     assert best_per_window([dear, cheap]) == [cheap]
     a, b = trip(1000, 30), trip(1100, 30)                   # just above typical: the cheaper scores higher too
     assert 1 < a.share < b.share < 1.3 and a.score > b.score
+    far, farther = trip(3600, 22.8), trip(5400, 34.9)       # review finding 4: far past 2.2, more hours on the dearer
+    assert 2.2 < far.share < farther.share and best_per_window([farther, far]) == [far]
 
 
 def test_candidate_rule_at_the_line():

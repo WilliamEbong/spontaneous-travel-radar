@@ -12,7 +12,7 @@ vanilla JS dashboard, no build. $0, no new dependencies.
   `source: estimate` from the old hotel tiers (cheap 160/120/90, mid 230/170/130, expensive
   330/250/190, summer +30%) until `scripts/room_references.py` replaces them.
 - `config/scoring.yaml`: `weights {price 45, time 20, convenience 10, city 15, weather 10}`;
-  `price_curve: {points: [[0.60, 45], [0.75, 25], [1.00, 0], [1.30, -10]], floor: -40}` (points on
+  `price_curve: {points: [[0.60, 45], [0.75, 25], [1.00, 0], [1.30, -10]], floor: -100}` (points on
   the price weight's scale); `cap_cad: null`; `serpapi_monthly_cap: 200`; `trip_classes.<class>`
   gains `enabled`, `candidate_threshold: 70`, `hit_threshold: 80` and loses `exclude_basic` and the
   weekend `gate_*`. Removed: `flight_bands`, `hotel_bands`, `score_threshold`, `weekend_trips`,

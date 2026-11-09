@@ -154,6 +154,9 @@ def test_candidate_file_status_and_dedupe(tmp_path):
     assert cand["ladder"]["label"] == "exceptional" and cand["class_label"] == "Needs a day off"
     brief = m.read_text(encoding="utf-8")
     assert "](https://evil.example)" not in brief and "**now**" not in brief and "## Lodging options" in brief
+    assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 10), root=tmp_path)["id"] == cand["id"]  # today's own
+    assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 11), root=tmp_path) is None   # missed by pass 3
+    j.write_text(json.dumps({**cand, "status": "done"}))
     prev = previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 12), root=tmp_path)
     assert prev["id"] == cand["id"] and not fare_dropped(640, prev, 15) and fare_dropped(540, prev, 15)
     assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 18), root=tmp_path) is None   # older than 7 days
@@ -170,3 +173,13 @@ def test_candidate_that_cannot_reach_the_hit_line_is_dropped(tmp_path):
     p2 = pass2(x, c, LodgingCheck((_opt("hotel", 650, 1.0, "Central"),), None, 2), capped)
     cand = json.loads(write_candidate(x, c, ref("new_york"), p2, (6.0, "normals"), capped, scan_date=date(2026, 11, 11), root=tmp_path)[0].read_text())
     assert cand["status"] == "dropped" and "cap" in cand["drop_reason"]
+    p2 = pass2(x, c, LodgingCheck((), "quota", 0), S)                           # review finding 1: no check, no research
+    cand = json.loads(write_candidate(x, c, ref("new_york"), p2, (6.0, "normals"), S, scan_date=date(2026, 11, 12), root=tmp_path)[0].read_text())
+    assert cand["status"] == "dropped" and "no lodging check (quota)" in cand["drop_reason"]
+
+
+def test_brief_links_are_https_only():
+    from radar.hits import _link
+    assert _link("Hotel", "https://example.com/a?b=1") == "[Hotel](https://example.com/a?b=1)"
+    assert _link("Hotel", "https://x.example/a)[Win](https://evil.example") == "Hotel"   # cannot open a second link
+    assert _link("Loft", "") == "Loft" and _link("Loft", "http://x.example") == "Loft"
