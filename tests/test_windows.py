@@ -67,3 +67,29 @@ def test_scan_dates_shared():
     outs, backs = scan_dates([w for w in ws if w.days_off[0] in (date(2026, 11, 20), date(2026, 11, 21))])
     assert outs == {date(2026, 11, 19), date(2026, 11, 20), date(2026, 11, 21)}
     assert backs == {date(2026, 11, 21), date(2026, 11, 22), date(2026, 11, 23)}
+
+
+def test_class_windows_boundaries():
+    from dataclasses import replace
+
+    from radar.config import load_scoring
+    from radar.windows import class_windows
+    s = load_scoring()                                                   # day-off from 6 weeks, for 10 weeks; weekend 3 to 42 days
+    ws = class_windows(date(2026, 11, 13), s, set())                     # a Friday: Fri Dec 25 is 42 days out, Fri Mar 5 is 112
+    dayoff = {w.id for w in ws if w.trip_class == "dayoff"}
+    weekend = {w.id for w in ws if w.trip_class == "weekend"}
+    assert "2026-12-25_fri-off" in dayoff and "2026-12-19_mon-off" not in dayoff
+    assert "2027-03-05_fri-off" in dayoff and "2027-03-06_mon-off" not in dayoff
+    assert "2026-12-25_weekend" in weekend and "2027-01-01_weekend" not in weekend and "2026-11-13_weekend" not in weekend
+    assert "2026-11-13_weekend" in {w.id for w in class_windows(date(2026, 11, 10), s, set())}           # 3 days out
+    assert "2026-11-13_weekend" not in {w.id for w in class_windows(date(2026, 11, 11), s, set())}       # 2 days out
+    assert all(w.trip_class == "dayoff" for w in class_windows(date(2026, 11, 13), replace(s, weekend_trips=False), set()))
+
+
+def test_weekend_window_rule_and_blocked_days():
+    from radar.windows import weekend_windows
+    w = weekend_windows(date(2026, 11, 10), 3, 42, "17:30", "12:00")[0]
+    assert w.id == "2026-11-13_weekend" and w.vacation_days == 0 and w.days_off == (date(2026, 11, 14), date(2026, 11, 15))
+    assert w.depart_from == datetime(2026, 11, 13, 17, 30, tzinfo=CALGARY) and w.depart_to == datetime(2026, 11, 14, 12, 0, tzinfo=CALGARY)
+    assert w.return_to == datetime(2026, 11, 15, 16, 0, tzinfo=CALGARY)
+    assert "2026-11-13_weekend" not in {x.id for x in weekend_windows(date(2026, 11, 10), 3, 42, "17:30", "12:00", {date(2026, 11, 13)})}

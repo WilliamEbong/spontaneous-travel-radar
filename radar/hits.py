@@ -13,7 +13,11 @@ from radar.score import Scored, to_cad
 
 
 def gates(x: Scored, city: City, s: Scoring, previous: dict | None) -> dict:
-    return {"score_ok": x.score >= s.score_threshold, "bar_ok": x.total_cad <= city.bar_cad,
+    """Weekend-only trips must clear a higher score and a lower share of the bar (D-52)."""
+    wk = s.trip_classes["weekend"] if x.trip.trip_class == "weekend" else None
+    threshold = wk["gate_min_score"] if wk else s.score_threshold
+    bar = city.bar_cad * (wk["gate_max_bar_share"] if wk else 1)
+    return {"score_ok": x.score >= threshold, "bar_ok": x.total_cad <= bar,
             "realert_ok": should_realert({"price": {"flights_cad_2pax": x.trip.flights_cad_2pax}}, previous, s.realert_drop_pct)}
 
 
@@ -66,7 +70,7 @@ def write_hit(scored: Scored, city: City, hotels: HotelCheck, events: list[Event
     hit = {
         "id": hid, "created": datetime.now(timezone.utc).isoformat(timespec="seconds"), "mode": s.mode,
         "is_hit": all(gate.values()) if is_hit is None else is_hit,
-        "city": city.key, "city_name": city.name, "window_id": t.window_id,
+        "city": city.key, "city_name": city.name, "window_id": t.window_id, "trip_class": t.trip_class,
         "dates": {"check_in": t.check_in.isoformat(), "check_out": t.check_out.isoformat(), "nights": t.nights},
         "flights": {"out": _leg(t.out), "back": _leg(t.back)},
         "price": {"flights_cad_2pax": t.flights_cad_2pax, "price_pp": scored.price_pp, "band": scored.band,

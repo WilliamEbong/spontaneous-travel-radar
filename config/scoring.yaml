@@ -1,7 +1,7 @@
 mode: dry-run            # dry-run | live. Month one stays dry-run (hits go to hits/dry-run/, nothing fires).
 usd_cad: 1.40            # the only currency conversion in the system
-lookahead_min_days: 3
-lookahead_max_days: 45
+dayoff_min_weeks: 6      # Settings panel: day-off trips start at least N weeks out (2-12), so both of you can get the time approved
+weekend_trips: true      # Settings panel: also scan weekend-only trips (no day off), which fire only when exceptional
 score_threshold: 80
 realert_drop_pct: 15
 serpapi_monthly_cap: 60  # free tier is 250/month; this leaves headroom
@@ -10,6 +10,21 @@ weights: {price: 40, time: 15, convenience: 10, city: 15, events: 10, weather: 1
 time_curve:              # time score vs share of the window's best possible waking hours (D-51)
   zero_at: 0.10          # 0 points here; trips below it are dropped as not worth flying
   full_at: 0.70          # full points here (real trips top out near 0.70-0.75: flights eat the rest)
+trip_classes:            # D-52. Window ranges and hard rules are William's; the weekend gate_* values are tunable
+  dayoff:                # fri-off, mon-off and stat blocks; Day 1 from dayoff_min_weeks to + span_weeks out
+    span_weeks: 10
+    exclude_basic: true  # William's standing rule (D-03)
+    rotate_days: 3       # each city-weekend is scanned every 3rd day (crc32 rotation)
+  weekend:               # leave Friday after work, home Sunday; no day off needed
+    min_days: 3          # Friday at least this many days out
+    max_days: 42
+    depart_from: "17:30" # Friday (reading of "leave friday after work")
+    depart_to: "12:00"   # Saturday
+    exclude_basic: false # a cheap basic-fare hop is the weekend deal; one line to undo
+    max_air_min: 180     # non-stop only, 3 h or less in the air (cities.yaml air_time_min)
+    gate_band: amazing   # candidate only at this band or better
+    gate_min_score: 88
+    gate_max_bar_share: 0.70   # complete trip at most this share of the city's bar_cad
 flight_bands:            # per person, round trip, CAD, realistic; thresholds are upper bounds
   yvr:       {amazing: 120, good: 150, average: 190}
   sea_pdx:   {amazing: 200, good: 260, average: 330}

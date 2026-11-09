@@ -6,7 +6,7 @@ from radar import main as radar_main
 from radar.flights import FetchError
 
 ROOT = Path(__file__).resolve().parents[1]
-ARGS = ["scan", "--offline", "--today", "2026-11-10", "--cities", "vancouver,las_vegas,new_orleans"]
+ARGS = ["scan", "--offline", "--today", "2026-10-08", "--cities", "vancouver,las_vegas,new_orleans"]
 
 
 def setup(tmp_path, monkeypatch):
@@ -22,7 +22,7 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
     assert latest["mode"] == "dry-run" and len(latest["best_by_city"]) >= 1
     assert "no_nonstop" in latest["health"] and 0 < latest["health"]["coverage_pct"] <= 100
     assert latest["health"]["queries_attempted"] == 0                 # offline never touches the network
-    assert (tmp_path / "data/history/2026-11-10.jsonl").exists()
+    assert (tmp_path / "data/history/2026-10-08.jsonl").exists()
     ids = [(b["city"], b["window_id"]) for b in latest["windows"]]
     assert len(ids) == len(set(ids))                                   # one winner per city-window
     assert len({b["city"] for b in latest["best_by_city"]}) == len(latest["best_by_city"])
@@ -30,11 +30,17 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
         assert all(b["flights_cad_2pax"] <= w["flights_cad_2pax"] for w in latest["windows"] if w["city"] == b["city"])
     for f in ("data/series.json", "data/weekly-summary.json", "hits/index.json", "data/digests/index.json"):
         assert (tmp_path / f).exists(), f
-    hist = [json.loads(line) for line in (tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines()]
+    hist = [json.loads(line) for line in (tmp_path / "data/history/2026-10-08.jsonl").read_text().splitlines()]
     assert all(0 <= r["price_pts"] <= 40 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input
+    assert {r["trip_class"] for r in hist} == {"dayoff", "weekend"}                     # both classes, every row (D-52)
+    assert all(r["trip_class"] == ("weekend" if r["window_id"].endswith("_weekend") else "dayoff")
+               for r in latest["windows"] + latest["best_by_city"])
+    wk = [r for r in hist if r["trip_class"] == "weekend"]
+    assert wk and all(r["stops_out"] == r["stops_back"] == 0 and r["city"] != "new_orleans" for r in wk)
+    assert all(r["window_id"] >= "2026-11-19" for r in hist if r["trip_class"] == "dayoff")   # Day 1 at least 6 weeks out
     n = len(hist)
     assert n > 0 and radar_main.main(ARGS) == 0                        # a re-run replaces the day, no duplicates
-    assert len((tmp_path / "data/history/2026-11-10.jsonl").read_text().splitlines()) == n
+    assert len((tmp_path / "data/history/2026-10-08.jsonl").read_text().splitlines()) == n
 
 
 def test_settings_files_steer_the_scan(tmp_path, monkeypatch):

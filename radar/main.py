@@ -21,7 +21,7 @@ from radar.itineraries import assemble
 from radar.score import score_trip, worth_flying
 from radar.store import append_quotes, quote_row, read_history, route_percentile
 from radar.weather import weather_score
-from radar.windows import CALGARY, generate_windows
+from radar.windows import CALGARY, class_windows
 
 OFFLINE_DIR = "tests/fixtures/offline"
 MAX_HOTEL_CHECKS_PER_SCAN = 3   # ponytail: spreads the 60/month SerpApi cap; raise if candidates go unchecked
@@ -48,8 +48,11 @@ def scan(args) -> int:
         keep = set(args.cities.split(","))
         cities = [c for c in cities if c.key in keep]
     by_key = {c.key: c for c in cities}
-    windows = generate_windows(today, holidays, s.lookahead_min_days, s.lookahead_max_days, extra=extra, blocked=blocked)
-    queries = build_queries(cities, windows, today)
+    windows = class_windows(today, s, holidays, extra=extra, blocked=blocked)
+    classes = s.trip_classes
+    if args.offline:   # the rotation only spreads Google requests; fixtures cost nothing, so read every city-weekend
+        classes = {**classes, "dayoff": {**classes["dayoff"], "rotate_days": 1}}
+    queries = build_queries(cities, windows, today, classes)
 
     day_cache = Path(f"data/cache/{today}")
     flight_cache = Path(OFFLINE_DIR) if args.offline else day_cache
@@ -61,7 +64,7 @@ def scan(args) -> int:
             skipped += 1   # past the deadline: score what we have rather than lose the day to the job timeout
             continue
         try:
-            legs[(q.origin, q.dest, q.day)] = fetch_leg(q, budget, cache_dir=flight_cache,
+            legs[(q.trip_class, q.origin, q.dest, q.day)] = fetch_leg(q, budget, cache_dir=flight_cache,
                                                         sleep_range=(0, 0) if args.offline else (3.0, 7.0))
             cache_hits += cached
             streak = 0
@@ -76,36 +79,37 @@ def scan(args) -> int:
 
     no_nonstop = []
     for c in cities:
-        answered = [v for (o, d, _), v in legs.items() if (o == HOME and d in c.airports) or (d == HOME and o in c.airports)]
+        answered = [v for (_, o, d, _), v in legs.items() if (o == HOME and d in c.airports) or (d == HOME and o in c.airports)]
         if answered and not any(leg.stops == 0 for v in answered for leg in v):
             no_nonstop.append(c.key)
 
     tm_key = None if args.offline else os.environ.get("TICKETMASTER_KEY")
     serp_key = None if args.offline else os.environ.get("SERPAPI_KEY")
     history = [r for r in read_history(90, today=today) if r["scan_date"] != today.isoformat()]  # a re-run must not see itself
-    by_city_hist: dict[str, list] = {}
-    for r in history:
-        by_city_hist.setdefault(r["city"], []).append(r)
+    by_city_hist: dict[tuple, list] = {}
+    for r in history:   # a quote is compared only with earlier quotes of its own class (D-52)
+        by_city_hist.setdefault((r["city"], r.get("trip_class", "dayoff")), []).append(r)
     pct_memo: dict[tuple, float | None] = {}
 
-    def pct(city_key, price_pp):
-        k = (city_key, price_pp)
+    def pct(city_key, trip_class, price_pp):
+        k = (city_key, trip_class, price_pp)
         if k not in pct_memo:
-            pct_memo[k] = route_percentile(price_pp, city_key, by_city_hist.get(city_key, []))
+            pct_memo[k] = route_percentile(price_pp, city_key, by_city_hist.get((city_key, trip_class), []))
         return pct_memo[k]
 
     winners, rows, context, cheapest_city = [], [], {}, {}
     for c in cities:
         for w in windows:
-            outs = [leg for d in w.out_dates for a in c.airports for leg in legs.get((HOME, a, d), [])]
-            backs = [leg for d in w.back_dates for a in c.airports for leg in legs.get((a, HOME, d), [])]
+            cls = w.trip_class   # a class's legs never pair with the other class's windows
+            outs = [leg for d in w.out_dates for a in c.airports for leg in legs.get((cls, HOME, a, d), [])]
+            backs = [leg for d in w.back_dates for a in c.airports for leg in legs.get((cls, a, HOME, d), [])]
             trips = [t for t in assemble(c, w, outs, backs) if worth_flying(t, s)]
             if not trips:
                 continue
             evs = fetch_events(c, w.days_off[0], w.days_off[-1], api_key=tm_key, cache_dir=day_cache)
             n = notable_count(evs, w.days_off)
             wx = weather_score(c, list(w.days_off), today=today, cache_dir=None if args.offline else day_cache)
-            sc = [score_trip(t, c, s, n_events=n, weather_score=wx[0], history_pct=pct(c.key, round(t.flights_cad_2pax / 2)))
+            sc = [score_trip(t, c, s, n_events=n, weather_score=wx[0], history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
                   for t in trips]
             win = max(sc, key=lambda x: (x.score, -x.total_cad))
             winners.append(win)

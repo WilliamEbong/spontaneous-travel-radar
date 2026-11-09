@@ -24,7 +24,7 @@ from radar.windows import Window
 
 HOME = "YYC"
 HOME_TZ = "America/Edmonton"
-EXCLUDE_BASIC = True   # William's hard constraint; see docs/notes/decisions.md D-03
+
 
 
 @dataclass(frozen=True)
@@ -39,10 +39,13 @@ class LegQuery:
     max_stops: int = 1
     origin_tz: str = HOME_TZ
     dest_tz: str = HOME_TZ
+    exclude_basic: bool = True     # per trip class (config trip_classes; day-off = William's rule, D-03)
+    trip_class: str = "dayoff"
 
     def key(self) -> str:
         return (f"{self.origin}-{self.dest}-{self.day}-{self.earliest_dep_hour}-{self.latest_dep_hour}"
-                f"-{self.earliest_arr_hour}-{self.latest_arr_hour}-s{self.max_stops}")
+                f"-{self.earliest_arr_hour}-{self.latest_arr_hour}-s{self.max_stops}"
+                + ("" if self.trip_class == "dayoff" else f"-{self.trip_class}"))
 
 
 @dataclass(frozen=True)
@@ -127,9 +130,14 @@ def _weekend(w: Window) -> date:
     return next(d for d in w.days_off if d.weekday() == 5)
 
 
-def _rotates_in(airport: str, scan_date: date) -> bool:
-    # crc32, not hash(): str hashes are salted per process
-    return (scan_date.toordinal() + zlib.crc32(airport.encode())) % 2 == 0
+SECONDARY_FACTOR = 3   # ponytail: secondary airports (JFK, MDW, OAK, ...) come round a third as often (every 9 days); lower it if they find deals
+
+
+def _due(city_airport: str, weekend: date, scan_date: date, every: int) -> bool:
+    """Day-off rotation (D-52): a city-airport-weekend, all its legs together, every `every` days. The crc32
+    offset is per city-airport and consecutive weekends step through the residues, so each day carries an
+    even share of the weekends. crc32, not hash(): str hashes are salted per process."""
+    return (zlib.crc32(city_airport.encode()) + weekend.toordinal() // 7 - scan_date.toordinal()) % every == 0
 
 
 def _merge(roles: list[dict]) -> dict:
@@ -142,31 +150,42 @@ def _merge(roles: list[dict]) -> dict:
     return out
 
 
-def build_queries(cities: list[City], windows: list[Window], scan_date: date) -> list[LegQuery]:
+def build_queries(cities: list[City], windows: list[Window], scan_date: date, classes: dict) -> list[LegQuery]:
+    """classes: config/scoring.yaml trip_classes. Day-off: every airport, max one stop, city-weekends rotated.
+    Weekend: daily, first airport only, non-stop, cities within max_air_min. The classes never share a query."""
     weekends = sorted({_weekend(w) for w in windows})
     roles: dict[tuple, list[dict]] = {}
     order: dict[tuple, tuple] = {}
     for w in windows:
-        wk = weekends.index(_weekend(w))
+        cfg, wkd = classes[w.trip_class], _weekend(w)
+        wk = weekends.index(wkd)
+        late = None if w.depart_to.hour == 23 else w.depart_to.hour   # 23:59 = any time on Day 1 (D-50)
         for c in cities:
             if not c.enabled:
                 continue   # switched off on the dashboard: no requests spent on it
-            for i, apt in enumerate(c.airports):
-                if (i > 0 or wk >= 3) and not _rotates_in(apt, scan_date):
-                    continue  # ponytail: fixed rotation; smarter coverage if health shows gaps
+            if w.trip_class == "weekend":
+                if c.air_time_min > cfg["max_air_min"]:
+                    continue
+                airports = c.airports[:1]   # the preferred non-stop airport
+            else:
+                every = cfg["rotate_days"]
+                airports = [a for i, a in enumerate(c.airports)
+                            if _due(f"{c.key}:{a}", wkd, scan_date, every * (SECONDARY_FACTOR if i else 1))]
+            for i, apt in enumerate(airports):
                 for o, d, day, role in (
-                    (HOME, apt, w.out_dates[0], {"earliest_dep_hour": 19}),
-                    (HOME, apt, w.out_dates[1], {}),                      # any time on Day 1 (D-50)
+                    (HOME, apt, w.out_dates[0], {"earliest_dep_hour": w.depart_from.hour}),
+                    (HOME, apt, w.out_dates[1], {"latest_dep_hour": late}),
                     (apt, HOME, w.back_dates[0], {}),                     # may land after midnight: exact check in itineraries
-                    (apt, HOME, w.back_dates[1], {"latest_arr_hour": 16}),
+                    (apt, HOME, w.back_dates[1], {"latest_arr_hour": w.return_to.hour}),
                 ):
-                    k = (o, d, day, c.tz)
+                    k = (o, d, day, c.tz, w.trip_class)
                     roles.setdefault(k, []).append(role)
                     order[k] = min(order.get(k, (99,)), (wk, i, day.toordinal()))
     qs = []
-    for (o, d, day, tz), rs in sorted(roles.items(), key=lambda kv: order[kv[0]]):
-        qs.append(LegQuery(o, d, day, **_merge(rs), max_stops=1,
-                           origin_tz=HOME_TZ if o == HOME else tz, dest_tz=HOME_TZ if d == HOME else tz))
+    for (o, d, day, tz, cls), rs in sorted(roles.items(), key=lambda kv: order[kv[0]]):
+        qs.append(LegQuery(o, d, day, **_merge(rs), max_stops=0 if cls == "weekend" else 1,
+                           origin_tz=HOME_TZ if o == HOME else tz, dest_tz=HOME_TZ if d == HOME else tz,
+                           exclude_basic=classes[cls]["exclude_basic"], trip_class=cls))
     return qs
 
 
@@ -176,7 +195,7 @@ def _fetch_items(q: LegQuery) -> list:
                              earliest_departure_hour=q.earliest_dep_hour, latest_departure_hour=q.latest_dep_hour,
                              earliest_arrival_hour=q.earliest_arr_hour, latest_arrival_hour=q.latest_arr_hour)],
         trip="one-way", passengers=Passengers(adults=2), currency="CAD", max_stops=q.max_stops,
-        carry_on_bags=1, exclude_basic_economy=EXCLUDE_BASIC,
+        carry_on_bags=1, exclude_basic_economy=q.exclude_basic,
     )
     return parse_items(fetch_flights_html(query))
 

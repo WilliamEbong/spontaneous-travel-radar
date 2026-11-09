@@ -4,6 +4,7 @@
 # climate: month -> [mean high C, mean low C, days with precipitation]; approximate 1991-2020 normals, seeds only.
 # airports: the first is the preferred (usually non-stop) airport; the rest are queried on alternating days.
 # season_months: empty = year-round. BNA, AUS and SAN routes are likely seasonal (health flags no non-stop found).
+# air_time_min: non-stop minutes in the air from YYC (design section 5); door-to-door for one-stop cities. Weekend trips need <= 180.
 # transfer_cost_cad_pp_each_way: airport to core by train/bus, or half a rideshare where there is no train.
 cities:
   - key: new_york
@@ -16,6 +17,7 @@ cities:
     lat: 40.7128
     lon: -74.006
     airport_to_core_min: 45
+    air_time_min: 270
     transfer_cost_cad_pp_each_way: 23
     car_needed: false
     neighbourhoods: [Midtown Manhattan, Lower East Side, Williamsburg]
@@ -47,6 +49,7 @@ cities:
     lat: 41.8781
     lon: -87.6298
     airport_to_core_min: 45
+    air_time_min: 198
     transfer_cost_cad_pp_each_way: 7
     car_needed: false
     neighbourhoods: [The Loop, River North, West Loop]
@@ -78,6 +81,7 @@ cities:
     lat: 45.5019
     lon: -73.5674
     airport_to_core_min: 45
+    air_time_min: 258
     transfer_cost_cad_pp_each_way: 11
     car_needed: false
     neighbourhoods: [Old Montreal, Plateau Mont-Royal, Downtown Montreal]
@@ -109,6 +113,7 @@ cities:
     lat: 37.7749
     lon: -122.4194
     airport_to_core_min: 35
+    air_time_min: 162
     transfer_cost_cad_pp_each_way: 15
     car_needed: false
     neighbourhoods: [Union Square, SoMa, Nob Hill]
@@ -140,6 +145,7 @@ cities:
     lat: 49.2827
     lon: -123.1207
     airport_to_core_min: 25
+    air_time_min: 90
     transfer_cost_cad_pp_each_way: 10
     car_needed: false
     neighbourhoods: [Downtown Vancouver, Gastown, Yaletown]
@@ -171,6 +177,7 @@ cities:
     lat: 47.6062
     lon: -122.3321
     airport_to_core_min: 40
+    air_time_min: 96
     transfer_cost_cad_pp_each_way: 4
     car_needed: false
     neighbourhoods: [Downtown Seattle, Capitol Hill, Belltown]
@@ -202,6 +209,7 @@ cities:
     lat: 36.1147
     lon: -115.1728
     airport_to_core_min: 20
+    air_time_min: 156
     transfer_cost_cad_pp_each_way: 18
     car_needed: false
     neighbourhoods: [The Strip, Downtown Las Vegas]
@@ -233,6 +241,7 @@ cities:
     lat: 43.6532
     lon: -79.3832
     airport_to_core_min: 30
+    air_time_min: 234
     transfer_cost_cad_pp_each_way: 13
     car_needed: false
     neighbourhoods: [Downtown Toronto, King West, Yorkville]
@@ -264,6 +273,7 @@ cities:
     lat: 45.5152
     lon: -122.6784
     airport_to_core_min: 40
+    air_time_min: 108
     transfer_cost_cad_pp_each_way: 4
     car_needed: false
     neighbourhoods: [Pearl District, Downtown Portland]
@@ -295,6 +305,7 @@ cities:
     lat: 39.7392
     lon: -104.9903
     airport_to_core_min: 40
+    air_time_min: 138
     transfer_cost_cad_pp_each_way: 14
     car_needed: false
     neighbourhoods: [LoDo, RiNo]
@@ -326,6 +337,7 @@ cities:
     lat: 32.7157
     lon: -117.1611
     airport_to_core_min: 15
+    air_time_min: 192
     transfer_cost_cad_pp_each_way: 10
     car_needed: false
     neighbourhoods: [Gaslamp Quarter, Little Italy]
@@ -357,6 +369,7 @@ cities:
     lat: 34.0522
     lon: -118.2437
     airport_to_core_min: 50
+    air_time_min: 192
     transfer_cost_cad_pp_each_way: 28
     car_needed: false
     neighbourhoods: [Santa Monica, Downtown Los Angeles, Silver Lake]
@@ -388,6 +401,7 @@ cities:
     lat: 36.1627
     lon: -86.7816
     airport_to_core_min: 20
+    air_time_min: 210
     transfer_cost_cad_pp_each_way: 18
     car_needed: false
     neighbourhoods: [Downtown Nashville, The Gulch]
@@ -419,6 +433,7 @@ cities:
     lat: 30.2672
     lon: -97.7431
     airport_to_core_min: 20
+    air_time_min: 210
     transfer_cost_cad_pp_each_way: 18
     car_needed: false
     neighbourhoods: [Downtown Austin, South Congress]
@@ -450,6 +465,7 @@ cities:
     lat: 33.8303
     lon: -116.5453
     airport_to_core_min: 10
+    air_time_min: 162
     transfer_cost_cad_pp_each_way: 12
     car_needed: false
     neighbourhoods: [Downtown Palm Springs, Uptown Design District]
@@ -481,6 +497,7 @@ cities:
     lat: 29.9511
     lon: -90.0715
     airport_to_core_min: 30
+    air_time_min: 420
     transfer_cost_cad_pp_each_way: 25
     car_needed: false
     neighbourhoods: [French Quarter, Warehouse District, Garden District]
@@ -512,6 +529,7 @@ cities:
     lat: 19.4326
     lon: -99.1332
     airport_to_core_min: 30
+    air_time_min: 420
     transfer_cost_cad_pp_each_way: 10
     car_needed: false
     neighbourhoods: [Roma Norte, Condesa, Polanco]
@@ -543,6 +561,7 @@ cities:
     lat: 46.8139
     lon: -71.208
     airport_to_core_min: 25
+    air_time_min: 360
     transfer_cost_cad_pp_each_way: 20
     car_needed: false
     neighbourhoods: [Old Quebec, Saint-Roch]
@@ -574,6 +593,7 @@ cities:
     lat: 42.3601
     lon: -71.0589
     airport_to_core_min: 20
+    air_time_min: 390
     transfer_cost_cad_pp_each_way: 3
     car_needed: false
     neighbourhoods: [Back Bay, Downtown Boston, Seaport]
@@ -605,6 +625,7 @@ cities:
     lat: 38.9072
     lon: -77.0369
     airport_to_core_min: 20
+    air_time_min: 390
     transfer_cost_cad_pp_each_way: 4
     car_needed: false
     neighbourhoods: [Penn Quarter, Dupont Circle]

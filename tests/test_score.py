@@ -68,3 +68,17 @@ def test_best_per_window_keeps_one(vancouver_trip_fixture, nyc_one_stop_trip):
     c = score_trip(nyc_one_stop_trip, city("new_york"), s, n_events=0, weather_score=5, history_pct=None)
     best = best_per_window([a, b, c])
     assert len(best) == 2 and b in best and b.hotel_spike
+
+
+def test_weekend_gates_are_harsh(vancouver_trip_fixture):
+    from radar.hits import gates
+    s, c = load_scoring(), city("vancouver")
+    wk = replace(vancouver_trip_fixture, trip_class="weekend")
+    x = score_trip(wk, c, s, n_events=2, weather_score=8, history_pct=None)
+    assert x.candidate and x.band == "amazing"
+    g = gates(x, c, s, None)
+    assert g["score_ok"] == (x.score >= 88) and g["bar_ok"] == (x.total_cad <= 0.70 * c.bar_cad)
+    assert not gates(x, c, replace(s, trip_classes={**s.trip_classes, "weekend": {**s.trip_classes["weekend"], "gate_min_score": x.score + 1}}), None)["score_ok"]
+    good = replace(wk, flights_cad_2pax=2 * 140)                                     # yvr good band, cheapest tenth of history
+    assert not score_trip(good, c, s, n_events=0, weather_score=5, history_pct=5).candidate
+    assert score_trip(replace(good, trip_class="dayoff"), c, s, n_events=0, weather_score=5, history_pct=5).candidate

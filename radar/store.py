@@ -10,7 +10,7 @@ def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool) -> dict:
     t = x.trip
     return {
         "scan_date": scan_date.isoformat(), "scan_ts": scan_ts, "city": t.city_key, "airport": t.airport,
-        "window_id": t.window_id, "out_dep": t.out.dep.isoformat(), "out_arr": t.out.arr.isoformat(),
+        "window_id": t.window_id, "trip_class": t.trip_class, "out_dep": t.out.dep.isoformat(), "out_arr": t.out.arr.isoformat(),
         "back_dep": t.back.dep.isoformat(), "back_arr": t.back.arr.isoformat(),
         "airlines": "+".join(dict.fromkeys(t.out.airlines + t.back.airlines)),
         "stops_out": t.out.stops, "stops_back": t.back.stops, "flights_cad_2pax": t.flights_cad_2pax,

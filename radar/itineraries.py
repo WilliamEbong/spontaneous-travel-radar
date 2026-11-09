@@ -23,6 +23,7 @@ class Trip:
     nights: int
     hours_on_ground: float
     best_possible_hours: float
+    trip_class: str = "dayoff"    # from the window (D-52)
 
 
 def out_ok(out: Leg, w: Window) -> bool:
@@ -55,8 +56,9 @@ def best_possible_hours(w: Window) -> float:
 
 def assemble(city: City, w: Window, outs: list[Leg], backs: list[Leg]) -> list[Trip]:
     best = best_possible_hours(w)
-    outs = [o for o in outs if out_ok(o, w)]
-    backs = [b for b in backs if back_ok(b, w)]
+    nonstop = w.trip_class == "weekend"   # weekend-only trips: non-stop is part of the hard rule (D-52)
+    outs = [o for o in outs if out_ok(o, w) and not (nonstop and o.stops)]
+    backs = [b for b in backs if back_ok(b, w) and not (nonstop and b.stops)]
     trips = []
     for o in outs:
         for b in backs:
@@ -68,6 +70,6 @@ def assemble(city: City, w: Window, outs: list[Leg], backs: list[Leg]) -> list[T
                 city_key=city.key, airport=o.dest if o.dest == b.origin else f"{o.dest}/{b.origin}",
                 window_id=w.id, out=o, back=b, flights_cad_2pax=o.price_cad_2pax + b.price_cad_2pax,
                 check_in=ci, check_out=co, nights=nights,
-                hours_on_ground=hours_on_ground(o, b, nights), best_possible_hours=best,
+                hours_on_ground=hours_on_ground(o, b, nights), best_possible_hours=best, trip_class=w.trip_class,
             ))
     return trips

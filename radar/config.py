@@ -17,6 +17,7 @@ class City:
     lat: float
     lon: float
     airport_to_core_min: int
+    air_time_min: int                  # non-stop air time from YYC (door-to-door for one-stop cities)
     transfer_cost_cad_pp_each_way: int
     car_needed: bool
     neighbourhoods: tuple[str, ...]
@@ -38,11 +39,12 @@ class Scoring:
     mode: str
     score_threshold: int
     realert_drop_pct: int
-    lookahead_min_days: int
-    lookahead_max_days: int
+    dayoff_min_weeks: int             # Settings panel, 2-12
+    weekend_trips: bool               # Settings panel
     serpapi_monthly_cap: int
     serpapi_per_candidate_cap: int
     time_curve: dict[str, float]      # {zero_at, full_at}: share of the window's best possible waking hours
+    trip_classes: dict[str, dict]     # {"dayoff": {...}, "weekend": {...}}, see config/scoring.yaml
 
 
 def _read(path):
@@ -103,7 +105,13 @@ def load_days_off(path="config/days_off.yaml") -> tuple[set[date], set[date]]:
 
 def load_scoring(path="config/scoring.yaml") -> Scoring:
     raw = _read(path)
-    return Scoring(**{f.name: raw[f.name] for f in fields(Scoring)})
+    s = Scoring(**{f.name: raw[f.name] for f in fields(Scoring)})
+    # the two Settings-panel values, so a bad hand edit fails here instead of mid-scan
+    if not isinstance(s.dayoff_min_weeks, int) or not 2 <= s.dayoff_min_weeks <= 12:
+        raise ValueError(f"{path}: dayoff_min_weeks must be a whole number from 2 to 12")
+    if not isinstance(s.weekend_trips, bool):
+        raise ValueError(f"{path}: weekend_trips must be true or false")
+    return s
 
 
 def load_airline_surcharges(path="config/airlines.yaml") -> dict[str, int]:

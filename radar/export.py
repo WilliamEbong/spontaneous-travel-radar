@@ -22,6 +22,7 @@ def _row(x: Scored, city: City) -> dict:
     t = x.trip
     return {
         "city": t.city_key, "city_name": city.name, "airport": t.airport, "window_id": t.window_id,
+        "trip_class": t.trip_class,
         "dates": {"out_dep": t.out.dep.isoformat(), "out_arr": t.out.arr.isoformat(),
                   "back_dep": t.back.dep.isoformat(), "back_arr": t.back.arr.isoformat(),
                   "check_in": t.check_in.isoformat(), "check_out": t.check_out.isoformat(), "nights": t.nights},
@@ -47,10 +48,15 @@ def write_latest(winners: list[Scored], cheapest: list[Scored], cities: list[Cit
     })
 
 
+def dayoff_rows(history: list[dict]) -> list[dict]:
+    """Rows logged before the trip classes existed have no trip_class and were all day-off trips."""
+    return [r for r in history if r.get("trip_class", "dayoff") == "dayoff"]
+
+
 def write_series(history: list[dict], path="data/series.json", days: int = 30) -> None:
     """{city: [[scan_date, cheapest price_pp that day], ...]} for the last `days` scan days."""
     lo: dict[str, dict[str, int]] = defaultdict(dict)
-    for r in history:
+    for r in dayoff_rows(history):   # basic-fare weekend hops would make the line jump (D-52)
         d = lo[r["city"]]
         d[r["scan_date"]] = min(d.get(r["scan_date"], r["price_pp"]), r["price_pp"])
     write_json(path, {c: sorted(v.items())[-days:] for c, v in sorted(lo.items())})
@@ -65,6 +71,7 @@ def _hit_files(root):
 def write_hits_index(root="hits") -> None:
     rows = [{"id": h["id"], "city": h["city"], "city_name": h.get("city_name", h["city"]), "mode": h["mode"],
              "is_hit": h.get("is_hit", False), "score": h["score"], "total_cad": h["price"]["total_cad"],
+             "trip_class": h.get("trip_class", "dayoff"),
              "created": h["created"], "path_json": p.as_posix(), "path_md": p.with_suffix(".md").as_posix()}
             for p, h in _hit_files(root)]
     write_json(Path(root) / "index.json", sorted(rows, key=lambda r: r["created"], reverse=True))
@@ -84,7 +91,7 @@ def write_weekly_summary(history: list[dict], hits_dir="hits/dry-run", path="dat
     """Compact input for the Monday digest routine: what would have fired, band spread, request health."""
     today = today or date.today()
     since = (today - timedelta(days=7)).isoformat()
-    week = [r for r in history if r["scan_date"] >= since]
+    week = [r for r in dayoff_rows(history) if r["scan_date"] >= since]   # band fit is for the day-off bands
     winners = [r for r in week if r.get("winner")]
     bands: dict[str, Counter] = defaultdict(Counter)
     prices: dict[str, list[int]] = defaultdict(list)

@@ -19,6 +19,7 @@ class Window:
     return_to: datetime             # 16:00 on Day N
     out_dates: tuple[date, date]    # (day before Day 1, Day 1)
     back_dates: tuple[date, date]   # (Day N-1, Day N)
+    trip_class: str = "dayoff"      # "dayoff" | "weekend" (D-52)
 
 
 def _at(d: date, h: int, m: int = 0) -> datetime:
@@ -51,6 +52,42 @@ def generate_windows(today: date, holidays: set[date], min_days: int = 3, max_da
             out.append(_window("stat-tue-4d", sat, 4, holidays))
         sat += 7 * DAY
     return [w for w in out if min_days <= (w.days_off[0] - today).days <= max_days and blocked.isdisjoint(w.days_off)]
+
+
+def _hm(s: str) -> tuple[int, int]:
+    h, m = s.split(":")
+    return int(h), int(m)
+
+
+def weekend_windows(today: date, min_days: int, max_days: int, depart_from: str, depart_to: str,
+                    blocked: set[date] = frozenset()) -> list[Window]:
+    """No day off: leave Friday from depart_from through Saturday depart_to, home in Calgary by Sunday 16:00.
+    Id and range use the Friday; a blocked Friday, Saturday or Sunday drops the weekend."""
+    fri = today + timedelta(days=(4 - today.weekday()) % 7)
+    out = []
+    while (fri - today).days <= max_days:
+        sat, sun = fri + DAY, fri + 2 * DAY
+        if (fri - today).days >= min_days and blocked.isdisjoint((fri, sat, sun)):
+            out.append(Window(
+                id=f"{fri.isoformat()}_weekend", days_off=(sat, sun), window_nights=1, vacation_days=0,
+                depart_from=_at(fri, *_hm(depart_from)), depart_to=_at(sat, *_hm(depart_to)),
+                return_from=_at(sat, 17), return_to=_at(sun, 16),
+                out_dates=(fri, sat), back_dates=(sat, sun), trip_class="weekend",
+            ))
+        fri += 7 * DAY
+    return out
+
+
+def class_windows(today: date, s, holidays: set[date], extra: set[date] = frozenset(),
+                  blocked: set[date] = frozenset()) -> list[Window]:
+    """Both trip classes from config/scoring.yaml: day-off blocks far enough out to get time approved,
+    plus weekend-only trips close in (when switched on)."""
+    lo = 7 * s.dayoff_min_weeks
+    out = generate_windows(today, holidays, lo, lo + 7 * s.trip_classes["dayoff"]["span_weeks"], extra=extra, blocked=blocked)
+    if s.weekend_trips:
+        wk = s.trip_classes["weekend"]
+        out += weekend_windows(today, wk["min_days"], wk["max_days"], wk["depart_from"], wk["depart_to"], blocked)
+    return out
 
 
 def scan_dates(windows: list[Window]) -> tuple[set[date], set[date]]:

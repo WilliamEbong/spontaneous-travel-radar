@@ -90,6 +90,15 @@ def convenience(trip: Trip, city: City) -> float:
     return max(0, c)
 
 
+BANDS = ("amazing", "good", "average", "bad")
+
+
+def _candidate(band: str, history_pct: float | None, trip_class: str, s: Scoring) -> bool:
+    if trip_class == "weekend":   # weekend-only trips: only the gate band or better (D-52)
+        return BANDS.index(band) <= BANDS.index(s.trip_classes["weekend"]["gate_band"])
+    return band == "amazing" or (band == "good" and history_pct is not None and history_pct <= 10)
+
+
 def score_trip(trip: Trip, city: City, s: Scoring, *, n_events: int, weather_score: float,
                history_pct: float | None, lodging_cad: float | None = None) -> Scored:
     """lodging_cad None uses the band estimate; a real hotel total re-scores through the same function."""
@@ -113,7 +122,7 @@ def score_trip(trip: Trip, city: City, s: Scoring, *, n_events: int, weather_sco
         trip=trip, band=band, price_pp=price_pp, lodging_cad=round(lodging, 2), lodging_source=source,
         total_cad=round(trip.flights_cad_2pax + lodging + 4 * city.transfer_cost_cad_pp_each_way, 2),
         components=comp, score=round(sum(vars(comp).values())),
-        candidate=band == "amazing" or (band == "good" and history_pct is not None and history_pct <= 10),
+        candidate=_candidate(band, history_pct, trip.trip_class, s),
         hotel_spike=n_events >= 6, history_pct=history_pct,
     )
 
