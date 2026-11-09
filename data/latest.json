@@ -1,0 +1,4193 @@
+{
+ "scan_date": "2026-11-09",
+ "scan_ts": "2026-11-09T07:38:01+00:00",
+ "mode": "dry-run",
+ "best_by_city": [
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YYZ",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:20:00-06:00",
+    "out_arr": "2026-11-21T06:16:00-05:00",
+    "back_dep": "2026-11-23T12:10:00-05:00",
+    "back_arr": "2026-11-23T15:39:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2714,
+   "price_pp": 1357,
+   "band": "bad",
+   "history_pct": null,
+   "score": 50,
+   "candidate": false,
+   "hours_on_ground": 34.9,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3146,
+   "bar_cad": 850
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T07:00:00-06:00",
+    "out_arr": "2026-11-14T08:37:00-07:00",
+    "back_dep": "2026-11-16T11:39:00-07:00",
+    "back_arr": "2026-11-16T15:21:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 3681,
+   "price_pp": 1840,
+   "band": "bad",
+   "history_pct": null,
+   "score": 50,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4073,
+   "bar_cad": 850
+  },
+  {
+   "city": "las_vegas",
+   "city_name": "Las Vegas",
+   "airport": "LAS",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T19:45:00-06:00",
+    "out_arr": "2026-11-12T20:45:00-08:00",
+    "back_dep": "2026-11-15T07:45:00-08:00",
+    "back_arr": "2026-11-15T12:45:00-06:00",
+    "check_in": "2026-11-12",
+    "check_out": "2026-11-15",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 4624,
+   "price_pp": 2312,
+   "band": "bad",
+   "history_pct": null,
+   "score": 50,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 5494,
+   "bar_cad": 1050
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "EWR/JFK",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T07:45:00-06:00",
+    "out_arr": "2026-11-21T13:26:00-05:00",
+    "back_dep": "2026-11-22T17:30:00-05:00",
+    "back_arr": "2026-11-22T22:05:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 3446,
+   "price_pp": 1723,
+   "band": "bad",
+   "history_pct": null,
+   "score": 49,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3923,
+   "bar_cad": 1550
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T01:45:00-06:00",
+    "out_arr": "2026-11-20T07:10:00-05:00",
+    "back_dep": "2026-11-22T08:30:00-05:00",
+    "back_arr": "2026-11-22T12:08:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2286,
+   "price_pp": 1143,
+   "band": "bad",
+   "history_pct": null,
+   "score": 48,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2570,
+   "bar_cad": 800
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T19:30:00-06:00",
+    "out_arr": "2026-11-12T20:10:00-07:00",
+    "back_dep": "2026-11-15T12:30:00-07:00",
+    "back_arr": "2026-11-15T14:59:00-06:00",
+    "check_in": "2026-11-12",
+    "check_out": "2026-11-15",
+    "nights": 3
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 3245,
+   "price_pp": 1622,
+   "band": "bad",
+   "history_pct": null,
+   "score": 48,
+   "candidate": false,
+   "hours_on_ground": 37.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3855,
+   "bar_cad": 700
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "LAX",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-20T19:55:00-06:00",
+    "out_arr": "2026-11-20T21:20:00-08:00",
+    "back_dep": "2026-11-23T07:00:00-08:00",
+    "back_arr": "2026-11-23T12:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-23",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3031,
+   "price_pp": 1516,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 30.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3941,
+   "bar_cad": 1100
+  },
+  {
+   "city": "san_diego",
+   "city_name": "San Diego",
+   "airport": "SAN",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T11:15:00-06:00",
+    "out_arr": "2026-11-20T12:40:00-08:00",
+    "back_dep": "2026-11-21T13:30:00-08:00",
+    "back_arr": "2026-11-21T19:00:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-21",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 5896,
+   "price_pp": 2948,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 13.8,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 6202,
+   "bar_cad": 1050
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T09:00:00-06:00",
+    "out_arr": "2026-11-21T08:57:00-08:00",
+    "back_dep": "2026-11-22T17:48:00-08:00",
+    "back_arr": "2026-11-22T21:30:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "AS",
+   "flights_cad_2pax": 2111,
+   "price_pp": 1056,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 21.9,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2295,
+   "bar_cad": 800
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "ORD",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:20:00-06:00",
+    "out_arr": "2026-11-14T09:23:00-06:00",
+    "back_dep": "2026-11-16T08:40:00-06:00",
+    "back_arr": "2026-11-16T12:35:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 3179,
+   "price_pp": 1590,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 28.3,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3739,
+   "bar_cad": 1100
+  },
+  {
+   "city": "boston",
+   "city_name": "Boston",
+   "airport": "BOS",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:45:00-06:00",
+    "out_arr": "2026-11-21T09:48:00-05:00",
+    "back_dep": "2026-11-23T06:00:00-05:00",
+    "back_arr": "2026-11-23T12:35:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2917,
+   "price_pp": 1458,
+   "band": "bad",
+   "history_pct": null,
+   "score": 44,
+   "candidate": false,
+   "hours_on_ground": 25.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3461,
+   "bar_cad": 1200
+  },
+  {
+   "city": "austin",
+   "city_name": "Austin",
+   "airport": "AUS",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T01:25:00-06:00",
+    "out_arr": "2026-11-13T09:54:00-06:00",
+    "back_dep": "2026-11-15T07:00:00-06:00",
+    "back_arr": "2026-11-15T14:03:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 5491,
+   "price_pp": 2746,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 26.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 6095,
+   "bar_cad": 1150
+  },
+  {
+   "city": "new_orleans",
+   "city_name": "New Orleans",
+   "airport": "MSY",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:25:00-06:00",
+    "out_arr": "2026-11-14T08:52:00-06:00",
+    "back_dep": "2026-11-16T07:00:00-06:00",
+    "back_arr": "2026-11-16T14:03:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 6726,
+   "price_pp": 3363,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 27.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 7358,
+   "bar_cad": 1300
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:25:00-06:00",
+    "out_arr": "2026-11-21T08:40:00-06:00",
+    "back_dep": "2026-11-23T06:00:00-06:00",
+    "back_arr": "2026-11-23T13:15:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 2455,
+   "price_pp": 1228,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 26.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3059,
+   "bar_cad": 1150
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-20T19:30:00-06:00",
+    "out_arr": "2026-11-20T23:01:00-08:00",
+    "back_dep": "2026-11-23T08:37:00-08:00",
+    "back_arr": "2026-11-23T13:26:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-23",
+    "nights": 3
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2070,
+   "price_pp": 1035,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 30.6,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3285,
+   "bar_cad": 1300
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T11:35:00-06:00",
+    "out_arr": "2026-11-20T12:55:00-08:00",
+    "back_dep": "2026-11-21T17:00:00-08:00",
+    "back_arr": "2026-11-21T22:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-21",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3240,
+   "price_pp": 1620,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3554,
+   "bar_cad": 1050
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T01:20:00-06:00",
+    "out_arr": "2026-12-12T12:30:00-06:00",
+    "back_dep": "2026-12-14T05:40:00-06:00",
+    "back_arr": "2026-12-14T14:03:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-14",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 4650,
+   "price_pp": 2325,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 22.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5222,
+   "bar_cad": 1250
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-12-05_mon-off",
+   "dates": {
+    "out_dep": "2026-12-05T06:45:00-06:00",
+    "out_arr": "2026-12-05T09:26:00-08:00",
+    "back_dep": "2026-12-07T05:45:00-08:00",
+    "back_arr": "2026-12-07T12:53:00-06:00",
+    "check_in": "2026-12-05",
+    "check_out": "2026-12-07",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 1784,
+   "price_pp": 892,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 25.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2136,
+   "bar_cad": 800
+  },
+  {
+   "city": "washington_dc",
+   "city_name": "Washington DC",
+   "airport": "DCA",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T01:45:00-06:00",
+    "out_arr": "2026-11-20T10:24:00-05:00",
+    "back_dep": "2026-11-22T06:05:00-05:00",
+    "back_arr": "2026-11-22T13:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 2297,
+   "price_pp": 1148,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 24.7,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2845,
+   "bar_cad": 1200
+  },
+  {
+   "city": "quebec_city",
+   "city_name": "Quebec City",
+   "airport": "YQB",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:45:00-06:00",
+    "out_arr": "2026-11-21T09:31:00-05:00",
+    "back_dep": "2026-11-22T17:40:00-05:00",
+    "back_arr": "2026-11-23T00:06:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2954,
+   "price_pp": 1477,
+   "band": "bad",
+   "history_pct": null,
+   "score": 33,
+   "candidate": false,
+   "hours_on_ground": 21.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3154,
+   "bar_cad": 1000
+  }
+ ],
+ "windows": [
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YYZ",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:20:00-06:00",
+    "out_arr": "2026-11-21T06:16:00-05:00",
+    "back_dep": "2026-11-23T12:10:00-05:00",
+    "back_arr": "2026-11-23T15:39:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2714,
+   "price_pp": 1357,
+   "band": "bad",
+   "history_pct": null,
+   "score": 50,
+   "candidate": false,
+   "hours_on_ground": 34.9,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3146,
+   "bar_cad": 850
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T07:00:00-06:00",
+    "out_arr": "2026-11-14T08:37:00-07:00",
+    "back_dep": "2026-11-16T11:39:00-07:00",
+    "back_arr": "2026-11-16T15:21:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 3681,
+   "price_pp": 1840,
+   "band": "bad",
+   "history_pct": null,
+   "score": 50,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4073,
+   "bar_cad": 850
+  },
+  {
+   "city": "las_vegas",
+   "city_name": "Las Vegas",
+   "airport": "LAS",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T19:45:00-06:00",
+    "out_arr": "2026-11-12T20:45:00-08:00",
+    "back_dep": "2026-11-15T07:45:00-08:00",
+    "back_arr": "2026-11-15T12:45:00-06:00",
+    "check_in": "2026-11-12",
+    "check_out": "2026-11-15",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 4624,
+   "price_pp": 2312,
+   "band": "bad",
+   "history_pct": null,
+   "score": 50,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 5494,
+   "bar_cad": 1050
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "EWR/JFK",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T07:45:00-06:00",
+    "out_arr": "2026-11-21T13:26:00-05:00",
+    "back_dep": "2026-11-22T17:30:00-05:00",
+    "back_arr": "2026-11-22T22:05:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 3446,
+   "price_pp": 1723,
+   "band": "bad",
+   "history_pct": null,
+   "score": 49,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3923,
+   "bar_cad": 1550
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T01:45:00-06:00",
+    "out_arr": "2026-11-20T07:10:00-05:00",
+    "back_dep": "2026-11-22T08:30:00-05:00",
+    "back_arr": "2026-11-22T12:08:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2286,
+   "price_pp": 1143,
+   "band": "bad",
+   "history_pct": null,
+   "score": 48,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2570,
+   "bar_cad": 800
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-17T19:59:00-06:00",
+    "out_arr": "2026-12-17T21:32:00-07:00",
+    "back_dep": "2026-12-20T11:38:00-07:00",
+    "back_arr": "2026-12-20T15:21:00-06:00",
+    "check_in": "2026-12-17",
+    "check_out": "2026-12-20",
+    "nights": 3
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 2280,
+   "price_pp": 1140,
+   "band": "bad",
+   "history_pct": null,
+   "score": 48,
+   "candidate": false,
+   "hours_on_ground": 35.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2840,
+   "bar_cad": 850
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:45:00-06:00",
+    "out_arr": "2026-11-21T07:10:00-05:00",
+    "back_dep": "2026-11-23T08:30:00-05:00",
+    "back_arr": "2026-11-23T12:25:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2985,
+   "price_pp": 1492,
+   "band": "bad",
+   "history_pct": null,
+   "score": 48,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3269,
+   "bar_cad": 800
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T19:30:00-06:00",
+    "out_arr": "2026-11-12T20:10:00-07:00",
+    "back_dep": "2026-11-15T12:30:00-07:00",
+    "back_arr": "2026-11-15T14:59:00-06:00",
+    "check_in": "2026-11-12",
+    "check_out": "2026-11-15",
+    "nights": 3
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 3245,
+   "price_pp": 1622,
+   "band": "bad",
+   "history_pct": null,
+   "score": 48,
+   "candidate": false,
+   "hours_on_ground": 37.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3855,
+   "bar_cad": 700
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T06:00:00-06:00",
+    "out_arr": "2026-11-14T06:43:00-07:00",
+    "back_dep": "2026-11-16T12:30:00-07:00",
+    "back_arr": "2026-11-16T14:59:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 1804,
+   "price_pp": 902,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 34.8,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2224,
+   "bar_cad": 700
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-18T19:59:00-06:00",
+    "out_arr": "2026-12-18T21:32:00-07:00",
+    "back_dep": "2026-12-21T11:38:00-07:00",
+    "back_arr": "2026-12-21T15:21:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-21",
+    "nights": 3
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 1989,
+   "price_pp": 994,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 35.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2549,
+   "bar_cad": 850
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-12-05_mon-off",
+   "dates": {
+    "out_dep": "2026-12-05T07:00:00-06:00",
+    "out_arr": "2026-12-05T08:37:00-07:00",
+    "back_dep": "2026-12-07T11:39:00-07:00",
+    "back_arr": "2026-12-07T15:21:00-06:00",
+    "check_in": "2026-12-05",
+    "check_out": "2026-12-07",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 2176,
+   "price_pp": 1088,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2568,
+   "bar_cad": 850
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "LAX",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-20T19:55:00-06:00",
+    "out_arr": "2026-11-20T21:20:00-08:00",
+    "back_dep": "2026-11-23T07:00:00-08:00",
+    "back_arr": "2026-11-23T12:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-23",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3031,
+   "price_pp": 1516,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 30.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3941,
+   "bar_cad": 1100
+  },
+  {
+   "city": "las_vegas",
+   "city_name": "Las Vegas",
+   "airport": "LAS",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T19:45:00-06:00",
+    "out_arr": "2026-11-19T20:45:00-08:00",
+    "back_dep": "2026-11-22T07:45:00-08:00",
+    "back_arr": "2026-11-22T12:45:00-06:00",
+    "check_in": "2026-11-19",
+    "check_out": "2026-11-22",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3163,
+   "price_pp": 1582,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4033,
+   "bar_cad": 1050
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "LAX",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-13T19:55:00-06:00",
+    "out_arr": "2026-11-13T21:20:00-08:00",
+    "back_dep": "2026-11-16T07:00:00-08:00",
+    "back_arr": "2026-11-16T12:15:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-16",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3581,
+   "price_pp": 1790,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 30.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4491,
+   "bar_cad": 1100
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "LAX",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T19:55:00-06:00",
+    "out_arr": "2026-11-19T21:20:00-08:00",
+    "back_dep": "2026-11-22T07:00:00-08:00",
+    "back_arr": "2026-11-22T12:15:00-06:00",
+    "check_in": "2026-11-19",
+    "check_out": "2026-11-22",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3795,
+   "price_pp": 1898,
+   "band": "bad",
+   "history_pct": null,
+   "score": 47,
+   "candidate": false,
+   "hours_on_ground": 30.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4705,
+   "bar_cad": 1100
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T06:00:00-06:00",
+    "out_arr": "2026-11-21T06:43:00-07:00",
+    "back_dep": "2026-11-23T13:00:00-07:00",
+    "back_arr": "2026-11-23T15:30:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 1212,
+   "price_pp": 606,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 35.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1632,
+   "bar_cad": 700
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T19:30:00-06:00",
+    "out_arr": "2026-11-19T20:10:00-07:00",
+    "back_dep": "2026-11-21T23:20:00-07:00",
+    "back_arr": "2026-11-22T01:48:00-06:00",
+    "check_in": "2026-11-19",
+    "check_out": "2026-11-21",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 1475,
+   "price_pp": 738,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 32.2,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1895,
+   "bar_cad": 700
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T05:50:00-06:00",
+    "out_arr": "2026-12-19T06:33:00-07:00",
+    "back_dep": "2026-12-21T13:00:00-07:00",
+    "back_arr": "2026-12-21T15:30:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-21",
+    "nights": 2
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 1902,
+   "price_pp": 951,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 35.5,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2322,
+   "bar_cad": 700
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T05:50:00-06:00",
+    "out_arr": "2026-12-18T06:33:00-07:00",
+    "back_dep": "2026-12-20T13:00:00-07:00",
+    "back_arr": "2026-12-20T15:30:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 1927,
+   "price_pp": 964,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 35.5,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2347,
+   "bar_cad": 700
+  },
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YYZ",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T22:10:00-06:00",
+    "out_arr": "2026-11-20T06:07:00-05:00",
+    "back_dep": "2026-11-22T12:10:00-05:00",
+    "back_arr": "2026-11-22T15:39:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2597,
+   "price_pp": 1298,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 35.0,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3029,
+   "bar_cad": 850
+  },
+  {
+   "city": "las_vegas",
+   "city_name": "Las Vegas",
+   "airport": "LAS",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T10:00:00-06:00",
+    "out_arr": "2026-11-21T11:00:00-08:00",
+    "back_dep": "2026-11-23T07:45:00-08:00",
+    "back_arr": "2026-11-23T12:45:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 2650,
+   "price_pp": 1325,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 25.8,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3254,
+   "bar_cad": 1050
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T07:00:00-06:00",
+    "out_arr": "2026-11-13T08:37:00-07:00",
+    "back_dep": "2026-11-14T19:11:00-07:00",
+    "back_arr": "2026-11-14T22:53:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-14",
+    "nights": 1
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 3769,
+   "price_pp": 1884,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 23.6,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3993,
+   "bar_cad": 850
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T06:00:00-06:00",
+    "out_arr": "2026-11-20T14:00:00-05:00",
+    "back_dep": "2026-11-22T07:20:00-05:00",
+    "back_arr": "2026-11-22T13:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 3813,
+   "price_pp": 1906,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 22.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4675,
+   "bar_cad": 1550
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "EWR",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T07:45:00-06:00",
+    "out_arr": "2026-11-13T13:26:00-05:00",
+    "back_dep": "2026-11-14T16:00:00-05:00",
+    "back_arr": "2026-11-14T20:17:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-14",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 4395,
+   "price_pp": 2198,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 15.6,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4872,
+   "bar_cad": 1550
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "LAX",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T19:55:00-06:00",
+    "out_arr": "2026-11-12T21:20:00-08:00",
+    "back_dep": "2026-11-15T07:00:00-08:00",
+    "back_arr": "2026-11-15T12:15:00-06:00",
+    "check_in": "2026-11-12",
+    "check_out": "2026-11-15",
+    "nights": 3
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 5089,
+   "price_pp": 2544,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 30.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 5999,
+   "bar_cad": 1100
+  },
+  {
+   "city": "san_diego",
+   "city_name": "San Diego",
+   "airport": "SAN",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T11:15:00-06:00",
+    "out_arr": "2026-11-20T12:40:00-08:00",
+    "back_dep": "2026-11-21T13:30:00-08:00",
+    "back_arr": "2026-11-21T19:00:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-21",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 5896,
+   "price_pp": 2948,
+   "band": "bad",
+   "history_pct": null,
+   "score": 46,
+   "candidate": false,
+   "hours_on_ground": 13.8,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 6202,
+   "bar_cad": 1050
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T09:00:00-06:00",
+    "out_arr": "2026-11-21T08:57:00-08:00",
+    "back_dep": "2026-11-22T17:48:00-08:00",
+    "back_arr": "2026-11-22T21:30:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "AS",
+   "flights_cad_2pax": 2111,
+   "price_pp": 1056,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 21.9,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2295,
+   "bar_cad": 800
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T07:00:00-06:00",
+    "out_arr": "2026-11-21T08:37:00-07:00",
+    "back_dep": "2026-11-23T11:39:00-07:00",
+    "back_arr": "2026-11-23T15:21:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 2320,
+   "price_pp": 1160,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2712,
+   "bar_cad": 850
+  },
+  {
+   "city": "denver",
+   "city_name": "Denver",
+   "airport": "DEN",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T07:00:00-06:00",
+    "out_arr": "2026-11-20T08:37:00-07:00",
+    "back_dep": "2026-11-22T11:39:00-07:00",
+    "back_arr": "2026-11-22T15:21:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 2553,
+   "price_pp": 1276,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 32.0,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2945,
+   "bar_cad": 850
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "ORD",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:20:00-06:00",
+    "out_arr": "2026-11-14T09:23:00-06:00",
+    "back_dep": "2026-11-16T08:40:00-06:00",
+    "back_arr": "2026-11-16T12:35:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 3179,
+   "price_pp": 1590,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 28.3,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3739,
+   "bar_cad": 1100
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "ORD",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T19:55:00-06:00",
+    "out_arr": "2026-11-20T05:20:00-06:00",
+    "back_dep": "2026-11-22T08:40:00-06:00",
+    "back_arr": "2026-11-22T12:35:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "WS+UA",
+   "flights_cad_2pax": 3487,
+   "price_pp": 1744,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 32.3,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 4047,
+   "bar_cad": 1100
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "EWR",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:25:00-06:00",
+    "out_arr": "2026-11-14T10:37:00-05:00",
+    "back_dep": "2026-11-16T07:45:00-05:00",
+    "back_arr": "2026-11-16T15:21:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 4040,
+   "price_pp": 2020,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 26.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4902,
+   "bar_cad": 1550
+  },
+  {
+   "city": "las_vegas",
+   "city_name": "Las Vegas",
+   "airport": "LAS",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-13T19:45:00-06:00",
+    "out_arr": "2026-11-13T20:45:00-08:00",
+    "back_dep": "2026-11-16T07:00:00-08:00",
+    "back_arr": "2026-11-16T15:21:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-16",
+    "nights": 3
+   },
+   "airlines": "WS+UA",
+   "flights_cad_2pax": 5422,
+   "price_pp": 2711,
+   "band": "bad",
+   "history_pct": null,
+   "score": 45,
+   "candidate": false,
+   "hours_on_ground": 31.2,
+   "stops": [
+    0,
+    1
+   ],
+   "total_cad": 6292,
+   "bar_cad": 1050
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T01:45:00-06:00",
+    "out_arr": "2026-12-11T07:10:00-05:00",
+    "back_dep": "2026-12-13T08:30:00-05:00",
+    "back_arr": "2026-12-13T12:08:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-13",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 1468,
+   "price_pp": 734,
+   "band": "bad",
+   "history_pct": null,
+   "score": 44,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1752,
+   "bar_cad": 800
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T01:45:00-06:00",
+    "out_arr": "2026-12-12T07:10:00-05:00",
+    "back_dep": "2026-12-14T08:30:00-05:00",
+    "back_arr": "2026-12-14T12:25:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-14",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 1468,
+   "price_pp": 734,
+   "band": "bad",
+   "history_pct": null,
+   "score": 44,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1752,
+   "bar_cad": 800
+  },
+  {
+   "city": "boston",
+   "city_name": "Boston",
+   "airport": "BOS",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:45:00-06:00",
+    "out_arr": "2026-11-21T09:48:00-05:00",
+    "back_dep": "2026-11-23T06:00:00-05:00",
+    "back_arr": "2026-11-23T12:35:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2917,
+   "price_pp": 1458,
+   "band": "bad",
+   "history_pct": null,
+   "score": 44,
+   "candidate": false,
+   "hours_on_ground": 25.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3461,
+   "bar_cad": 1200
+  },
+  {
+   "city": "san_diego",
+   "city_name": "San Diego",
+   "airport": "SAN",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T11:15:00-06:00",
+    "out_arr": "2026-11-21T12:40:00-08:00",
+    "back_dep": "2026-11-22T13:30:00-08:00",
+    "back_arr": "2026-11-22T19:00:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 5054,
+   "price_pp": 2527,
+   "band": "bad",
+   "history_pct": null,
+   "score": 44,
+   "candidate": false,
+   "hours_on_ground": 13.8,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 5360,
+   "bar_cad": 1050
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T09:03:00-06:00",
+    "out_arr": "2026-12-19T09:09:00-08:00",
+    "back_dep": "2026-12-20T17:52:00-08:00",
+    "back_arr": "2026-12-20T21:33:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "AS",
+   "flights_cad_2pax": 1206,
+   "price_pp": 603,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 21.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1390,
+   "bar_cad": 800
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T09:03:00-06:00",
+    "out_arr": "2026-12-18T09:09:00-08:00",
+    "back_dep": "2026-12-19T17:52:00-08:00",
+    "back_arr": "2026-12-19T21:33:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-19",
+    "nights": 1
+   },
+   "airlines": "AS",
+   "flights_cad_2pax": 1264,
+   "price_pp": 632,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 21.7,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1448,
+   "bar_cad": 800
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "ORD",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:20:00-06:00",
+    "out_arr": "2026-11-21T09:23:00-06:00",
+    "back_dep": "2026-11-23T08:40:00-06:00",
+    "back_arr": "2026-11-23T12:35:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2294,
+   "price_pp": 1147,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 28.3,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 2854,
+   "bar_cad": 1100
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T09:09:00-06:00",
+    "out_arr": "2026-11-13T09:06:00-08:00",
+    "back_dep": "2026-11-14T17:58:00-08:00",
+    "back_arr": "2026-11-14T21:39:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-14",
+    "nights": 1
+   },
+   "airlines": "AS",
+   "flights_cad_2pax": 4175,
+   "price_pp": 2088,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 21.9,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4359,
+   "bar_cad": 800
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T01:25:00-06:00",
+    "out_arr": "2026-12-12T10:32:00-05:00",
+    "back_dep": "2026-12-14T07:00:00-05:00",
+    "back_arr": "2026-12-14T13:20:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-14",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 5134,
+   "price_pp": 2567,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 25.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5996,
+   "bar_cad": 1550
+  },
+  {
+   "city": "austin",
+   "city_name": "Austin",
+   "airport": "AUS",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T01:25:00-06:00",
+    "out_arr": "2026-11-13T09:54:00-06:00",
+    "back_dep": "2026-11-15T07:00:00-06:00",
+    "back_arr": "2026-11-15T14:03:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 5491,
+   "price_pp": 2746,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 26.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 6095,
+   "bar_cad": 1150
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-12-05_mon-off",
+   "dates": {
+    "out_dep": "2026-12-05T01:25:00-06:00",
+    "out_arr": "2026-12-05T10:32:00-05:00",
+    "back_dep": "2026-12-07T07:00:00-05:00",
+    "back_arr": "2026-12-07T13:20:00-06:00",
+    "check_in": "2026-12-05",
+    "check_out": "2026-12-07",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 5407,
+   "price_pp": 2704,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 25.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 6269,
+   "bar_cad": 1550
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T01:45:00-06:00",
+    "out_arr": "2026-11-13T07:10:00-05:00",
+    "back_dep": "2026-11-15T08:30:00-05:00",
+    "back_arr": "2026-11-15T12:08:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 6750,
+   "price_pp": 3375,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 7034,
+   "bar_cad": 800
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T01:25:00-06:00",
+    "out_arr": "2026-12-18T10:32:00-05:00",
+    "back_dep": "2026-12-20T07:00:00-05:00",
+    "back_arr": "2026-12-20T13:25:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 6225,
+   "price_pp": 3112,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 25.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 7087,
+   "bar_cad": 1550
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T01:25:00-06:00",
+    "out_arr": "2026-12-19T10:32:00-05:00",
+    "back_dep": "2026-12-21T07:00:00-05:00",
+    "back_arr": "2026-12-21T13:25:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-21",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 6225,
+   "price_pp": 3112,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 25.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 7087,
+   "bar_cad": 1550
+  },
+  {
+   "city": "new_orleans",
+   "city_name": "New Orleans",
+   "airport": "MSY",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:25:00-06:00",
+    "out_arr": "2026-11-14T08:52:00-06:00",
+    "back_dep": "2026-11-16T07:00:00-06:00",
+    "back_arr": "2026-11-16T14:03:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 6726,
+   "price_pp": 3363,
+   "band": "bad",
+   "history_pct": null,
+   "score": 43,
+   "candidate": false,
+   "hours_on_ground": 27.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 7358,
+   "bar_cad": 1300
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-10T21:00:00-06:00",
+    "out_arr": "2026-12-10T21:47:00-07:00",
+    "back_dep": "2026-12-13T13:00:00-07:00",
+    "back_arr": "2026-12-13T15:30:00-06:00",
+    "check_in": "2026-12-10",
+    "check_out": "2026-12-13",
+    "nights": 3
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 1567,
+   "price_pp": 784,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 36.2,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 2177,
+   "bar_cad": 700
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T19:30:00-06:00",
+    "out_arr": "2026-11-19T21:57:00-08:00",
+    "back_dep": "2026-11-22T09:24:00-08:00",
+    "back_arr": "2026-11-22T15:30:00-06:00",
+    "check_in": "2026-11-19",
+    "check_out": "2026-11-22",
+    "nights": 3
+   },
+   "airlines": "AC+DL+WS",
+   "flights_cad_2pax": 2455,
+   "price_pp": 1228,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 32.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2975,
+   "bar_cad": 800
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:25:00-06:00",
+    "out_arr": "2026-11-21T08:40:00-06:00",
+    "back_dep": "2026-11-23T06:00:00-06:00",
+    "back_arr": "2026-11-23T13:15:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 2455,
+   "price_pp": 1228,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 26.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3059,
+   "bar_cad": 1150
+  },
+  {
+   "city": "san_diego",
+   "city_name": "San Diego",
+   "airport": "SAN",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T07:01:00-06:00",
+    "out_arr": "2026-11-14T14:23:00-08:00",
+    "back_dep": "2026-11-16T06:45:00-08:00",
+    "back_arr": "2026-11-16T15:21:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AA+UA",
+   "flights_cad_2pax": 3625,
+   "price_pp": 1812,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 21.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4197,
+   "bar_cad": 1050
+  },
+  {
+   "city": "seattle",
+   "city_name": "Seattle",
+   "airport": "SEA",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T09:09:00-06:00",
+    "out_arr": "2026-11-14T09:06:00-08:00",
+    "back_dep": "2026-11-15T14:30:00-08:00",
+    "back_arr": "2026-11-15T18:10:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-15",
+    "nights": 1
+   },
+   "airlines": "AS+WS",
+   "flights_cad_2pax": 4114,
+   "price_pp": 2057,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 18.4,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4298,
+   "bar_cad": 800
+  },
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YYZ",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T01:20:00-06:00",
+    "out_arr": "2026-11-13T06:16:00-05:00",
+    "back_dep": "2026-11-15T08:05:00-05:00",
+    "back_arr": "2026-11-15T14:59:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 4459,
+   "price_pp": 2230,
+   "band": "bad",
+   "history_pct": null,
+   "score": 42,
+   "candidate": false,
+   "hours_on_ground": 30.8,
+   "stops": [
+    0,
+    1
+   ],
+   "total_cad": 4891,
+   "bar_cad": 850
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T07:00:00-06:00",
+    "out_arr": "2026-11-20T13:58:00-06:00",
+    "back_dep": "2026-11-22T06:00:00-06:00",
+    "back_arr": "2026-11-22T12:35:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AA+UA",
+   "flights_cad_2pax": 2386,
+   "price_pp": 1193,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 21.0,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2990,
+   "bar_cad": 1150
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-20T19:30:00-06:00",
+    "out_arr": "2026-11-20T23:01:00-08:00",
+    "back_dep": "2026-11-23T08:37:00-08:00",
+    "back_arr": "2026-11-23T13:26:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-23",
+    "nights": 3
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2070,
+   "price_pp": 1035,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 30.6,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3285,
+   "bar_cad": 1300
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T10:50:00-06:00",
+    "out_arr": "2026-12-11T16:40:00-05:00",
+    "back_dep": "2026-12-13T07:00:00-05:00",
+    "back_arr": "2026-12-13T13:20:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-13",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 2451,
+   "price_pp": 1226,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 19.3,
+   "stops": [
+    0,
+    1
+   ],
+   "total_cad": 3313,
+   "bar_cad": 1550
+  },
+  {
+   "city": "new_orleans",
+   "city_name": "New Orleans",
+   "airport": "MSY",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:25:00-06:00",
+    "out_arr": "2026-11-21T09:47:00-06:00",
+    "back_dep": "2026-11-23T07:00:00-06:00",
+    "back_arr": "2026-11-23T14:03:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 2954,
+   "price_pp": 1477,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 26.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3586,
+   "bar_cad": 1300
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T19:30:00-06:00",
+    "out_arr": "2026-11-19T23:01:00-08:00",
+    "back_dep": "2026-11-22T08:37:00-08:00",
+    "back_arr": "2026-11-22T13:26:00-06:00",
+    "check_in": "2026-11-19",
+    "check_out": "2026-11-22",
+    "nights": 3
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2577,
+   "price_pp": 1288,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 30.6,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3792,
+   "bar_cad": 1300
+  },
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YTZ/YYZ",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:45:00-06:00",
+    "out_arr": "2026-11-14T10:10:00-05:00",
+    "back_dep": "2026-11-15T22:20:00-05:00",
+    "back_arr": "2026-11-16T01:55:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-15",
+    "nights": 1
+   },
+   "airlines": "AC+WS",
+   "flights_cad_2pax": 5183,
+   "price_pp": 2592,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 25.2,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 5425,
+   "bar_cad": 850
+  },
+  {
+   "city": "new_orleans",
+   "city_name": "New Orleans",
+   "airport": "MSY",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T07:25:00-06:00",
+    "out_arr": "2026-11-13T13:50:00-06:00",
+    "back_dep": "2026-11-15T07:00:00-06:00",
+    "back_arr": "2026-11-15T14:03:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "DL+UA",
+   "flights_cad_2pax": 4986,
+   "price_pp": 2493,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 22.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5618,
+   "bar_cad": 1300
+  },
+  {
+   "city": "new_york",
+   "city_name": "New York",
+   "airport": "JFK",
+   "window_id": "2026-12-04_fri-off",
+   "dates": {
+    "out_dep": "2026-12-04T10:50:00-06:00",
+    "out_arr": "2026-12-04T16:40:00-05:00",
+    "back_dep": "2026-12-06T07:00:00-05:00",
+    "back_arr": "2026-12-06T13:20:00-06:00",
+    "check_in": "2026-12-04",
+    "check_out": "2026-12-06",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 6493,
+   "price_pp": 3246,
+   "band": "bad",
+   "history_pct": null,
+   "score": 41,
+   "candidate": false,
+   "hours_on_ground": 19.3,
+   "stops": [
+    0,
+    1
+   ],
+   "total_cad": 7355,
+   "bar_cad": 1550
+  },
+  {
+   "city": "vancouver",
+   "city_name": "Vancouver",
+   "airport": "YVR",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T05:50:00-06:00",
+    "out_arr": "2026-12-12T06:33:00-07:00",
+    "back_dep": "2026-12-13T23:10:00-07:00",
+    "back_arr": "2026-12-14T01:38:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-13",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 1187,
+   "price_pp": 594,
+   "band": "bad",
+   "history_pct": null,
+   "score": 40,
+   "candidate": false,
+   "hours_on_ground": 29.6,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 1417,
+   "bar_cad": 700
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T05:50:00-06:00",
+    "out_arr": "2026-12-18T09:34:00-08:00",
+    "back_dep": "2026-12-20T08:34:00-08:00",
+    "back_arr": "2026-12-20T13:26:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2435,
+   "price_pp": 1218,
+   "band": "bad",
+   "history_pct": null,
+   "score": 40,
+   "candidate": false,
+   "hours_on_ground": 28.0,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3265,
+   "bar_cad": 1300
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T05:50:00-06:00",
+    "out_arr": "2026-12-19T09:34:00-08:00",
+    "back_dep": "2026-12-21T08:34:00-08:00",
+    "back_arr": "2026-12-21T13:26:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-21",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2871,
+   "price_pp": 1436,
+   "band": "bad",
+   "history_pct": null,
+   "score": 40,
+   "candidate": false,
+   "hours_on_ground": 28.0,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 3701,
+   "bar_cad": 1300
+  },
+  {
+   "city": "new_orleans",
+   "city_name": "New Orleans",
+   "airport": "MSY",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T07:00:00-06:00",
+    "out_arr": "2026-11-20T14:00:00-06:00",
+    "back_dep": "2026-11-22T07:00:00-06:00",
+    "back_arr": "2026-11-22T14:03:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AA+UA",
+   "flights_cad_2pax": 3554,
+   "price_pp": 1777,
+   "band": "bad",
+   "history_pct": null,
+   "score": 40,
+   "candidate": false,
+   "hours_on_ground": 22.0,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4186,
+   "bar_cad": 1300
+  },
+  {
+   "city": "austin",
+   "city_name": "Austin",
+   "airport": "AUS",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:20:00-06:00",
+    "out_arr": "2026-11-14T11:10:00-06:00",
+    "back_dep": "2026-11-16T07:00:00-06:00",
+    "back_arr": "2026-11-16T14:03:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 4040,
+   "price_pp": 2020,
+   "band": "bad",
+   "history_pct": null,
+   "score": 40,
+   "candidate": false,
+   "hours_on_ground": 24.8,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4644,
+   "bar_cad": 1150
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T07:00:00-06:00",
+    "out_arr": "2026-12-11T13:54:00-06:00",
+    "back_dep": "2026-12-13T06:00:00-06:00",
+    "back_arr": "2026-12-13T13:20:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-13",
+    "nights": 2
+   },
+   "airlines": "AA+DL",
+   "flights_cad_2pax": 1727,
+   "price_pp": 864,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 21.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2331,
+   "bar_cad": 1150
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T08:45:00-06:00",
+    "out_arr": "2026-12-12T15:24:00-06:00",
+    "back_dep": "2026-12-14T07:12:00-06:00",
+    "back_arr": "2026-12-14T15:21:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-14",
+    "nights": 2
+   },
+   "airlines": "DL+UA",
+   "flights_cad_2pax": 2001,
+   "price_pp": 1000,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 20.8,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2605,
+   "bar_cad": 1150
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T01:45:00-06:00",
+    "out_arr": "2026-12-18T07:10:00-05:00",
+    "back_dep": "2026-12-20T08:30:00-05:00",
+    "back_arr": "2026-12-20T12:08:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2801,
+   "price_pp": 1400,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3085,
+   "bar_cad": 800
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T07:00:00-06:00",
+    "out_arr": "2026-12-18T13:27:00-06:00",
+    "back_dep": "2026-12-20T05:35:00-06:00",
+    "back_arr": "2026-12-20T13:25:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "UA+DL",
+   "flights_cad_2pax": 2524,
+   "price_pp": 1262,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 21.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3128,
+   "bar_cad": 1150
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T01:45:00-06:00",
+    "out_arr": "2026-12-19T07:10:00-05:00",
+    "back_dep": "2026-12-21T08:30:00-05:00",
+    "back_arr": "2026-12-21T12:25:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-21",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2920,
+   "price_pp": 1460,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 30.3,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3204,
+   "bar_cad": 800
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T11:35:00-06:00",
+    "out_arr": "2026-11-20T12:55:00-08:00",
+    "back_dep": "2026-11-21T17:00:00-08:00",
+    "back_arr": "2026-11-21T22:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-21",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3240,
+   "price_pp": 1620,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3554,
+   "bar_cad": 1050
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T07:01:00-06:00",
+    "out_arr": "2026-11-13T13:57:00-06:00",
+    "back_dep": "2026-11-14T17:13:00-06:00",
+    "back_arr": "2026-11-15T00:19:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-14",
+    "nights": 1
+   },
+   "airlines": "AA+DL",
+   "flights_cad_2pax": 4359,
+   "price_pp": 2180,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 16.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4697,
+   "bar_cad": 1150
+  },
+  {
+   "city": "boston",
+   "city_name": "Boston",
+   "airport": "BOS",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T08:45:00-06:00",
+    "out_arr": "2026-11-13T16:44:00-05:00",
+    "back_dep": "2026-11-15T05:45:00-05:00",
+    "back_arr": "2026-11-15T13:15:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "DL",
+   "flights_cad_2pax": 4535,
+   "price_pp": 2268,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 18.0,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5079,
+   "bar_cad": 1200
+  },
+  {
+   "city": "montreal",
+   "city_name": "Montreal",
+   "airport": "YUL",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:45:00-06:00",
+    "out_arr": "2026-11-14T07:10:00-05:00",
+    "back_dep": "2026-11-16T07:30:00-05:00",
+    "back_arr": "2026-11-16T14:59:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 7509,
+   "price_pp": 3754,
+   "band": "bad",
+   "history_pct": null,
+   "score": 39,
+   "candidate": false,
+   "hours_on_ground": 29.3,
+   "stops": [
+    0,
+    1
+   ],
+   "total_cad": 7793,
+   "bar_cad": 800
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T11:35:00-06:00",
+    "out_arr": "2026-11-21T12:55:00-08:00",
+    "back_dep": "2026-11-22T17:00:00-08:00",
+    "back_arr": "2026-11-22T22:15:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 3240,
+   "price_pp": 1620,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 3554,
+   "bar_cad": 1050
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "BUR",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T09:03:00-06:00",
+    "out_arr": "2026-12-19T13:36:00-08:00",
+    "back_dep": "2026-12-20T17:03:00-08:00",
+    "back_arr": "2026-12-21T00:15:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "AS+DL",
+   "flights_cad_2pax": 3336,
+   "price_pp": 1668,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 16.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3714,
+   "bar_cad": 1100
+  },
+  {
+   "city": "nashville",
+   "city_name": "Nashville",
+   "airport": "BNA",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T01:25:00-06:00",
+    "out_arr": "2026-12-19T08:36:00-06:00",
+    "back_dep": "2026-12-20T15:11:00-06:00",
+    "back_arr": "2026-12-20T22:47:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "WS+DL+AA",
+   "flights_cad_2pax": 4786,
+   "price_pp": 2393,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 19.6,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5124,
+   "bar_cad": 1150
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T01:20:00-06:00",
+    "out_arr": "2026-12-12T12:30:00-06:00",
+    "back_dep": "2026-12-14T05:40:00-06:00",
+    "back_arr": "2026-12-14T14:03:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-14",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 4650,
+   "price_pp": 2325,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 22.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5222,
+   "bar_cad": 1250
+  },
+  {
+   "city": "austin",
+   "city_name": "Austin",
+   "airport": "AUS",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:25:00-06:00",
+    "out_arr": "2026-11-21T09:54:00-06:00",
+    "back_dep": "2026-11-23T08:36:00-06:00",
+    "back_arr": "2026-11-23T15:21:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "WS+DL+UA",
+   "flights_cad_2pax": 4716,
+   "price_pp": 2358,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 27.7,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5320,
+   "bar_cad": 1150
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "ORD",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T22:20:00-06:00",
+    "out_arr": "2026-11-13T16:50:00-06:00",
+    "back_dep": "2026-11-15T06:23:00-06:00",
+    "back_arr": "2026-11-15T13:15:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "AC+UA+DL",
+   "flights_cad_2pax": 6094,
+   "price_pp": 3047,
+   "band": "bad",
+   "history_pct": null,
+   "score": 38,
+   "candidate": false,
+   "hours_on_ground": 18.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 6654,
+   "bar_cad": 1100
+  },
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YTZ",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T01:45:00-06:00",
+    "out_arr": "2026-12-11T10:10:00-05:00",
+    "back_dep": "2026-12-12T17:30:00-05:00",
+    "back_arr": "2026-12-13T00:50:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-12",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 1640,
+   "price_pp": 820,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 20.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 1882,
+   "bar_cad": 850
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-12-05_mon-off",
+   "dates": {
+    "out_dep": "2026-12-05T06:45:00-06:00",
+    "out_arr": "2026-12-05T09:26:00-08:00",
+    "back_dep": "2026-12-07T05:45:00-08:00",
+    "back_arr": "2026-12-07T12:53:00-06:00",
+    "check_in": "2026-12-05",
+    "check_out": "2026-12-07",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 1784,
+   "price_pp": 892,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 25.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2136,
+   "bar_cad": 800
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T05:50:00-06:00",
+    "out_arr": "2026-12-11T09:29:00-08:00",
+    "back_dep": "2026-12-13T08:37:00-08:00",
+    "back_arr": "2026-12-13T13:26:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-13",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 1390,
+   "price_pp": 695,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 28.1,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 2220,
+   "bar_cad": 1300
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "BUR",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T09:07:00-06:00",
+    "out_arr": "2026-12-11T13:32:00-08:00",
+    "back_dep": "2026-12-12T13:15:00-08:00",
+    "back_arr": "2026-12-12T22:53:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-12",
+    "nights": 1
+   },
+   "airlines": "AS+UA",
+   "flights_cad_2pax": 1947,
+   "price_pp": 974,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 12.7,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2325,
+   "bar_cad": 1100
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T05:50:00-06:00",
+    "out_arr": "2026-12-12T09:29:00-08:00",
+    "back_dep": "2026-12-14T08:37:00-08:00",
+    "back_arr": "2026-12-14T13:26:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-14",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 1599,
+   "price_pp": 800,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 28.1,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 2429,
+   "bar_cad": 1300
+  },
+  {
+   "city": "washington_dc",
+   "city_name": "Washington DC",
+   "airport": "DCA",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T01:45:00-06:00",
+    "out_arr": "2026-11-20T10:24:00-05:00",
+    "back_dep": "2026-11-22T06:05:00-05:00",
+    "back_arr": "2026-11-22T13:15:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 2297,
+   "price_pp": 1148,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 24.7,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2845,
+   "bar_cad": 1200
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T06:45:00-06:00",
+    "out_arr": "2026-12-18T09:26:00-08:00",
+    "back_dep": "2026-12-20T05:30:00-08:00",
+    "back_arr": "2026-12-20T13:26:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 2581,
+   "price_pp": 1290,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 25.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2933,
+   "bar_cad": 800
+  },
+  {
+   "city": "washington_dc",
+   "city_name": "Washington DC",
+   "airport": "DCA",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:45:00-06:00",
+    "out_arr": "2026-11-21T10:24:00-05:00",
+    "back_dep": "2026-11-23T07:45:00-05:00",
+    "back_arr": "2026-11-23T13:15:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 2469,
+   "price_pp": 1234,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 26.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3017,
+   "bar_cad": 1200
+  },
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YTZ",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T01:45:00-06:00",
+    "out_arr": "2026-12-18T10:10:00-05:00",
+    "back_dep": "2026-12-19T18:30:00-05:00",
+    "back_arr": "2026-12-20T00:50:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-19",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2803,
+   "price_pp": 1402,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 21.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3045,
+   "bar_cad": 850
+  },
+  {
+   "city": "toronto",
+   "city_name": "Toronto",
+   "airport": "YTZ",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T01:45:00-06:00",
+    "out_arr": "2026-12-19T09:55:00-05:00",
+    "back_dep": "2026-12-20T18:30:00-05:00",
+    "back_arr": "2026-12-21T00:50:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 3367,
+   "price_pp": 1684,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 21.6,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3609,
+   "bar_cad": 850
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T07:00:00-06:00",
+    "out_arr": "2026-12-11T14:15:00-06:00",
+    "back_dep": "2026-12-13T05:40:00-06:00",
+    "back_arr": "2026-12-13T14:03:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-13",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 3516,
+   "price_pp": 1758,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 20.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4088,
+   "bar_cad": 1250
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T11:35:00-06:00",
+    "out_arr": "2026-11-14T12:55:00-08:00",
+    "back_dep": "2026-11-15T17:00:00-08:00",
+    "back_arr": "2026-11-15T22:15:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-15",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 4180,
+   "price_pp": 2090,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4494,
+   "bar_cad": 1050
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T11:35:00-06:00",
+    "out_arr": "2026-11-13T12:55:00-08:00",
+    "back_dep": "2026-11-14T17:00:00-08:00",
+    "back_arr": "2026-11-14T22:15:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-14",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 4402,
+   "price_pp": 2201,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 17.1,
+   "stops": [
+    0,
+    0
+   ],
+   "total_cad": 4716,
+   "bar_cad": 1050
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T07:25:00-06:00",
+    "out_arr": "2026-11-20T14:45:00-06:00",
+    "back_dep": "2026-11-22T05:40:00-06:00",
+    "back_arr": "2026-11-22T14:03:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "DL+UA",
+   "flights_cad_2pax": 4492,
+   "price_pp": 2246,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 19.9,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5064,
+   "bar_cad": 1250
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T07:00:00-06:00",
+    "out_arr": "2026-12-18T14:15:00-06:00",
+    "back_dep": "2026-12-20T05:40:00-06:00",
+    "back_arr": "2026-12-20T14:03:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-20",
+    "nights": 2
+   },
+   "airlines": "UA",
+   "flights_cad_2pax": 4820,
+   "price_pp": 2410,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 20.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5392,
+   "bar_cad": 1250
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T07:25:00-06:00",
+    "out_arr": "2026-11-21T14:45:00-06:00",
+    "back_dep": "2026-11-23T05:40:00-06:00",
+    "back_arr": "2026-11-23T14:03:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "DL+UA",
+   "flights_cad_2pax": 5097,
+   "price_pp": 2548,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 19.9,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5669,
+   "bar_cad": 1250
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "SFO",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-12T19:30:00-06:00",
+    "out_arr": "2026-11-12T23:01:00-08:00",
+    "back_dep": "2026-11-15T08:37:00-08:00",
+    "back_arr": "2026-11-15T13:26:00-06:00",
+    "check_in": "2026-11-12",
+    "check_out": "2026-11-15",
+    "nights": 3
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 5556,
+   "price_pp": 2778,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 30.6,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 6771,
+   "bar_cad": 1300
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "MDW",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T01:25:00-06:00",
+    "out_arr": "2026-12-19T09:13:00-06:00",
+    "back_dep": "2026-12-20T09:58:00-06:00",
+    "back_arr": "2026-12-20T18:55:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 6968,
+   "price_pp": 3484,
+   "band": "bad",
+   "history_pct": null,
+   "score": 37,
+   "candidate": false,
+   "hours_on_ground": 13.8,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 7262,
+   "bar_cad": 1100
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "BUR",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T09:03:00-06:00",
+    "out_arr": "2026-12-18T13:36:00-08:00",
+    "back_dep": "2026-12-19T12:34:00-08:00",
+    "back_arr": "2026-12-19T22:47:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-19",
+    "nights": 1
+   },
+   "airlines": "AS+AA",
+   "flights_cad_2pax": 3338,
+   "price_pp": 1669,
+   "band": "bad",
+   "history_pct": null,
+   "score": 36,
+   "candidate": false,
+   "hours_on_ground": 12.0,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3716,
+   "bar_cad": 1100
+  },
+  {
+   "city": "washington_dc",
+   "city_name": "Washington DC",
+   "airport": "DCA",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:45:00-06:00",
+    "out_arr": "2026-11-14T10:24:00-05:00",
+    "back_dep": "2026-11-16T06:05:00-05:00",
+    "back_arr": "2026-11-16T13:15:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 3258,
+   "price_pp": 1629,
+   "band": "bad",
+   "history_pct": null,
+   "score": 36,
+   "candidate": false,
+   "hours_on_ground": 24.7,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3806,
+   "bar_cad": 1200
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-11-13_fri-off",
+   "dates": {
+    "out_dep": "2026-11-13T09:09:00-06:00",
+    "out_arr": "2026-11-13T11:22:00-08:00",
+    "back_dep": "2026-11-15T05:45:00-08:00",
+    "back_arr": "2026-11-15T12:44:00-06:00",
+    "check_in": "2026-11-13",
+    "check_out": "2026-11-15",
+    "nights": 2
+   },
+   "airlines": "AS+DL",
+   "flights_cad_2pax": 3645,
+   "price_pp": 1822,
+   "band": "bad",
+   "history_pct": null,
+   "score": 36,
+   "candidate": false,
+   "hours_on_ground": 23.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3997,
+   "bar_cad": 800
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:20:00-06:00",
+    "out_arr": "2026-11-14T12:25:00-06:00",
+    "back_dep": "2026-11-16T05:40:00-06:00",
+    "back_arr": "2026-11-16T14:03:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 4934,
+   "price_pp": 2467,
+   "band": "bad",
+   "history_pct": null,
+   "score": 36,
+   "candidate": false,
+   "hours_on_ground": 22.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5506,
+   "bar_cad": 1250
+  },
+  {
+   "city": "mexico_city",
+   "city_name": "Mexico City",
+   "airport": "MEX",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T01:20:00-06:00",
+    "out_arr": "2026-12-19T12:30:00-06:00",
+    "back_dep": "2026-12-20T14:00:00-06:00",
+    "back_arr": "2026-12-21T00:24:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 5952,
+   "price_pp": 2976,
+   "band": "bad",
+   "history_pct": null,
+   "score": 36,
+   "candidate": false,
+   "hours_on_ground": 14.5,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 6258,
+   "bar_cad": 1250
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T06:45:00-06:00",
+    "out_arr": "2026-12-19T09:26:00-08:00",
+    "back_dep": "2026-12-20T19:10:00-08:00",
+    "back_arr": "2026-12-21T01:38:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-20",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2417,
+   "price_pp": 1208,
+   "band": "bad",
+   "history_pct": null,
+   "score": 35,
+   "candidate": false,
+   "hours_on_ground": 22.7,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2601,
+   "bar_cad": 800
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-12-19_mon-off",
+   "dates": {
+    "out_dep": "2026-12-19T11:35:00-06:00",
+    "out_arr": "2026-12-19T12:55:00-08:00",
+    "back_dep": "2026-12-21T06:04:00-08:00",
+    "back_arr": "2026-12-21T12:50:00-06:00",
+    "check_in": "2026-12-19",
+    "check_out": "2026-12-21",
+    "nights": 2
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 3151,
+   "price_pp": 1576,
+   "band": "bad",
+   "history_pct": null,
+   "score": 35,
+   "candidate": false,
+   "hours_on_ground": 22.1,
+   "stops": [
+    0,
+    1
+   ],
+   "total_cad": 3731,
+   "bar_cad": 1050
+  },
+  {
+   "city": "los_angeles",
+   "city_name": "Los Angeles",
+   "airport": "BUR",
+   "window_id": "2026-12-04_fri-off",
+   "dates": {
+    "out_dep": "2026-12-04T09:07:00-06:00",
+    "out_arr": "2026-12-04T13:32:00-08:00",
+    "back_dep": "2026-12-05T16:59:00-08:00",
+    "back_arr": "2026-12-06T00:25:00-06:00",
+    "check_in": "2026-12-04",
+    "check_out": "2026-12-05",
+    "nights": 1
+   },
+   "airlines": "AS+DL",
+   "flights_cad_2pax": 1789,
+   "price_pp": 894,
+   "band": "bad",
+   "history_pct": null,
+   "score": 34,
+   "candidate": false,
+   "hours_on_ground": 16.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2167,
+   "bar_cad": 1100
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T06:45:00-06:00",
+    "out_arr": "2026-11-21T09:26:00-08:00",
+    "back_dep": "2026-11-23T05:30:00-08:00",
+    "back_arr": "2026-11-23T13:26:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-23",
+    "nights": 2
+   },
+   "airlines": "AC+UA",
+   "flights_cad_2pax": 1960,
+   "price_pp": 980,
+   "band": "bad",
+   "history_pct": null,
+   "score": 34,
+   "candidate": false,
+   "hours_on_ground": 25.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2312,
+   "bar_cad": 800
+  },
+  {
+   "city": "san_francisco",
+   "city_name": "San Francisco",
+   "airport": "OAK",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T07:25:00-06:00",
+    "out_arr": "2026-11-14T12:01:00-08:00",
+    "back_dep": "2026-11-16T05:55:00-08:00",
+    "back_arr": "2026-11-16T12:44:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-16",
+    "nights": 2
+   },
+   "airlines": "DL",
+   "flights_cad_2pax": 3607,
+   "price_pp": 1804,
+   "band": "bad",
+   "history_pct": null,
+   "score": 34,
+   "candidate": false,
+   "hours_on_ground": 22.9,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 4437,
+   "bar_cad": 1300
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "MDW",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-11T01:25:00-06:00",
+    "out_arr": "2026-12-11T10:28:00-06:00",
+    "back_dep": "2026-12-12T12:39:00-06:00",
+    "back_arr": "2026-12-12T22:07:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-12",
+    "nights": 1
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 4826,
+   "price_pp": 2413,
+   "band": "bad",
+   "history_pct": null,
+   "score": 34,
+   "candidate": false,
+   "hours_on_ground": 15.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5120,
+   "bar_cad": 1100
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "MDW",
+   "window_id": "2026-12-12_mon-off",
+   "dates": {
+    "out_dep": "2026-12-12T01:25:00-06:00",
+    "out_arr": "2026-12-12T10:28:00-06:00",
+    "back_dep": "2026-12-13T12:39:00-06:00",
+    "back_arr": "2026-12-13T22:07:00-06:00",
+    "check_in": "2026-12-12",
+    "check_out": "2026-12-13",
+    "nights": 1
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 4826,
+   "price_pp": 2413,
+   "band": "bad",
+   "history_pct": null,
+   "score": 34,
+   "candidate": false,
+   "hours_on_ground": 15.2,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5120,
+   "bar_cad": 1100
+  },
+  {
+   "city": "chicago",
+   "city_name": "Chicago",
+   "airport": "MDW",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-18T01:25:00-06:00",
+    "out_arr": "2026-12-18T10:28:00-06:00",
+    "back_dep": "2026-12-19T11:47:00-06:00",
+    "back_arr": "2026-12-19T22:11:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-19",
+    "nights": 1
+   },
+   "airlines": "WS+DL",
+   "flights_cad_2pax": 4826,
+   "price_pp": 2413,
+   "band": "bad",
+   "history_pct": null,
+   "score": 34,
+   "candidate": false,
+   "hours_on_ground": 14.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 5120,
+   "bar_cad": 1100
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-12-11_fri-off",
+   "dates": {
+    "out_dep": "2026-12-10T23:45:00-06:00",
+    "out_arr": "2026-12-11T08:35:00-08:00",
+    "back_dep": "2026-12-13T05:00:00-08:00",
+    "back_arr": "2026-12-13T15:21:00-06:00",
+    "check_in": "2026-12-11",
+    "check_out": "2026-12-13",
+    "nights": 2
+   },
+   "airlines": "WS+UA",
+   "flights_cad_2pax": 1733,
+   "price_pp": 866,
+   "band": "bad",
+   "history_pct": null,
+   "score": 33,
+   "candidate": false,
+   "hours_on_ground": 25.4,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2313,
+   "bar_cad": 1050
+  },
+  {
+   "city": "quebec_city",
+   "city_name": "Quebec City",
+   "airport": "YQB",
+   "window_id": "2026-11-21_mon-off",
+   "dates": {
+    "out_dep": "2026-11-21T01:45:00-06:00",
+    "out_arr": "2026-11-21T09:31:00-05:00",
+    "back_dep": "2026-11-22T17:40:00-05:00",
+    "back_arr": "2026-11-23T00:06:00-06:00",
+    "check_in": "2026-11-21",
+    "check_out": "2026-11-22",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2954,
+   "price_pp": 1477,
+   "band": "bad",
+   "history_pct": null,
+   "score": 33,
+   "candidate": false,
+   "hours_on_ground": 21.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 3154,
+   "bar_cad": 1000
+  },
+  {
+   "city": "palm_springs",
+   "city_name": "Palm Springs",
+   "airport": "PSP",
+   "window_id": "2026-12-18_fri-off",
+   "dates": {
+    "out_dep": "2026-12-17T23:45:00-06:00",
+    "out_arr": "2026-12-18T08:35:00-08:00",
+    "back_dep": "2026-12-19T17:00:00-08:00",
+    "back_arr": "2026-12-19T22:15:00-06:00",
+    "check_in": "2026-12-18",
+    "check_out": "2026-12-19",
+    "nights": 1
+   },
+   "airlines": "WS",
+   "flights_cad_2pax": 2301,
+   "price_pp": 1150,
+   "band": "bad",
+   "history_pct": null,
+   "score": 32,
+   "candidate": false,
+   "hours_on_ground": 21.4,
+   "stops": [
+    1,
+    0
+   ],
+   "total_cad": 2615,
+   "bar_cad": 1050
+  },
+  {
+   "city": "portland",
+   "city_name": "Portland",
+   "airport": "PDX",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-19T22:15:00-06:00",
+    "out_arr": "2026-11-20T09:26:00-08:00",
+    "back_dep": "2026-11-22T05:45:00-08:00",
+    "back_arr": "2026-11-22T12:44:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC+DL",
+   "flights_cad_2pax": 2147,
+   "price_pp": 1074,
+   "band": "bad",
+   "history_pct": null,
+   "score": 31,
+   "candidate": false,
+   "hours_on_ground": 25.3,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2499,
+   "bar_cad": 800
+  },
+  {
+   "city": "quebec_city",
+   "city_name": "Quebec City",
+   "airport": "YQB",
+   "window_id": "2026-11-20_fri-off",
+   "dates": {
+    "out_dep": "2026-11-20T01:45:00-06:00",
+    "out_arr": "2026-11-20T09:31:00-05:00",
+    "back_dep": "2026-11-22T06:05:00-05:00",
+    "back_arr": "2026-11-22T12:08:00-06:00",
+    "check_in": "2026-11-20",
+    "check_out": "2026-11-22",
+    "nights": 2
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 2212,
+   "price_pp": 1106,
+   "band": "bad",
+   "history_pct": null,
+   "score": 31,
+   "candidate": false,
+   "hours_on_ground": 25.6,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 2532,
+   "bar_cad": 1000
+  },
+  {
+   "city": "quebec_city",
+   "city_name": "Quebec City",
+   "airport": "YQB",
+   "window_id": "2026-11-14_mon-off",
+   "dates": {
+    "out_dep": "2026-11-14T01:45:00-06:00",
+    "out_arr": "2026-11-14T09:31:00-05:00",
+    "back_dep": "2026-11-15T17:40:00-05:00",
+    "back_arr": "2026-11-16T00:06:00-06:00",
+    "check_in": "2026-11-14",
+    "check_out": "2026-11-15",
+    "nights": 1
+   },
+   "airlines": "AC",
+   "flights_cad_2pax": 9352,
+   "price_pp": 4676,
+   "band": "bad",
+   "history_pct": null,
+   "score": 30,
+   "candidate": false,
+   "hours_on_ground": 21.1,
+   "stops": [
+    1,
+    1
+   ],
+   "total_cad": 9552,
+   "bar_cad": 1000
+  }
+ ],
+ "cities": [
+  {
+   "key": "new_york",
+   "name": "New York",
+   "tier": 1,
+   "rank": 10
+  },
+  {
+   "key": "chicago",
+   "name": "Chicago",
+   "tier": 1,
+   "rank": 9
+  },
+  {
+   "key": "montreal",
+   "name": "Montreal",
+   "tier": 1,
+   "rank": 9
+  },
+  {
+   "key": "san_francisco",
+   "name": "San Francisco",
+   "tier": 1,
+   "rank": 8
+  },
+  {
+   "key": "vancouver",
+   "name": "Vancouver",
+   "tier": 1,
+   "rank": 8
+  },
+  {
+   "key": "seattle",
+   "name": "Seattle",
+   "tier": 1,
+   "rank": 8
+  },
+  {
+   "key": "las_vegas",
+   "name": "Las Vegas",
+   "tier": 1,
+   "rank": 7
+  },
+  {
+   "key": "toronto",
+   "name": "Toronto",
+   "tier": 1,
+   "rank": 8
+  },
+  {
+   "key": "portland",
+   "name": "Portland",
+   "tier": 1,
+   "rank": 7
+  },
+  {
+   "key": "denver",
+   "name": "Denver",
+   "tier": 1,
+   "rank": 7
+  },
+  {
+   "key": "san_diego",
+   "name": "San Diego",
+   "tier": 1,
+   "rank": 8
+  },
+  {
+   "key": "los_angeles",
+   "name": "Los Angeles",
+   "tier": 1,
+   "rank": 7
+  },
+  {
+   "key": "nashville",
+   "name": "Nashville",
+   "tier": 1,
+   "rank": 7
+  },
+  {
+   "key": "austin",
+   "name": "Austin",
+   "tier": 1,
+   "rank": 7
+  },
+  {
+   "key": "palm_springs",
+   "name": "Palm Springs",
+   "tier": 1,
+   "rank": 6
+  },
+  {
+   "key": "new_orleans",
+   "name": "New Orleans",
+   "tier": 2,
+   "rank": 9
+  },
+  {
+   "key": "mexico_city",
+   "name": "Mexico City",
+   "tier": 2,
+   "rank": 9
+  },
+  {
+   "key": "quebec_city",
+   "name": "Quebec City",
+   "tier": 2,
+   "rank": 8
+  },
+  {
+   "key": "boston",
+   "name": "Boston",
+   "tier": 2,
+   "rank": 8
+  },
+  {
+   "key": "washington_dc",
+   "name": "Washington DC",
+   "tier": 2,
+   "rank": 8
+  }
+ ],
+ "hits": [],
+ "candidates": [],
+ "health": {
+  "queries_planned": 702,
+  "queries_answered": 702,
+  "queries_attempted": 702,
+  "budget_max": 900,
+  "coverage_pct": 100.0,
+  "cache_hits": 0,
+  "budget_skipped": 0,
+  "fetch_error_count": 0,
+  "fetch_errors": [],
+  "blocked": false,
+  "no_nonstop": [
+   "portland",
+   "nashville",
+   "austin",
+   "new_orleans",
+   "quebec_city",
+   "boston",
+   "washington_dc"
+  ],
+  "windows": 12,
+  "city_windows_with_trips": 119,
+  "history_rows": 276,
+  "serpapi_used_this_month": 1,
+  "serpapi_cap": 60,
+  "events_source": "ticketmaster",
+  "host": "github-actions",
+  "duration_s": 3943
+ }
+}

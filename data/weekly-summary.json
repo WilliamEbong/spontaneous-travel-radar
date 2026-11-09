@@ -1,0 +1,247 @@
+{
+ "generated": "2026-11-09T08:43:44+00:00",
+ "period": [
+  "2026-11-02",
+  "2026-11-09"
+ ],
+ "scan_days": 1,
+ "history_days_total": 1,
+ "would_have_fired": [],
+ "near_misses": [],
+ "band_distribution": {
+  "austin": {
+   "bad": 3
+  },
+  "boston": {
+   "bad": 2
+  },
+  "chicago": {
+   "bad": 8
+  },
+  "denver": {
+   "bad": 7
+  },
+  "las_vegas": {
+   "bad": 4
+  },
+  "los_angeles": {
+   "bad": 8
+  },
+  "mexico_city": {
+   "bad": 7
+  },
+  "montreal": {
+   "bad": 8
+  },
+  "nashville": {
+   "bad": 7
+  },
+  "new_orleans": {
+   "bad": 4
+  },
+  "new_york": {
+   "bad": 10
+  },
+  "palm_springs": {
+   "bad": 7
+  },
+  "portland": {
+   "bad": 6
+  },
+  "quebec_city": {
+   "bad": 3
+  },
+  "san_diego": {
+   "bad": 3
+  },
+  "san_francisco": {
+   "bad": 8
+  },
+  "seattle": {
+   "bad": 6
+  },
+  "toronto": {
+   "bad": 7
+  },
+  "vancouver": {
+   "bad": 8
+  },
+  "washington_dc": {
+   "bad": 3
+  }
+ },
+ "price_pp": {
+  "austin": {
+   "min": 716,
+   "p10": 716,
+   "p50": 2020,
+   "p90": 2746
+  },
+  "boston": {
+   "min": 1431,
+   "p10": 1431,
+   "p50": 2122,
+   "p90": 2268
+  },
+  "chicago": {
+   "min": 685,
+   "p10": 806,
+   "p50": 1352,
+   "p90": 2608
+  },
+  "denver": {
+   "min": 949,
+   "p10": 954,
+   "p50": 1160,
+   "p90": 1840
+  },
+  "las_vegas": {
+   "min": 1056,
+   "p10": 1056,
+   "p50": 1826,
+   "p90": 2711
+  },
+  "los_angeles": {
+   "min": 859,
+   "p10": 894,
+   "p50": 1133,
+   "p90": 1790
+  },
+  "mexico_city": {
+   "min": 1024,
+   "p10": 1157,
+   "p50": 1891,
+   "p90": 2548
+  },
+  "montreal": {
+   "min": 668,
+   "p10": 668,
+   "p50": 1143,
+   "p90": 3375
+  },
+  "nashville": {
+   "min": 702,
+   "p10": 854,
+   "p50": 1000,
+   "p90": 2180
+  },
+  "new_orleans": {
+   "min": 1292,
+   "p10": 1292,
+   "p50": 1700,
+   "p90": 3363
+  },
+  "new_york": {
+   "min": 828,
+   "p10": 1000,
+   "p50": 1786,
+   "p90": 3112
+  },
+  "palm_springs": {
+   "min": 741,
+   "p10": 834,
+   "p50": 1576,
+   "p90": 2090
+  },
+  "portland": {
+   "min": 778,
+   "p10": 812,
+   "p50": 1058,
+   "p90": 1290
+  },
+  "quebec_city": {
+   "min": 1106,
+   "p10": 1106,
+   "p50": 1158,
+   "p90": 4676
+  },
+  "san_diego": {
+   "min": 1007,
+   "p10": 1007,
+   "p50": 1812,
+   "p90": 2948
+  },
+  "san_francisco": {
+   "min": 628,
+   "p10": 788,
+   "p50": 1214,
+   "p90": 1936
+  },
+  "seattle": {
+   "min": 603,
+   "p10": 632,
+   "p50": 1228,
+   "p90": 2088
+  },
+  "toronto": {
+   "min": 820,
+   "p10": 1002,
+   "p50": 1357,
+   "p90": 2262
+  },
+  "vancouver": {
+   "min": 484,
+   "p10": 523,
+   "p50": 738,
+   "p90": 964
+  },
+  "washington_dc": {
+   "min": 986,
+   "p10": 986,
+   "p50": 1234,
+   "p90": 1629
+  }
+ },
+ "nonstop_share": {
+  "austin": 0.0,
+  "boston": 0.0,
+  "chicago": 0.0,
+  "denver": 0.57,
+  "las_vegas": 0.38,
+  "los_angeles": 0.17,
+  "mexico_city": 0.0,
+  "montreal": 0.8,
+  "nashville": 0.0,
+  "new_orleans": 0.0,
+  "new_york": 0.07,
+  "palm_springs": 0.29,
+  "portland": 0.0,
+  "quebec_city": 0.0,
+  "san_diego": 0.33,
+  "san_francisco": 0.0,
+  "seattle": 0.5,
+  "toronto": 0.12,
+  "vancouver": 0.81,
+  "washington_dc": 0.0
+ },
+ "google_label_agreement": "not available: the free fast-flights fetch carries no low/typical/high label",
+ "request_health": {
+  "queries_planned": 702,
+  "queries_answered": 702,
+  "queries_attempted": 702,
+  "budget_max": 900,
+  "coverage_pct": 100.0,
+  "cache_hits": 0,
+  "budget_skipped": 0,
+  "fetch_error_count": 0,
+  "fetch_errors": [],
+  "blocked": false,
+  "no_nonstop": [
+   "portland",
+   "nashville",
+   "austin",
+   "new_orleans",
+   "quebec_city",
+   "boston",
+   "washington_dc"
+  ],
+  "windows": 12,
+  "city_windows_with_trips": 119,
+  "history_rows": 276,
+  "serpapi_used_this_month": 1,
+  "serpapi_cap": 60,
+  "events_source": "ticketmaster",
+  "host": "github-actions",
+  "duration_s": 3943
+ }
+}
