@@ -63,12 +63,13 @@ function windowLabel(r) {
 }
 function stopsText([out, back]) {
   if (!out && !back) return "Non-stop";
-  if (out && back) return `${out} stop each way`;
-  return out ? `${out} stop out` : `${back} stop back`;
+  if (out && back) return `${out} stop each way`;
+  return out ? `${out} stop out` : `${back} stop back`;
 }
+const todayISO = () => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(Date.now());
 function ago(iso) {
   const h = (Date.now() - new Date(iso)) / 3.6e6;
-  if (h < 1) return "under an hour ago";
+  if (h < 1) return "just now";
   if (h < 36) return `${Math.round(h)} h ago`;
   return `${Math.round(h / 24)} d ago`;
 }
@@ -169,8 +170,9 @@ function inline(node, text) {
   }
   node.append(text.slice(i));
 }
-function renderMd(md) {
+function renderMd(md, base = 3) {
   const box = el("div", { class: "brief" });
+  const tags = [base, base + 1, base + 2].map((n) => `h${Math.min(n, 6)}`);
   let list = null;
   for (const line of md.split("\n")) {
     const item = line.match(/^(?:- |\* |(\d+)\. )(.*)/);
@@ -183,15 +185,20 @@ function renderMd(md) {
     list = null;
     if (!line.trim()) continue;
     const h = line.match(/^(#{1,3}) (.*)/);
-    const n = el(h ? ["h3", "h4", "h5"][h[1].length - 1] : "p");
+    const n = el(h ? tags[h[1].length - 1] : "p");
     inline(n, h ? h[2] : line);
     box.append(n);
   }
+  // The collector writes ISO dates into titles ("Vancouver: 2026-11-20 to 2026-11-22", "Daily note 2026-11-10"); show them like the cards do.
+  const title = box.querySelector(tags[0]);
+  if (title) title.textContent = title.textContent.replace(/\d{4}-\d{2}-\d{2}/g, (d) => dayOf(d, { weekday: "short", day: "numeric", month: "short" }));
   return box;
 }
 // Hit ids are "<scan date>_<city>_<window id>"; the window id is the tail after the city key.
-const hitWindow = (r) => windowLabel({ window_id: r.id.slice(r.id.indexOf(r.city) + r.city.length + 1) });
-function hitCard(r, note) {
+const hitWindowId = (r) => r.id.slice(r.id.indexOf(r.city) + r.city.length + 1);
+const hitWindow = (r) => windowLabel({ window_id: hitWindowId(r) });
+const GATES = "an amazing fare (or a good one in the cheapest tenth of its history), a score of 80 or more, and a complete trip under the city's bar";
+function hitCard(r, note, base) {
   const d = el("details", {});
   d.append(el("summary", {},
     el("span", { class: "row" },
@@ -203,11 +210,11 @@ function hitCard(r, note) {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
     const md = await getText(r.path_md);
-    d.append(el("div", { class: "body" }, md ? renderMd(md) : el("p", { class: "empty", text: "Brief not found." })));
+    d.append(el("div", { class: "body" }, md ? renderMd(md, base) : el("p", { class: "empty", text: "Brief not found." })));
   });
   return el("article", { class: "card city hit" }, d);
 }
-const hitCards = (rows, note) => el("div", { class: "cards" }, ...rows.map((r) => hitCard(r, note ? note(r) : null)));
+const hitCards = (rows, note, base = 3) => el("div", { class: "cards" }, ...rows.map((r) => hitCard(r, note ? note(r) : null, base)));
 function briefList(rows, label) {
   const card = el("div", { class: "card" });
   for (const r of rows) {
@@ -241,7 +248,7 @@ function cityCard(r, ctx) {
       bandPill(r.band),
       el("span", { text: `${Math.round(r.hours_on_ground)} h on the ground` }),
       el("span", { text: `Score ${r.score}` }),
-      r.history_pct != null ? el("span", { text: `${Math.round(r.history_pct)}th pct of history` }) : null,
+      r.history_pct != null ? el("span", { text: `Cheaper than ${100 - Math.round(r.history_pct)}% of past fares` }) : null,
       icon("i-chev", "ic chev"))));
   d.addEventListener("toggle", () => {
     if (!d.open || d.dataset.loaded) return;
@@ -291,14 +298,16 @@ function sortCards(by) {
 function renderVerdict(latest, hits, stale) {
   const box = $("verdict");
   const rows = latest.best_by_city || [];
-  const live = hits.filter((h) => h.mode === "live" && h.is_hit);
+  // Hit files are never deleted, so a live hit stays on the page only until its long weekend has started.
+  const today = todayISO();
+  const live = hits.filter((h) => h.mode === "live" && h.is_hit && hitWindowId(h).slice(0, 10) >= today);
   const dry = hits.filter((h) => h.mode === "dry-run" && h.is_hit);
   const learning = latest.mode === "dry-run";
   const h1 = el("h1", { id: "verdict-h" });
   box.replaceChildren(h1);
   if (live.length) {
     h1.textContent = live.length === 1 ? "One trip worth booking today." : `${live.length} trips worth booking today.`;
-    box.append(el("p", { class: "lead", text: "Each passed all three gates: an amazing fare, a score of 80 or more, and a complete trip under the city's bar. Open the brief for the hotels and the links." }), hitCards(live));
+    box.append(el("p", { class: "lead", text: `${live.length === 1 ? "It" : "Each"} passed all three gates: ${GATES}. Open the brief for the hotels and the links.` }), hitCards(live, null, 2));
   } else {
     h1.textContent = "Nothing worth booking today.";
     const counts = {};
@@ -335,11 +344,11 @@ function renderCities(latest, series) {
 function renderDry(latest, hits) {
   const dry = hits.filter((h) => h.mode === "dry-run").sort((a, b) => b.is_hit - a.is_hit || b.created.localeCompare(a.created));
   const sec = $("dry-sec");
-  sec.hidden = !(latest.mode === "dry-run" || dry.length);
+  sec.hidden = latest.mode !== "dry-run";
   if (sec.hidden) return;
   $("dry").replaceChildren(dry.length
     ? hitCards(dry, (r) => (r.is_hit ? "Would have fired" : "Near miss"))
-    : emptyCard("i-pulse", "Nothing has reached the hotel check yet.", "A trip lands here once its fare drops into the good or amazing band and it scores 80 or more. Expected after the bands are retuned."));
+    : emptyCard("i-pulse", "Nothing has reached the hotel check yet.", `A trip lands here once it clears the gates: ${GATES}. Expected after the bands are retuned.`));
 }
 
 async function renderNotes(digests) {
@@ -351,8 +360,6 @@ async function renderNotes(digests) {
   const [latest, ...rest] = digests;
   const md = await getText(latest.path);
   const brief = md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." });
-  const title = brief.querySelector("h3");
-  if (title) title.textContent = title.textContent.replace(/\d{4}-\d{2}-\d{2}/, (d) => dayOf(d, { weekday: "long", day: "numeric", month: "long" }));
   box.replaceChildren(el("article", { class: "card note" }, brief));
   if (rest.length) {
     box.append(el("h3", { class: "sub-h", text: "Earlier notes" }),
@@ -388,15 +395,21 @@ function renderHealth(latest, stale) {
   $("health-body").replaceChildren(dl,
     errs.length ? el("ul", { class: "errs" }, ...errs.map((e) => el("li", { text: `${e.route} ${e.day}: ${e.error}` }))) : "",
     el("p", { class: "sheet-foot", text: "Healthy means coverage above 80%, no fetch errors, not blocked, and a scan in the last 30 hours." }));
-  const dot = $("health-dot");
-  dot.className = "dot " + (h.blocked || stale ? "bad" : (h.coverage_pct ?? 100) < 80 || h.fetch_error_count ? "warn" : "ok");
+  const state = h.blocked || stale ? "bad" : (h.coverage_pct ?? 100) < 80 || h.fetch_error_count ? "warn" : "ok";
+  $("health-dot").className = "dot " + state;
+  const label = "Scan health: " + { ok: "healthy", warn: "warning", bad: "problem" }[state];
+  $("health-btn").setAttribute("aria-label", label);
+  $("health-btn").title = label;
 }
 
 function wireSheet() {
   const dlg = $("health");
   $("health-btn").addEventListener("click", () => dlg.showModal());
   $("health-close").addEventListener("click", () => dlg.close());
-  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener("click", (e) => {   // a click on the backdrop lands on the dialog element itself, outside its box
+    const r = dlg.getBoundingClientRect();
+    if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
+  });
 }
 
 async function main() {
