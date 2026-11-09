@@ -85,10 +85,11 @@ def test_ladder_label_and_season():
 
 
 def test_usd_rooms_convert_and_tax():
-    """New York, a US city: typical room USD 330 x 1.40 x 1.16 per night (the US default tax)."""
+    """New York, a US city: the typical room is USD, x 1.40, x 1.16 per night (the US default tax)."""
     c, r = city("new_york"), ref("new_york")
     t = Trip("new_york", "EWR", "2026-12-04_fri-off", None, None, 0, date(2026, 12, 4), date(2026, 12, 6), 2, 30, 49.5)
-    assert c.hotel_tax == 1.16 and typical_trip_cad(t, c, r, S) == pytest.approx(2 * 650 + 2 * 330 * 1.40 * 1.16 + 4 * 23)
+    room = r.rooms["winter"]["typical"]
+    assert c.hotel_tax == 1.16 and typical_trip_cad(t, c, r, S) == pytest.approx(2 * r.flights["typical"] + 2 * room * 1.40 * 1.16 + 4 * 23)
 
 
 def test_rescore_moves_only_price_and_convenience(scored_vancouver):

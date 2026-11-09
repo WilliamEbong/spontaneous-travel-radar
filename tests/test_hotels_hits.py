@@ -121,9 +121,10 @@ def _opt(kind, total_cad, km, name):
 
 
 def test_central_hotel_beats_cheaper_fringe_rental_when_price_saturates():
-    """Acceptance check 6: an exceptional New York fare; a central hotel at $650 and a fringe rental at $550 both put the
-    complete trip under 60% of typical (full price points), so the 3 convenience points decide. Both stay listed."""
-    x = _nyc_nonstop()
+    """Acceptance check 6: an exceptional New York fare, this trip's typical cost pinned at $2,500; a central hotel at $650
+    and a fringe rental at $550 both put the complete trip under 60% of typical (full price points), so the 3
+    convenience points decide. Both stay listed."""
+    x = replace(_nyc_nonstop(), typical_cad=2500.0)
     p2 = pass2(x, city("new_york"), LodgingCheck((_opt("rental", 550, 4.5, "Fringe loft"), _opt("hotel", 650, 1.2, "Central hotel")), None, 2), S)
     names = [o["name"] for o in p2["options"]]
     assert names == ["Central hotel", "Fringe loft"] and p2["chosen"] == 0 and p2["lodging_source"] == "hotel"

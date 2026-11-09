@@ -133,7 +133,7 @@ new_orleans:
   nonstop: none
   flights: {typical: 900, good: 550, exceptional: 380}
   rooms:
-    winter: {typical: 230, good: 170, exceptional: 130, source: estimate; google-hotels 2026-11-09 saw 620 on 15-17 Jan 2027 (an event weekend?)}
+    winter: {typical: 230, good: 170, exceptional: 130, source: estimate}   # google-hotels 2026-11-09 saw 620 a night on 15-17 Jan 2027, an event weekend (D-68)
     summer: {typical: 185, good: 140, exceptional: 105, source: google-hotels 2026-11-09}
 
 mexico_city:
