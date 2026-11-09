@@ -16,7 +16,7 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 - [x] T006 Scoring (`radar/score.py`, `tests/test_score.py`)
 - [x] T007 Events and weather (`radar/events.py`, `radar/weather.py`, `tests/test_events_weather.py`)
 - [x] T008 Store and history percentile (`radar/store.py`, `tests/test_store.py`)
-- [ ] T009 Hotel check and hits (`radar/hotels.py`, `radar/hits.py`, `tests/test_hotels_hits.py`)
+- [x] T009 Hotel check and hits (`radar/hotels.py`, `radar/hits.py`, `tests/test_hotels_hits.py`)
 - [ ] T010 Export and CLI, offline end-to-end (`radar/export.py`, `radar/main.py`, `tests/test_main_offline.py`)
 - [ ] T011 GitHub Actions cron and PC fallback (`.github/workflows/scan.yml`, `scripts/run-scan.ps1`)
 
