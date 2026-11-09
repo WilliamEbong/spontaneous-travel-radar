@@ -10,5 +10,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install fast-flights==3.1.0
+      - run: pip install fast-flights==3.1.0 typing-extensions  # 3.1.0 imports it without declaring it
       - run: python scripts/smoke_fast_flights.py
