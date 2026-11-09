@@ -22,6 +22,11 @@ Read this first if you are picking the build up in a fresh session. Then read `S
   - weekly digest `trig_01V9gJ6rL1sDuSsqDkE11oxo`, Opus, **disabled** 2026-11-09 16:10 UTC (folded into
     `radar-daily`, D-30; William does not want the separate email).
   - hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y`, Sonnet, **disabled**, no schedule, no webhook.
+  - `radar-tune` `trig_01E542toF6zwmddqDsjRGXeX`, Opus, one-shot `run_once_at` 2026-12-09T13:00:00Z
+    (06:00 Calgary), **enabled**. Follows `routine/PROMPT-tune.md` and `docs/TUNING-PLAN.md`:
+    backtest harness, rolling-percentile flight bands, a keep-or-revert config loop, then one PR
+    `radar/tune-2026-12-09` for William to merge. Manage at
+    https://claude.ai/code/routines/trig_01E542toF6zwmddqDsjRGXeX.
   - GitHub probe `trig_01NCvvPT6cUDiLLFkr7HN6tv`, Sonnet, done. The re-run at 15:43 UTC passed for push
     auth, PR open and comment read; Codex did not review the probe PR (D-37). Results in
     `routine/CAPABILITIES.md`.

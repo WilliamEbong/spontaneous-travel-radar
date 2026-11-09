@@ -45,6 +45,24 @@ anything is allowed to interrupt you.
    routine fires exactly once (its run list), then delete the dummy file. If the webhook could not
    be created (see `routine/CAPABILITIES.md`), run the routine by hand when the dashboard shows a hit.
 
+## Phase two: tuning (2026-12-08 and 2026-12-09, automatic)
+
+- 2026-12-08: the last `radar-daily` run writes a month-one summary instead of a daily note: what
+  changed, open issues, band state. It makes no change that day.
+- 2026-12-09 06:00 Calgary: the one-shot `radar-tune` routine (Opus) follows
+  `docs/TUNING-PLAN.md`. It builds an offline backtest over all of `data/history/`, switches flight
+  bands to rolling percentiles of each route's own last 60 days (static bands stay as the fallback
+  until a route has 14 scan days), then tunes `config/scoring.yaml` in at most 60 keep-or-revert
+  trials. It opens one PR, `radar/tune-2026-12-09`, with the metric before and after, and writes a
+  note to the dashboard. If fewer than 21 scan days exist, the PR is a draft.
+- You: read the PR and its review comments, then merge it (or not). Rolling bands mean no more hand
+  retunes; `flight_band_mode: static` in `config/scoring.yaml` undoes it.
+- Known bias: Christmas and New Year windows inflate fares, so the tune excludes 2026-12-18 to
+  2027-01-04 from band percentiles.
+- The metric uses your "book / skip" taps once 30 exist (`data/labels.jsonl`, a future dashboard
+  button). Until then it checks that each route's "amazing" fires on 1 to 5% of fares and "good"
+  on 10 to 20%.
+
 ## Usage guard
 
 - One Opus run a day (`radar-daily`), told to stop as soon as there is nothing to do. Outside
