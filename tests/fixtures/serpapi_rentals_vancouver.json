@@ -1,0 +1,670 @@
+{
+"properties": [
+{
+"type": "vacation rental",
+"name": "Lovely 1Bd Loft in the heart of Vancouver!",
+"property_token": "ChoQq7_k96e9kNfMARoNL2cvMTF5bjJibmc5dBAC",
+"gps_coordinates": {
+"latitude": 49.279212951660156,
+"longitude": -123.1214828491211
+},
+"rate_per_night": {
+"display_price": "$280",
+"extracted_display_price": 280,
+"lowest": "$280",
+"extracted_lowest": 280,
+"before_taxes_fees": "$280",
+"extracted_before_taxes_fees": 280,
+"after_taxes_fees": "$280",
+"extracted_after_taxes_fees": 280
+},
+"total_rate": {
+"display_price": "$561",
+"extracted_display_price": 561,
+"lowest": "$561",
+"extracted_lowest": 561,
+"before_taxes_fees": "$561",
+"extracted_before_taxes_fees": 561,
+"after_taxes_fees": "$561",
+"extracted_after_taxes_fees": 561
+},
+"overall_rating": 4.5817895,
+"reviews": 95,
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "10:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 2",
+"1 bedroom",
+"1 bathroom",
+"1 bed"
+]
+},
+{
+"type": "vacation rental",
+"name": "Vancouver Downtown city mountain view 1 bed condo",
+"property_token": "ChkQj_LCj-Ht8Z8rGg0vZy8xMXhjX3p5bWt0EAI",
+"gps_coordinates": {
+"latitude": 49.27579116821289,
+"longitude": -123.12062072753906
+},
+"rate_per_night": {
+"display_price": "$314",
+"extracted_display_price": 314,
+"lowest": "$314",
+"extracted_lowest": 314,
+"before_taxes_fees": "$314",
+"extracted_before_taxes_fees": 314,
+"after_taxes_fees": "$314",
+"extracted_after_taxes_fees": 314
+},
+"total_rate": {
+"display_price": "$627",
+"extracted_display_price": 627,
+"lowest": "$627",
+"extracted_lowest": 627,
+"before_taxes_fees": "$627",
+"extracted_before_taxes_fees": 627,
+"after_taxes_fees": "$627",
+"extracted_after_taxes_fees": 627
+},
+"overall_rating": 5,
+"reviews": 10,
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"2 bedrooms",
+"1 bathroom",
+"2 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "Urban Loft Nook \u2022 City Views\u2022 Free Parking",
+"link": "https://opendoorhomes.ca/property/IDHV0PUG9P4LGWRX",
+"property_token": "ChoQ1pyt3MGU8s31ARoNL2cvMTF6ZGo3bWd4YhAC",
+"gps_coordinates": {
+"latitude": 49.27920913696289,
+"longitude": -123.12149047851562
+},
+"rate_per_night": {
+"display_price": "$324",
+"extracted_display_price": 324,
+"lowest": "$376",
+"extracted_lowest": 376,
+"before_taxes_fees": "$324",
+"extracted_before_taxes_fees": 324,
+"after_taxes_fees": "$376",
+"extracted_after_taxes_fees": 376
+},
+"total_rate": {
+"display_price": "$647",
+"extracted_display_price": 647,
+"lowest": "$751",
+"extracted_lowest": 751,
+"before_taxes_fees": "$647",
+"extracted_before_taxes_fees": 647,
+"after_taxes_fees": "$751",
+"extracted_after_taxes_fees": 751
+},
+"overall_rating": 4,
+"reviews": 2,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"2 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "Rosedale Condominiums",
+"property_token": "ChkQhJDy88LmqNoyGg0vZy8xMXlscHQ2ZHJrEAI",
+"gps_coordinates": {
+"latitude": 49.27832794189453,
+"longitude": -123.1162109375
+},
+"rate_per_night": {
+"display_price": "$267",
+"extracted_display_price": 267,
+"lowest": "$318",
+"extracted_lowest": 318,
+"before_taxes_fees": "$267",
+"extracted_before_taxes_fees": 267,
+"after_taxes_fees": "$318",
+"extracted_after_taxes_fees": 318
+},
+"total_rate": {
+"display_price": "$534",
+"extracted_display_price": 534,
+"lowest": "$636",
+"extracted_lowest": 636,
+"before_taxes_fees": "$534",
+"extracted_before_taxes_fees": 534,
+"after_taxes_fees": "$636",
+"extracted_after_taxes_fees": 636
+},
+"overall_rating": 4.354484,
+"reviews": 9182,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 2",
+"1 bedroom",
+"1 bathroom",
+"1 bed"
+]
+},
+{
+"type": "vacation rental",
+"name": "Beautiful 2 Bedroom Vancouver City Stay",
+"link": "https://www.booking.com/hotel/ca/beautiful-2-bedroom-vancouver-city-stay.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-17249887&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-17249887_grp-3_gendate-20261104",
+"property_token": "ChoQtJ_g_oKhvZqBARoNL2cvMTF6ejBmYzF0dBAC",
+"gps_coordinates": {
+"latitude": 49.278804779052734,
+"longitude": -123.12049102783203
+},
+"rate_per_night": {
+"display_price": "$312",
+"extracted_display_price": 312,
+"lowest": "$367",
+"extracted_lowest": 367,
+"before_taxes_fees": "$312",
+"extracted_before_taxes_fees": 312,
+"after_taxes_fees": "$367",
+"extracted_after_taxes_fees": 367
+},
+"total_rate": {
+"display_price": "$623",
+"extracted_display_price": 623,
+"lowest": "$733",
+"extracted_lowest": 733,
+"before_taxes_fees": "$623",
+"extracted_before_taxes_fees": 623,
+"after_taxes_fees": "$733",
+"extracted_after_taxes_fees": 733
+},
+"overall_rating": 4.75,
+"reviews": 2,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 5",
+"2 bedrooms",
+"1 bathroom",
+"4 beds",
+"89 sq m"
+]
+},
+{
+"type": "vacation rental",
+"name": "Casa DT Vancouver - Mexican Theme",
+"property_token": "ChkQwdOjraXkq_1NGg0vZy8xMXoxNDNsdzA5EAI",
+"gps_coordinates": {
+"latitude": 49.279232025146484,
+"longitude": -123.1215591430664
+},
+"rate_per_night": {
+"display_price": "$412",
+"extracted_display_price": 412,
+"lowest": "$488",
+"extracted_lowest": 488,
+"before_taxes_fees": "$412",
+"extracted_before_taxes_fees": 412,
+"after_taxes_fees": "$488",
+"extracted_after_taxes_fees": 488
+},
+"total_rate": {
+"display_price": "$824",
+"extracted_display_price": 824,
+"lowest": "$977",
+"extracted_lowest": 977,
+"before_taxes_fees": "$824",
+"extracted_before_taxes_fees": 824,
+"after_taxes_fees": "$977",
+"extracted_after_taxes_fees": 977
+},
+"overall_rating": 4.65,
+"reviews": 3,
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "10:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"2 beds",
+"78 sq m"
+]
+},
+{
+"type": "vacation rental",
+"name": "Funky Modern Downtown Loft- Best Location In Town!",
+"link": "https://bcluxuryvacations.holidayfuture.com/listings/387752?googleVR=1&utm_source=google&utm_medium=vacation_rentals",
+"property_token": "ChkQ96zmop2epoURGg0vZy8xMW1rX2xjM182EAI",
+"gps_coordinates": {
+"latitude": 49.27896499633789,
+"longitude": -123.12287902832031
+},
+"rate_per_night": {
+"display_price": "$423",
+"extracted_display_price": 423,
+"lowest": "$423",
+"extracted_lowest": 423,
+"before_taxes_fees": "$423",
+"extracted_before_taxes_fees": 423,
+"after_taxes_fees": "$423",
+"extracted_after_taxes_fees": 423
+},
+"total_rate": {
+"display_price": "$846",
+"extracted_display_price": 846,
+"lowest": "$846",
+"extracted_lowest": 846,
+"before_taxes_fees": "$846",
+"extracted_before_taxes_fees": 846,
+"after_taxes_fees": "$846",
+"extracted_after_taxes_fees": 846
+},
+"overall_rating": 4.55,
+"reviews": 75,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 5",
+"1 bathroom",
+"3 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "Sleeps 6/Beautiful Loft in DT Vancouver",
+"link": "https://www.vrbo.com/pdp/lo/99269707?MDPCID=VRBO-META.HPA.WEB-ORGANIC.VR",
+"property_token": "ChkQ0Nv50Yq3rYlwGg0vZy8xMXluMjlwX2MwEAI",
+"gps_coordinates": {
+"latitude": 49.27922058105469,
+"longitude": -123.12152099609375
+},
+"rate_per_night": {
+"display_price": "$405",
+"extracted_display_price": 405,
+"lowest": "$480",
+"extracted_lowest": 480,
+"before_taxes_fees": "$405",
+"extracted_before_taxes_fees": 405,
+"after_taxes_fees": "$480",
+"extracted_after_taxes_fees": 480
+},
+"total_rate": {
+"display_price": "$810",
+"extracted_display_price": 810,
+"lowest": "$960",
+"extracted_lowest": 960,
+"before_taxes_fees": "$810",
+"extracted_before_taxes_fees": 810,
+"after_taxes_fees": "$960",
+"extracted_after_taxes_fees": 960
+},
+"overall_rating": 4.7,
+"reviews": 26,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"1 bed"
+]
+},
+{
+"type": "vacation rental",
+"name": "Trendy Downtown Loft Apartment - King Bed!",
+"link": "https://www.booking.com/hotel/ca/trendy-downtown-loft.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-14106907&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-14106907_grp-3_gendate-20261104",
+"property_token": "ChkQ9Pzp5oOZ0qlMGg0vZy8xMXo1cG1qX3huEAI",
+"gps_coordinates": {
+"latitude": 49.27889633178711,
+"longitude": -123.12199401855469
+},
+"rate_per_night": {
+"display_price": "$431",
+"extracted_display_price": 431,
+"lowest": "$487",
+"extracted_lowest": 487,
+"before_taxes_fees": "$431",
+"extracted_before_taxes_fees": 431,
+"after_taxes_fees": "$487",
+"extracted_after_taxes_fees": 487
+},
+"total_rate": {
+"display_price": "$862",
+"extracted_display_price": 862,
+"lowest": "$974",
+"extracted_lowest": 974,
+"before_taxes_fees": "$862",
+"extracted_before_taxes_fees": 862,
+"after_taxes_fees": "$974",
+"extracted_after_taxes_fees": 974
+},
+"overall_rating": 4.5,
+"reviews": 64,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 5",
+"1 bathroom",
+"3 beds",
+"60 sq m"
+]
+},
+{
+"type": "vacation rental",
+"name": "Rare luxury Downtown Vancouver loft/sleeps 8/2 bedroom + 2 bath/1500sf + parking",
+"property_token": "ChoQtN_RvtWM75DaARoNL2cvMTF6eWZzbGtqahAC",
+"gps_coordinates": {
+"latitude": 49.27921676635742,
+"longitude": -123.12146759033203
+},
+"rate_per_night": {
+"display_price": "$698",
+"extracted_display_price": 698,
+"lowest": "$827",
+"extracted_lowest": 827,
+"before_taxes_fees": "$698",
+"extracted_before_taxes_fees": 698,
+"after_taxes_fees": "$827",
+"extracted_after_taxes_fees": 827
+},
+"total_rate": {
+"display_price": "$1,396",
+"extracted_display_price": 1396,
+"lowest": "$1,655",
+"extracted_lowest": 1655,
+"before_taxes_fees": "$1,396",
+"extracted_before_taxes_fees": 1396,
+"after_taxes_fees": "$1,655",
+"extracted_after_taxes_fees": 1655
+},
+"overall_rating": 4.421428,
+"reviews": 63,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"2 bedrooms",
+"2 bathrooms",
+"4 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "City Views | Prime Downtown Stay w/ Pool, Gym + Walk to Robson & Dining",
+"property_token": "ChkQ9tGuj4X3_qBUGg0vZy8xMXp6bGxnOGNoEAI",
+"gps_coordinates": {
+"latitude": 49.27839660644531,
+"longitude": -123.1196060180664
+},
+"rate_per_night": {
+"display_price": "$641",
+"extracted_display_price": 641,
+"lowest": "$760",
+"extracted_lowest": 760,
+"before_taxes_fees": "$641",
+"extracted_before_taxes_fees": 641,
+"after_taxes_fees": "$760",
+"extracted_after_taxes_fees": 760
+},
+"total_rate": {
+"display_price": "$1,282",
+"extracted_display_price": 1282,
+"lowest": "$1,519",
+"extracted_lowest": 1519,
+"before_taxes_fees": "$1,282",
+"extracted_before_taxes_fees": 1282,
+"after_taxes_fees": "$1,519",
+"extracted_after_taxes_fees": 1519
+},
+"overall_rating": 4.3,
+"reviews": 14,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 6",
+"3 bedrooms",
+"2 bathrooms"
+]
+},
+{
+"type": "vacation rental",
+"name": "Vancouver Downtown city & mountain view 1 bed condo",
+"property_token": "ChkQu9SYzYKeteYxGg0vZy8xMXczZGs1MmRwEAI",
+"gps_coordinates": {
+"latitude": 49.279212951660156,
+"longitude": -123.1214828491211
+},
+"rate_per_night": {
+"display_price": "$258",
+"extracted_display_price": 258,
+"lowest": "$306",
+"extracted_lowest": 306,
+"before_taxes_fees": "$258",
+"extracted_before_taxes_fees": 258,
+"after_taxes_fees": "$306",
+"extracted_after_taxes_fees": 306
+},
+"total_rate": {
+"display_price": "$516",
+"extracted_display_price": 516,
+"lowest": "$611",
+"extracted_lowest": 611,
+"before_taxes_fees": "$516",
+"extracted_before_taxes_fees": 516,
+"after_taxes_fees": "$611",
+"extracted_after_taxes_fees": 611
+},
+"overall_rating": 4.6,
+"reviews": 118,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 3",
+"1 bedroom",
+"1 bathroom",
+"2 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "Two-Story Loft with a High-rises view and Rooftop Deck",
+"link": "https://www.booking.com/hotel/ca/two-story-loft-downtown-vancouver.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-13314998&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-13314998_grp-2_gendate-20261104",
+"property_token": "ChoQ-vCA7PWFlfH-ARoNL2cvMTFwMmd5dm5qOBAC",
+"gps_coordinates": {
+"latitude": 49.279212951660156,
+"longitude": -123.1214828491211
+},
+"rate_per_night": {
+"display_price": "$414",
+"extracted_display_price": 414,
+"lowest": "$459",
+"extracted_lowest": 459,
+"before_taxes_fees": "$414",
+"extracted_before_taxes_fees": 414,
+"after_taxes_fees": "$459",
+"extracted_after_taxes_fees": 459
+},
+"total_rate": {
+"display_price": "$827",
+"extracted_display_price": 827,
+"lowest": "$919",
+"extracted_lowest": 919,
+"before_taxes_fees": "$827",
+"extracted_before_taxes_fees": 827,
+"after_taxes_fees": "$919",
+"extracted_after_taxes_fees": 919
+},
+"overall_rating": 4.55,
+"reviews": 57,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"2 beds",
+"68 sq m"
+]
+},
+{
+"type": "vacation rental",
+"name": "New York Style Loft in Downtown Vancouver",
+"link": "https://www.booking.com/hotel/ca/elegant-comfort-amp-convenience.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-12679819&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-12679819_grp-3_gendate-20261104",
+"property_token": "ChoQj6eL0erM-f39ARoNL2cvMTF6OW4xbDg4eRAC",
+"gps_coordinates": {
+"latitude": 49.279212951660156,
+"longitude": -123.1214828491211
+},
+"rate_per_night": {
+"display_price": "$435",
+"extracted_display_price": 435,
+"lowest": "$519",
+"extracted_lowest": 519,
+"before_taxes_fees": "$435",
+"extracted_before_taxes_fees": 435,
+"after_taxes_fees": "$519",
+"extracted_after_taxes_fees": 519
+},
+"total_rate": {
+"display_price": "$870",
+"extracted_display_price": 870,
+"lowest": "$1,037",
+"extracted_lowest": 1037,
+"before_taxes_fees": "$870",
+"extracted_before_taxes_fees": 870,
+"after_taxes_fees": "$1,037",
+"extracted_after_taxes_fees": 1037
+},
+"overall_rating": 4.8,
+"reviews": 46,
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"2 beds",
+"56 sq m"
+]
+},
+{
+"type": "vacation rental",
+"name": "Pet Friendly Modern Vancouver Loft in the Heart of the City",
+"property_token": "ChkQ56vi5dne3_YBGg0vZy8xMXRfbHhqMzN6EAI",
+"gps_coordinates": {
+"latitude": 49.279212951660156,
+"longitude": -123.1214828491211
+},
+"rate_per_night": {
+"display_price": "$575",
+"extracted_display_price": 575,
+"lowest": "$681",
+"extracted_lowest": 681,
+"before_taxes_fees": "$575",
+"extracted_before_taxes_fees": 575,
+"after_taxes_fees": "$681",
+"extracted_after_taxes_fees": 681
+},
+"total_rate": {
+"display_price": "$1,149",
+"extracted_display_price": 1149,
+"lowest": "$1,362",
+"extracted_lowest": 1362,
+"before_taxes_fees": "$1,149",
+"extracted_before_taxes_fees": 1149,
+"after_taxes_fees": "$1,362",
+"extracted_after_taxes_fees": 1362
+},
+"overall_rating": 4.9000006,
+"reviews": 132,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "10:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"2 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "Cute cozy Vancouver~Downtown /Yaletown condo, walk to everything! A /C!",
+"property_token": "ChoQhYzYlOLm64rzARoNL2cvMTF2eXEyYmhkMxAC",
+"gps_coordinates": {
+"latitude": 49.27833938598633,
+"longitude": -123.12091064453125
+},
+"overall_rating": 4,
+"reviews": 1,
+"check_in_time": "2:00\u202fPM",
+"check_out_time": "10:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 2",
+"1 bedroom",
+"1 bathroom",
+"2 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "The Charlie Suite by COMFYSUITES",
+"property_token": "ChoQ-ozsv7iV2IrmARoNL2cvMTFsYzlqYzZxcBAC",
+"gps_coordinates": {
+"latitude": 49.27640151977539,
+"longitude": -123.12460327148438
+},
+"overall_rating": 4.781818,
+"reviews": 11,
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "10:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 4",
+"1 bedroom",
+"1 bathroom",
+"2 beds"
+]
+},
+{
+"type": "vacation rental",
+"name": "D10 - 2 Bedroom in Yaletown!",
+"property_token": "ChoQit7Vk63DiaTUARoNL2cvMTF6X3N5aDIyehAC",
+"gps_coordinates": {
+"latitude": 49.274932861328125,
+"longitude": -123.11509704589844
+},
+"overall_rating": 5,
+"reviews": 1,
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "11:00\u202fAM",
+"essential_info": [
+"Entire apartment",
+"Sleeps 5",
+"2 bedrooms",
+"2 bathrooms"
+]
+}
+]
+}

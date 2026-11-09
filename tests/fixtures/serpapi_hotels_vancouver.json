@@ -1,0 +1,672 @@
+{
+"properties": [
+{
+"type": "hotel",
+"name": "Quality Inn & Suites Downtown Vancouver",
+"link": "https://www.choicehotels.com/british-columbia/vancouver/quality-inn-hotels/cnc12?mc=llgoxxpx",
+"property_token": "ChoI0_bRkvKRm8elARoNL2cvMTFrOXF0Z3Q0cRAB",
+"gps_coordinates": {
+"latitude": 49.2769676,
+"longitude": -123.12675920000001
+},
+"rate_per_night": {
+"display_price": "$104",
+"extracted_display_price": 104,
+"lowest": "$123",
+"extracted_lowest": 123,
+"before_taxes_fees": "$104",
+"extracted_before_taxes_fees": 104,
+"after_taxes_fees": "$123",
+"extracted_after_taxes_fees": 123
+},
+"total_rate": {
+"display_price": "$207",
+"extracted_display_price": 207,
+"lowest": "$247",
+"extracted_lowest": 247,
+"before_taxes_fees": "$207",
+"extracted_before_taxes_fees": 207,
+"after_taxes_fees": "$247",
+"extracted_after_taxes_fees": 247
+},
+"overall_rating": 4.3,
+"reviews": 1482,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"deal": "17% less than usual",
+"deal_description": "Deal",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Hotel Belmont Vancouver",
+"link": "https://mgallery.accor.com/hotels/B9D9?merchantid=seo-maps-CA-B9D9&sourceid=aw-cen&utm_source=google+Maps&utm_medium=seo+maps&utm_campaign=seo+maps&utm_term=MGallery-Launch",
+"property_token": "ChcI-NaGkOXGhMzlARoKL20vMDR5azhqNhAB",
+"gps_coordinates": {
+"latitude": 49.278954500000005,
+"longitude": -123.1229176
+},
+"rate_per_night": {
+"display_price": "$141",
+"extracted_display_price": 141,
+"lowest": "$170",
+"extracted_lowest": 170,
+"before_taxes_fees": "$141",
+"extracted_before_taxes_fees": 141,
+"after_taxes_fees": "$170",
+"extracted_after_taxes_fees": 170
+},
+"total_rate": {
+"display_price": "$281",
+"extracted_display_price": 281,
+"lowest": "$339",
+"extracted_lowest": 339,
+"before_taxes_fees": "$281",
+"extracted_before_taxes_fees": 281,
+"after_taxes_fees": "$339",
+"extracted_after_taxes_fees": 339
+},
+"overall_rating": 4,
+"reviews": 1718,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Georgian Court Hotel, WorldHotels Elite",
+"link": "https://www.georgiancourthotelvancouver.com/",
+"property_token": "ChcInNrLlKXCpLRQGgsvZy8xd2s0Y3JxeRAB",
+"gps_coordinates": {
+"latitude": 49.2782567,
+"longitude": -123.1135832
+},
+"rate_per_night": {
+"display_price": "$146",
+"extracted_display_price": 146,
+"lowest": "$176",
+"extracted_lowest": 176,
+"before_taxes_fees": "$146",
+"extracted_before_taxes_fees": 146,
+"after_taxes_fees": "$176",
+"extracted_after_taxes_fees": 176
+},
+"total_rate": {
+"display_price": "$292",
+"extracted_display_price": 292,
+"lowest": "$353",
+"extracted_lowest": 353,
+"before_taxes_fees": "$292",
+"extracted_before_taxes_fees": 292,
+"after_taxes_fees": "$353",
+"extracted_after_taxes_fees": 353
+},
+"overall_rating": 4.4,
+"reviews": 1746,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Grand Park Hotel & Suites Downtown Vancouver, Ascend Hotel Collection",
+"link": "https://www.grandparkdowntownvancouver.com/",
+"property_token": "ChoIoqXcyuubpbvFARoNL2cvMTFjbTE1M2RwMxAB",
+"gps_coordinates": {
+"latitude": 49.2761302,
+"longitude": -123.12832299999998
+},
+"rate_per_night": {
+"display_price": "$152",
+"extracted_display_price": 152,
+"lowest": "$181",
+"extracted_lowest": 181,
+"before_taxes_fees": "$152",
+"extracted_before_taxes_fees": 152,
+"after_taxes_fees": "$181",
+"extracted_after_taxes_fees": 181
+},
+"total_rate": {
+"display_price": "$303",
+"extracted_display_price": 303,
+"lowest": "$361",
+"extracted_lowest": 361,
+"before_taxes_fees": "$303",
+"extracted_before_taxes_fees": 303,
+"after_taxes_fees": "$361",
+"extracted_after_taxes_fees": 361
+},
+"overall_rating": 4.2,
+"reviews": 2632,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Best Western Premier Chateau Granville Hotel & Suites & Conf. Centre",
+"link": "https://www.chateaugranville.com/",
+"property_token": "ChcI9Ybl86TE6O8RGgsvZy8xdHF5ZjVwNRAB",
+"gps_coordinates": {
+"latitude": 49.27778,
+"longitude": -123.1246499
+},
+"rate_per_night": {
+"display_price": "$162",
+"extracted_display_price": 162,
+"lowest": "$195",
+"extracted_lowest": 195,
+"before_taxes_fees": "$162",
+"extracted_before_taxes_fees": 162,
+"after_taxes_fees": "$195",
+"extracted_after_taxes_fees": 195
+},
+"total_rate": {
+"display_price": "$324",
+"extracted_display_price": 324,
+"lowest": "$391",
+"extracted_lowest": 391,
+"before_taxes_fees": "$324",
+"extracted_before_taxes_fees": 324,
+"after_taxes_fees": "$391",
+"extracted_after_taxes_fees": 391
+},
+"overall_rating": 4.2,
+"reviews": 2154,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Level Vancouver Yaletown - Seymour",
+"link": "https://www.stayinglevel.com/destinations/vancouver/seymour/",
+"property_token": "ChgI7-77wLWNltTNARoLL2cvMXRsY193Z2cQAQ",
+"gps_coordinates": {
+"latitude": 49.2781629,
+"longitude": -123.1224072
+},
+"rate_per_night": {
+"display_price": "$168",
+"extracted_display_price": 168,
+"lowest": "$203",
+"extracted_lowest": 203,
+"before_taxes_fees": "$168",
+"extracted_before_taxes_fees": 168,
+"after_taxes_fees": "$203",
+"extracted_after_taxes_fees": 203
+},
+"total_rate": {
+"display_price": "$337",
+"extracted_display_price": 337,
+"lowest": "$406",
+"extracted_lowest": 406,
+"before_taxes_fees": "$337",
+"extracted_before_taxes_fees": 337,
+"after_taxes_fees": "$406",
+"extracted_after_taxes_fees": 406
+},
+"overall_rating": 4.4,
+"reviews": 304,
+"extracted_hotel_class": 5,
+"hotel_class": "5-star hotel",
+"deal": "21% less than usual",
+"deal_description": "Deal",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "10:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Auberge Vancouver Hotel",
+"link": "http://www.aubergevancouver.com/",
+"property_token": "ChkI1rnAk4Ld-sazARoML2cvMXB2MF9ndjh3EAE",
+"gps_coordinates": {
+"latitude": 49.286441599999996,
+"longitude": -123.1152959
+},
+"rate_per_night": {
+"display_price": "$171",
+"extracted_display_price": 171,
+"lowest": "$207",
+"extracted_lowest": 207,
+"before_taxes_fees": "$171",
+"extracted_before_taxes_fees": 171,
+"after_taxes_fees": "$207",
+"extracted_after_taxes_fees": 207
+},
+"total_rate": {
+"display_price": "$341",
+"extracted_display_price": 341,
+"lowest": "$414",
+"extracted_lowest": 414,
+"before_taxes_fees": "$341",
+"extracted_before_taxes_fees": 341,
+"after_taxes_fees": "$414",
+"extracted_after_taxes_fees": 414
+},
+"overall_rating": 4.2,
+"reviews": 631,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"deal": "21% less than usual",
+"deal_description": "Deal",
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "Sheraton Vancouver Wall Centre",
+"link": "https://www.marriott.com/en-us/hotels/yvrws-sheraton-vancouver-wall-centre/overview/?scid=f2ae0541-1279-4f24-b197-a979c79310b0",
+"property_token": "ChUIwYHa1IDsvskzGgkvbS8wNV9yZmMQAQ",
+"gps_coordinates": {
+"latitude": 49.280153,
+"longitude": -123.1270637
+},
+"rate_per_night": {
+"display_price": "$181",
+"extracted_display_price": 181,
+"lowest": "$218",
+"extracted_lowest": 218,
+"before_taxes_fees": "$181",
+"extracted_before_taxes_fees": 181,
+"after_taxes_fees": "$218",
+"extracted_after_taxes_fees": 218
+},
+"total_rate": {
+"display_price": "$362",
+"extracted_display_price": 362,
+"lowest": "$437",
+"extracted_lowest": 437,
+"before_taxes_fees": "$362",
+"extracted_before_taxes_fees": 362,
+"after_taxes_fees": "$437",
+"extracted_after_taxes_fees": 437
+},
+"overall_rating": 4.4,
+"reviews": 6548,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"deal": "22% less than usual",
+"deal_description": "Deal",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "OPUS Vancouver",
+"link": "https://www.opushotel.com/",
+"property_token": "ChYIj8Sw1Ney2YAUGgovbS8wNHlrOGZnEAE",
+"gps_coordinates": {
+"latitude": 49.2746032,
+"longitude": -123.12260179999998
+},
+"rate_per_night": {
+"display_price": "$198",
+"extracted_display_price": 198,
+"lowest": "$238",
+"extracted_lowest": 238,
+"before_taxes_fees": "$198",
+"extracted_before_taxes_fees": 198,
+"after_taxes_fees": "$238",
+"extracted_after_taxes_fees": 238
+},
+"total_rate": {
+"display_price": "$395",
+"extracted_display_price": 395,
+"lowest": "$476",
+"extracted_lowest": 476,
+"before_taxes_fees": "$395",
+"extracted_before_taxes_fees": 395,
+"after_taxes_fees": "$476",
+"extracted_after_taxes_fees": 476
+},
+"overall_rating": 4.7,
+"reviews": 1333,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"deal": "17% less than usual",
+"deal_description": "Deal",
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "Hilton Vancouver Downtown",
+"link": "https://www.hilton.com/en/hotels/yvrwghh-hilton-vancouver-downtown/?SEO_id=GMB-AMER-HH-YVRWGHH",
+"property_token": "ChoIsd7c4e3b2vGnARoNL2cvMTFxcHlrM2pyZBAB",
+"gps_coordinates": {
+"latitude": 49.2797029,
+"longitude": -123.1170794
+},
+"rate_per_night": {
+"display_price": "$202",
+"extracted_display_price": 202,
+"lowest": "$244",
+"extracted_lowest": 244,
+"before_taxes_fees": "$202",
+"extracted_before_taxes_fees": 202,
+"after_taxes_fees": "$244",
+"extracted_after_taxes_fees": 244
+},
+"total_rate": {
+"display_price": "$404",
+"extracted_display_price": 404,
+"lowest": "$487",
+"extracted_lowest": 487,
+"before_taxes_fees": "$404",
+"extracted_before_taxes_fees": 404,
+"after_taxes_fees": "$487",
+"extracted_after_taxes_fees": 487
+},
+"overall_rating": 4.5,
+"reviews": 1215,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "Sutton Place Hotel Vancouver",
+"link": "https://www.suttonplace.com/vancouver?utm_source=google&utm_medium=maps&utm_campaign=vancouver",
+"property_token": "ChYI-qnUtrrHqddoGgovbS8wdGtrZnhzEAE",
+"gps_coordinates": {
+"latitude": 49.2830629,
+"longitude": -123.12390099999998
+},
+"rate_per_night": {
+"display_price": "$206",
+"extracted_display_price": 206,
+"lowest": "$248",
+"extracted_lowest": 248,
+"before_taxes_fees": "$206",
+"extracted_before_taxes_fees": 206,
+"after_taxes_fees": "$248",
+"extracted_after_taxes_fees": 248
+},
+"total_rate": {
+"display_price": "$412",
+"extracted_display_price": 412,
+"lowest": "$497",
+"extracted_lowest": 497,
+"before_taxes_fees": "$412",
+"extracted_before_taxes_fees": 412,
+"after_taxes_fees": "$497",
+"extracted_after_taxes_fees": 497
+},
+"overall_rating": 4.3,
+"reviews": 4082,
+"extracted_hotel_class": 5,
+"hotel_class": "5-star hotel",
+"deal": "26% less than usual",
+"deal_description": "Great Deal",
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "Hyatt Regency Vancouver",
+"link": "https://www.hyatt.com/hyatt-regency/en-US/yvrrv-hyatt-regency-vancouver?src=corp_lclb_google_seo_yvrrv&utm_source=google&utm_medium=organic&utm_campaign=lmr",
+"property_token": "ChYI3_H20-WF6-lkGgovbS8wM2Qzc2R4EAE",
+"gps_coordinates": {
+"latitude": 49.2851194,
+"longitude": -123.12077459999999
+},
+"rate_per_night": {
+"display_price": "$217",
+"extracted_display_price": 217,
+"lowest": "$261",
+"extracted_lowest": 261,
+"before_taxes_fees": "$217",
+"extracted_before_taxes_fees": 217,
+"after_taxes_fees": "$261",
+"extracted_after_taxes_fees": 261
+},
+"total_rate": {
+"display_price": "$433",
+"extracted_display_price": 433,
+"lowest": "$523",
+"extracted_lowest": 523,
+"before_taxes_fees": "$433",
+"extracted_before_taxes_fees": 433,
+"after_taxes_fees": "$523",
+"extracted_after_taxes_fees": 523
+},
+"overall_rating": 4.4,
+"reviews": 5225,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"deal": "18% less than usual",
+"deal_description": "Deal",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "EXchange Hotel Vancouver - An Executive Hotel",
+"link": "https://www.exchangehotelvan.com/",
+"property_token": "ChoI27WZ99qyq7PNARoNL2cvMTFnZm14XzdrbhAB",
+"gps_coordinates": {
+"latitude": 49.2856083,
+"longitude": -123.1158114
+},
+"rate_per_night": {
+"display_price": "$218",
+"extracted_display_price": 218,
+"lowest": "$263",
+"extracted_lowest": 263,
+"before_taxes_fees": "$218",
+"extracted_before_taxes_fees": 218,
+"after_taxes_fees": "$263",
+"extracted_after_taxes_fees": 263
+},
+"total_rate": {
+"display_price": "$435",
+"extracted_display_price": 435,
+"lowest": "$525",
+"extracted_lowest": 525,
+"before_taxes_fees": "$435",
+"extracted_before_taxes_fees": 435,
+"after_taxes_fees": "$525",
+"extracted_after_taxes_fees": 525
+},
+"overall_rating": 4.6,
+"reviews": 2189,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "Hotel Le Soleil",
+"link": "https://www.lesoleilhotels.com/vancouver/",
+"property_token": "ChcIy5XlyJfft4yhARoKL20vMHRra2gzehAB",
+"gps_coordinates": {
+"latitude": 49.2853077,
+"longitude": -123.11825309999999
+},
+"rate_per_night": {
+"display_price": "$221",
+"extracted_display_price": 221,
+"lowest": "$265",
+"extracted_lowest": 265,
+"before_taxes_fees": "$221",
+"extracted_before_taxes_fees": 221,
+"after_taxes_fees": "$265",
+"extracted_after_taxes_fees": 265
+},
+"total_rate": {
+"display_price": "$442",
+"extracted_display_price": 442,
+"lowest": "$530",
+"extracted_lowest": 530,
+"before_taxes_fees": "$442",
+"extracted_before_taxes_fees": 442,
+"after_taxes_fees": "$530",
+"extracted_after_taxes_fees": 530
+},
+"overall_rating": 4.4,
+"reviews": 1484,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "Embarc Vancouver",
+"link": "https://www.tophotelreservations.com/embarc-vancouver?utm_source=yext&utm_medium=organic&utm_campaign=vsw-yext-listing&utm_content=yext-listing_website_url",
+"property_token": "ChcIjL-K0-uG6eFuGgsvZy8xdGc1MDNkZBAB",
+"gps_coordinates": {
+"latitude": 49.280524199999995,
+"longitude": -123.1254311
+},
+"rate_per_night": {
+"display_price": "$222",
+"extracted_display_price": 222,
+"lowest": "$282",
+"extracted_lowest": 282,
+"before_taxes_fees": "$222",
+"extracted_before_taxes_fees": 222,
+"after_taxes_fees": "$282",
+"extracted_after_taxes_fees": 282
+},
+"total_rate": {
+"display_price": "$443",
+"extracted_display_price": 443,
+"lowest": "$564",
+"extracted_lowest": 564,
+"before_taxes_fees": "$443",
+"extracted_before_taxes_fees": 443,
+"after_taxes_fees": "$564",
+"extracted_after_taxes_fees": 564
+},
+"overall_rating": 4.6,
+"reviews": 270,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "10:00\u202fAM"
+},
+{
+"type": "hotel",
+"name": "La Grande R\u00e9sidence at Sutton Place Hotel Vancouver",
+"link": "https://www.suttonplace.com/la-grande-residence?utm_source=google&utm_medium=maps&utm_campaign=vancouver_la_grande_residence",
+"property_token": "ChcIuZnyoKLFkIcbGgsvZy8xdjd0bDFyZxAB",
+"gps_coordinates": {
+"latitude": 49.2826849,
+"longitude": -123.1244848
+},
+"rate_per_night": {
+"display_price": "$228",
+"extracted_display_price": 228,
+"lowest": "$275",
+"extracted_lowest": 275,
+"before_taxes_fees": "$228",
+"extracted_before_taxes_fees": 228,
+"after_taxes_fees": "$275",
+"extracted_after_taxes_fees": 275
+},
+"total_rate": {
+"display_price": "$457",
+"extracted_display_price": 457,
+"lowest": "$551",
+"extracted_lowest": 551,
+"before_taxes_fees": "$457",
+"extracted_before_taxes_fees": 457,
+"after_taxes_fees": "$551",
+"extracted_after_taxes_fees": 551
+},
+"overall_rating": 4.2,
+"reviews": 217,
+"extracted_hotel_class": 5,
+"hotel_class": "5-star hotel",
+"deal": "27% less than usual",
+"deal_description": "Great Deal",
+"check_in_time": "3:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "the DOUGLAS, Autograph Collection",
+"link": "https://www.marriott.com/en-us/hotels/yvrps-the-douglas-autograph-collection/overview/?scid=f2ae0541-1279-4f24-b197-a979c79310b0",
+"property_token": "ChkI0On53fWl9dUZGg0vZy8xMWdmbThsbGhtEAE",
+"gps_coordinates": {
+"latitude": 49.275723199999995,
+"longitude": -123.1138588
+},
+"rate_per_night": {
+"display_price": "$247",
+"extracted_display_price": 247,
+"lowest": "$298",
+"extracted_lowest": 298,
+"before_taxes_fees": "$247",
+"extracted_before_taxes_fees": 247,
+"after_taxes_fees": "$298",
+"extracted_after_taxes_fees": 298
+},
+"total_rate": {
+"display_price": "$493",
+"extracted_display_price": 493,
+"lowest": "$596",
+"extracted_lowest": 596,
+"before_taxes_fees": "$493",
+"extracted_before_taxes_fees": 493,
+"after_taxes_fees": "$596",
+"extracted_after_taxes_fees": 596
+},
+"overall_rating": 4.2,
+"reviews": 784,
+"extracted_hotel_class": 5,
+"hotel_class": "5-star hotel",
+"deal": "15% less than usual",
+"deal_description": "Deal",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "12:00\u202fPM"
+},
+{
+"type": "hotel",
+"name": "Smithe House",
+"link": "https://kalidohotels.com/smithe-house/",
+"property_token": "ChkI5NqcivH3p4sJGg0vZy8xMXZ6djBfYndjEAE",
+"gps_coordinates": {
+"latitude": 49.2774284,
+"longitude": -123.11672089999999
+},
+"rate_per_night": {
+"display_price": "$248",
+"extracted_display_price": 248,
+"lowest": "$295",
+"extracted_lowest": 295,
+"before_taxes_fees": "$248",
+"extracted_before_taxes_fees": 248,
+"after_taxes_fees": "$295",
+"extracted_after_taxes_fees": 295
+},
+"total_rate": {
+"display_price": "$496",
+"extracted_display_price": 496,
+"lowest": "$591",
+"extracted_lowest": 591,
+"before_taxes_fees": "$496",
+"extracted_before_taxes_fees": 496,
+"after_taxes_fees": "$591",
+"extracted_after_taxes_fees": 591
+},
+"overall_rating": 4.9,
+"reviews": 668,
+"extracted_hotel_class": 4,
+"hotel_class": "4-star hotel",
+"deal": "21% less than usual",
+"deal_description": "Deal",
+"check_in_time": "4:00\u202fPM",
+"check_out_time": "11:00\u202fAM"
+}
+]
+}
