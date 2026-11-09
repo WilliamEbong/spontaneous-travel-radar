@@ -1,10 +1,13 @@
-// Travel Radar dashboard: vanilla JS, no build step. Reads the JSON the collector commits; all data text goes in via textContent.
+// Travel Radar dashboard: vanilla JS, no build step. Reads the JSON the collector and the daily routine commit;
+// all data text goes in via textContent. Order (v2): hits, every trip that scored 70+, every city, notes.
 "use strict";
 
 const TZ = "America/Edmonton";
 const STALE_HOURS = 30;
-const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Thu stat, 4 days", "stat-tue-4d": "Tue stat, 4 days", weekend: "Weekend" };
-const BANDS = ["amazing", "good", "average", "bad"];
+const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Thu stat, 4 days", "stat-tue-4d": "Tue stat, 4 days", weekend: "Fri to Sun" };
+const CLASS = { weekend: "No day off needed", dayoff: "Needs a day off" };
+const CLASS_ORDER = ["weekend", "dayoff"];
+const LADDER = { exceptional: "exceptional", good: "good", typical: "typical", above: "above typical" };
 
 const $ = (id) => document.getElementById(id);
 function el(tag, props = {}, ...kids) {
@@ -54,17 +57,18 @@ function span(a, b) {
   const sameMonth = a.slice(0, 7) === b.slice(0, 7);
   return `${dayOf(a, sameMonth ? { weekday: "short", day: "numeric" } : { weekday: "short", day: "numeric", month: "short" })} – ${dayOf(b, { weekday: "short", day: "numeric", month: "short" })}`;
 }
-// The trip's days, from the window id "<day 1>_<pattern>": a 3-day block, 4 with a stat, or Fri to Sun for "weekend".
-function windowLabel(r) {
-  const [first, pattern] = r.window_id.split("_");
+// The trip's days from the window id "<day 1>_<pattern>": a 3-day block, 4 with a stat, or Friday to Sunday for "weekend".
+function windowDays(windowId) {
+  const [first, pattern] = windowId.split("_");
   const last = new Date(first + "T12:00:00Z");
   last.setUTCDate(last.getUTCDate() + (pattern.endsWith("4d") ? 3 : 2));
-  return `${span(first, last.toISOString().slice(0, 10))} · ${PATTERN[pattern] || pattern}`;
+  return { text: span(first, last.toISOString().slice(0, 10)), pattern: PATTERN[pattern] || pattern };
 }
+const windowLabel = (windowId) => { const w = windowDays(windowId); return `${w.text} · ${w.pattern}`; };
 function stopsText([out, back]) {
   if (!out && !back) return "Non-stop";
-  if (out && back) return `${out} stop each way`;
-  return out ? `${out} stop out` : `${back} stop back`;
+  if (out && back) return `${out} stop each way`;
+  return out ? `${out} stop out` : `${back} stop back`;
 }
 const todayISO = () => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(Date.now());
 function ago(iso) {
@@ -78,14 +82,14 @@ function flightsLink(r) {
   const q = `Flights to ${apt} from YYC on ${r.dates.out_dep.slice(0, 10)} through ${r.dates.back_dep.slice(0, 10)}`;
   return "https://www.google.com/travel/flights?q=" + encodeURIComponent(q);
 }
-function bandPill(band, count) {
-  const p = el("span", { class: `pill band-${band}`, text: band });
-  if (count != null) p.append(" ", el("span", { class: "n", text: String(count) }));
-  return p;
-}
+// Pills always print their text: colour never carries the meaning alone (D-22).
+const ladderPill = (label) => el("span", { class: `pill lad-${label}`, text: LADDER[label] || label });
+const classPill = (cls) => el("span", { class: `cls cls-${cls}`, text: CLASS[cls] || cls });
 function emptyCard(iconName, title, text) {
   return el("div", { class: "card empty-card" }, icon(iconName), el("p", {}, el("b", { text: title }), text));
 }
+const pct = (share) => `${Math.round(share * 100)}%`;
+const byClass = (rows, cls = (r) => r.trip_class) => CLASS_ORDER.map((c) => [c, rows.filter((r) => (cls(r) || "dayoff") === c)]).filter(([, rs]) => rs.length);
 
 // ---- sparkline: 2px line, end dot, crosshair + tooltip on hover/focus (dataviz skill); the table twin is below it ----
 const tip = () => $("tip");
@@ -194,96 +198,168 @@ function renderMd(md, base = 3) {
   if (title) title.textContent = title.textContent.replace(/\d{4}-\d{2}-\d{2}/g, (d) => dayOf(d, { weekday: "short", day: "numeric", month: "short" }));
   return box;
 }
-// Hit ids are "<scan date>_<city>_<window id>"; the window id is the tail after the city key.
-const hitWindowId = (r) => r.id.slice(r.id.indexOf(r.city) + r.city.length + 1);
-const hitWindow = (r) => windowLabel({ window_id: hitWindowId(r) });
-const GATES = "an amazing fare (or a good one in the cheapest tenth of its history), a score of 80 or more, and a complete trip under the city's bar; a weekend-only trip needs an amazing fare, a score of 88 or more and a complete trip under 70% of the bar";
-function hitCard(r, note, base) {
-  const d = el("details", {});
-  d.append(el("summary", {},
-    el("span", { class: "row" },
-      el("span", { class: "main" }, el("span", { class: "name", text: r.city_name }), el("span", { class: "sub", text: hitWindow(r) })),
-      el("span", { class: "price" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "all-in for two" }))),
-    el("span", { class: "meta" }, el("span", { text: `Score ${r.score}` }), note ? el("span", { text: note }) : null,
-      el("span", { class: "muted", text: "Brief" }), icon("i-chev", "ic chev"))));
+// A <details> whose body is a brief, fetched the first time it opens.
+function lazyBrief(d, path, base) {
   d.addEventListener("toggle", async () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
-    const md = await getText(r.path_md);
+    const md = await getText(path);
     d.append(el("div", { class: "body" }, md ? renderMd(md, base) : el("p", { class: "empty", text: "Brief not found." })));
   });
-  return el("article", { class: "card city hit" }, d);
 }
-const hitCards = (rows, note, base = 3) => el("div", { class: "cards" }, ...rows.map((r) => hitCard(r, note ? note(r) : null, base)));
-function briefList(rows, label) {
-  const card = el("div", { class: "card" });
-  for (const r of rows) {
-    const d = el("details", { class: "item" },
-      el("summary", {}, el("span", { class: "city", text: r.city_name }), el("span", { class: "small", text: label(r) }), icon("i-chev", "ic chev")));
-    d.addEventListener("toggle", async () => {
-      if (!d.open || d.dataset.loaded) return;
-      d.dataset.loaded = "1";
-      const md = await getText(r.path_md);
-      d.append(md ? renderMd(md) : el("p", { class: "empty", text: "Brief not found." }));
-    });
-    card.append(d);
-  }
-  return card;
+function groupHead(cls, n) {
+  return el("h3", { class: `grp grp-${cls}` }, classPill(cls), el("span", { class: "n", text: n === 1 ? "1 trip" : `${n} trips` }));
 }
 
-// ---- city cards ----
-function cityCard(r, ctx) {
+// ---- hits ----
+function hitCard(r) {
+  const w = windowDays(r.window_id);
+  const d = el("details", {});
+  d.append(el("summary", {},
+    el("span", { class: "row" },
+      el("span", { class: "main" }, el("span", { class: "name", text: r.city_name }), el("span", { class: "sub", text: `${w.text} · ${w.pattern}` })),
+      el("span", { class: "price" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "complete trip for two" }))),
+    el("span", { class: "meta" }, classPill(r.trip_class), el("span", { class: "strong", text: `Final ${r.final_score}` }),
+      el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder),
+      r.mode === "dry-run" ? el("span", { class: "muted", text: "Learning run, not emailed" }) : null,
+      icon("i-chev", "ic chev"))));
+  lazyBrief(d, r.path_md, 2);
+  return el("article", { class: `card city hit c-${r.trip_class}` }, d);
+}
+const hitLine = (latest) => {
+  const t = [...new Set(Object.values(latest.classes || {}).map((c) => c.hit_threshold))];
+  return `score of ${t.length ? t.join(" or ") : 80}`;
+};
+
+function renderVerdict(latest, index, stale) {
+  const box = $("verdict");
+  const today = todayISO();
+  // Hit files are never deleted, so a hit stays on the page only until its trip has started.
+  const hits = index.filter((h) => h.is_hit && h.window_id.slice(0, 10) >= today).sort((a, b) => b.final_score - a.final_score);
+  const h1 = el("h1", { id: "verdict-h" });
+  box.replaceChildren(h1);
+  const learning = latest.mode === "dry-run";
+  if (hits.length) {
+    h1.textContent = hits.length === 1 ? "One trip worth booking." : `${hits.length} trips worth booking.`;
+    box.append(el("p", { class: "lead", text: `${hits.length === 1 ? "It" : "Each"} cleared all three passes: a fare at or under the route's good, a complete trip well under what it normally costs, and enough on for those dates to reach a final ${hitLine(latest)}.`
+      + (learning ? " Learning run: nothing is emailed yet." : " Open the brief for the lodging, what's on and the links.") }));
+    for (const [cls, rows] of byClass(hits)) box.append(groupHead(cls, rows.length), el("div", { class: "cards" }, ...rows.map(hitCard)));
+  } else {
+    h1.textContent = "Nothing worth booking today.";
+    const best = (latest.best_by_city || [])[0];
+    const parts = [];
+    if (best) parts.push(`Best deal: ${best.city_name}, ${windowLabel(best.window_id)}, about ${money(best.total_cad)} for two, ${pct(best.share)} of what that trip normally costs.`);
+    else parts.push("No trip fitted a window in the last scan.");
+    parts.push(`A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.`);
+    if (learning) parts.push("Learning run: nothing is emailed yet.");
+    box.append(el("p", { class: "lead", text: parts.join(" ") }));
+  }
+  if (stale) {
+    box.append(el("div", { class: "notice" }, icon("i-warn"),
+      el("p", { text: `The last scan is ${Math.round(stale)} hours old, so these fares may be out of date. The daily run may have failed; the health panel has the details.` })));
+  }
+}
+
+// ---- passed: every trip at or over its class's candidate line, and how far it got ----
+function stage(r, good, idx) {
+  const c = r.candidate_id ? idx.get(r.candidate_id) : null;
+  if (!c) {
+    if (good != null && r.price_pp > good) return { step: 1, text: `Fares only: ${money(r.price_pp)} pp is above this route's good (${money(good)}).` };
+    return { step: 1, text: "Fares only: higher-scoring candidates used today's lodging checks (three a day)." };
+  }
+  const base = { c, score: c.final_score ?? c.score_p2, hit: c.is_hit };
+  if (c.pass === 3) return { ...base, step: 3, text: `${c.is_hit ? "Hit" : "Near miss"}: ${money(c.total_cad)} for two, what's on +${c.events_pts}, final ${c.final_score}.` };
+  if (c.status === "dropped") return { ...base, step: 2, text: `Lodging checked, score ${c.score_p2}: ${c.drop_reason}.` };
+  return { ...base, step: 2, text: `Lodging checked: ${money(c.total_cad)} for two, score ${c.score_p2}. What's on is researched next.` };
+}
+
+function passedRow({ r, st }) {
+  const w = windowDays(r.window_id);
+  const head = el("span", { class: "prow-main" },
+    el("span", { class: "prow-top" }, el("b", { class: "city", text: r.city_name }), el("span", { class: "small", text: `${w.text} · ${w.pattern}` })),
+    el("span", { class: "prow-meta" }, classPill(r.trip_class), el("span", { text: `${money(r.price_pp)} pp` }), ladderPill(r.ladder),
+      el("span", { class: "strong", text: `Score ${st.score ?? r.score}` }),
+      el("span", { class: `stage${st.hit ? " hit" : ""}`, text: `Pass ${st.step}` })),
+    el("span", { class: "prow-stage", text: st.text }));
+  const cls = `prow c-${r.trip_class}`;
+  if (!st.c) return el("li", { class: cls }, el("div", { class: "prow-sum" }, head));
+  const d = el("details", {}, el("summary", { class: "prow-sum" }, head, icon("i-chev", "ic chev")));
+  lazyBrief(d, st.c.path_md, 3);
+  return el("li", { class: cls }, d);
+}
+
+function renderPassed(latest, index) {
+  const classes = latest.classes || {};
+  const goods = Object.fromEntries((latest.cities || []).map((c) => [c.key, c.ladder ? c.ladder.good : null]));
+  const idx = new Map(index.map((r) => [r.id, r]));
+  const line = (cls) => classes[cls]?.candidate_threshold ?? 70;
+  const items = (latest.windows || []).filter((r) => r.score >= line(r.trip_class || "dayoff"))
+    .map((r) => ({ r, st: stage(r, goods[r.city], idx) }))
+    .sort((a, b) => Boolean(b.st.hit) - Boolean(a.st.hit) || (b.st.score ?? b.r.score) - (a.st.score ?? a.r.score));
+  const lines = [...new Set(Object.values(classes).map((c) => c.candidate_threshold))].join(" or ") || "70";
+  $("passed-sec").hidden = false;
+  $("passed-hint").textContent = `Every trip that scored ${lines} or more today, and how far it got: fares (pass 1), then real lodging within about 20 minutes of the centre (pass 2), then what is on for those dates (pass 3). Only a fare at or under the route's good gets a lodging check, three a day at most.`;
+  if (!items.length) {
+    $("passed").replaceChildren(emptyCard("i-pulse", `No trip scored ${lines} or more today.`, "Every route's fares sit near or above what they normally cost. Quiet is the radar working: it waits for something exceptional."));
+    return;
+  }
+  const box = el("div", {});
+  for (const [cls, rs] of byClass(items, (x) => x.r.trip_class)) box.append(groupHead(cls, rs.length), el("ul", { class: "card plist" }, ...rs.map(passedRow)));
+  $("passed").replaceChildren(box);
+}
+
+// ---- every city: its best deal (top score), the route's ladder, every weekend, price history ----
+function cityCard(r, c, ctx) {
+  const lad = c.ladder || {};
+  const ladderLine = el("span", { class: "sub lad-line", text: `Typical for this route ${money(lad.typical)} pp · exceptional under ${money(lad.exceptional)}` });
+  if (!r) {
+    const card = el("article", { class: "card city none" }, el("div", { class: "nosum" },
+      el("span", { class: "name", text: c.name }), ladderLine, el("span", { class: "sub", text: "No trip fits a window in this scan." })));
+    Object.assign(card.dataset, { score: -999, price: 1e9, name: c.name });
+    return card;
+  }
   const d = el("details", {});
   d.append(el("summary", {},
     el("span", { class: "row" },
       el("span", { class: "main" },
-        el("span", { class: "name", text: r.city_name }),
+        el("span", { class: "name", text: c.name }),
         el("span", { class: "sub", text: `${r.airport} · ${r.airlines} · ${stopsText(r.stops)}` })),
       el("span", { class: "price" },
-        el("span", { class: "for2", text: money(r.flights_cad_2pax) }),
-        el("span", { class: "pp", text: `${money(r.price_pp)} per person` }))),
-    el("span", { class: "dates", text: windowLabel(r) }),
+        el("span", { class: "for2", text: money(r.total_cad) }),
+        el("span", { class: "pp", text: `for two · flights ${money(r.price_pp)} pp` }))),
+    el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) }), classPill(r.trip_class)),
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
-    el("span", { class: "meta" },
-      bandPill(r.band),
-      el("span", { text: `${Math.round(r.hours_on_ground)} h on the ground` }),
-      el("span", { text: `Score ${r.score}` }),
-      r.history_pct != null ? el("span", { text: `Cheaper than ${100 - Math.round(r.history_pct)}% of past fares` }) : null,
-      icon("i-chev", "ic chev"))));
+    ladderLine,
+    el("span", { class: "meta" }, ladderPill(r.ladder), el("span", { text: `${pct(r.share)} of typical` }), el("span", { text: `Score ${r.score}` }), icon("i-chev", "ic chev"))));
   d.addEventListener("toggle", () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
-    d.append(cityBody(r, ctx));
+    d.append(cityBody(r, c, ctx));
   });
-  const card = el("article", { class: "card city" }, d);
-  card.dataset.score = r.score; card.dataset.price = r.flights_cad_2pax; card.dataset.name = r.city_name;
+  const card = el("article", { class: `card city c-${r.trip_class}` }, d);
+  Object.assign(card.dataset, { score: r.score, price: r.total_cad, name: c.name });
   return card;
 }
 
-function cityBody(r, { series, windows }) {
+function cityBody(r, c, { series, windows }) {
   const body = el("div", { class: "body" });
-  const left = el("div", {}, el("h3", { class: "sub-h", text: "Cheapest fare per person on any day-off trip, by scan day" }), history(series[r.city], r.city_name));
-  const right = el("div", {});
-  const ws = windows.filter((w) => w.city === r.city).sort((a, b) => a.dates.check_in.localeCompare(b.dates.check_in));
-  // Weekend-only trips (no day off, basic fares allowed) get their own table below the long weekends.
-  for (const [title, rows] of [["Every long weekend", ws.filter((w) => w.trip_class !== "weekend")],
-                               ["Weekend trips, no day off", ws.filter((w) => w.trip_class === "weekend")]]) {
-    if (!rows.length) continue;
-    right.append(el("h3", { class: "sub-h", text: title }));
-    const tbody = el("tbody");
-    for (const w of rows) {
-      tbody.append(el("tr", { class: w.window_id === r.window_id ? "is-best" : null },
-        el("th", { scope: "row" }, el("span", { text: windowLabel(w) }), el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)}` })),
-        el("td", {}, bandPill(w.band)),
-        el("td", { class: "num", text: money(w.flights_cad_2pax) }),
-        el("td", { class: "num", text: String(w.score) })));
-    }
-    right.append(el("table", { class: "wins" },
-      el("thead", {}, el("tr", {}, ...["Trip", "Band", "For two", "Score"].map((h, i) => el("th", { scope: "col", class: i > 1 ? "num" : null, text: h })))), tbody));
+  const left = el("div", {}, el("h3", { class: "sub-h", text: "Cheapest day-off fare per person, by scan day" }), history(series[c.key], c.name));
+  const right = el("div", {}, el("h3", { class: "sub-h", text: "Every weekend, best first" }));
+  const ws = windows.filter((w) => w.city === c.key).sort((a, b) => b.score - a.score || a.total_cad - b.total_cad);
+  const tbody = el("tbody");
+  for (const w of ws) {
+    tbody.append(el("tr", { class: `c-${w.trip_class}${w.window_id === r.window_id ? " is-best" : ""}` },
+      el("th", { scope: "row" }, el("span", { text: windowLabel(w.window_id) }), classPill(w.trip_class),
+        el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)} · ${money(w.price_pp)} pp` })),
+      el("td", {}, ladderPill(w.ladder)),
+      el("td", { class: "num", text: money(w.total_cad) }),
+      el("td", { class: "num", text: String(w.score) })));
   }
+  right.append(el("table", { class: "wins" },
+    el("thead", {}, el("tr", {}, ...["Trip", "Fare", "For two", "Score"].map((h, i) => el("th", { scope: "col", class: i > 1 ? "num" : null, text: h })))), tbody));
   body.append(left, right, el("p", { class: "links" },
-    el("a", { href: flightsLink(r), rel: "noopener", target: "_blank" }, icon("i-plane"), `Open in Google Flights`),
-    el("span", { class: "muted", text: ` · Complete trip about ${money(r.total_cad)} for two, alert bar ${money(r.bar_cad)}` })));
+    el("a", { href: flightsLink(r), rel: "noopener", target: "_blank" }, icon("i-plane"), "Open in Google Flights"),
+    el("span", { class: "muted", text: ` · For two: flights ${money(r.flights_cad_2pax)}, lodging about ${money(r.lodging_cad)} (a good room rate until a closer look), transfers. This trip normally costs about ${money(r.typical_cad)}.` })));
   return body;
 }
 
@@ -298,62 +374,19 @@ function sortCards(by) {
   box.append(...[...box.children].sort(cmp));
 }
 
-// ---- sections ----
-function renderVerdict(latest, hits, stale) {
-  const box = $("verdict");
-  const rows = latest.best_by_city || [];
-  // Hit files are never deleted, so a live hit stays on the page only until its long weekend has started.
-  const today = todayISO();
-  const live = hits.filter((h) => h.mode === "live" && h.is_hit && hitWindowId(h).slice(0, 10) >= today);
-  const dry = hits.filter((h) => h.mode === "dry-run" && h.is_hit);
-  const learning = latest.mode === "dry-run";
-  const h1 = el("h1", { id: "verdict-h" });
-  box.replaceChildren(h1);
-  if (live.length) {
-    h1.textContent = live.length === 1 ? "One trip worth booking today." : `${live.length} trips worth booking today.`;
-    box.append(el("p", { class: "lead", text: `${live.length === 1 ? "It" : "Each"} passed all three gates: ${GATES}. Open the brief for the hotels and the links.` }), hitCards(live, null, 2));
-  } else {
-    h1.textContent = "Nothing worth booking today.";
-    const counts = {};
-    for (const r of rows) counts[r.band] = (counts[r.band] || 0) + 1;
-    const cheapest = rows.reduce((a, b) => (!a || b.flights_cad_2pax < a.flights_cad_2pax ? b : a), null);
-    const parts = [];
-    if (rows.length) {
-      parts.push(`${rows.length} cities scanned.`);
-      if (cheapest) parts.push(`Cheapest for two is ${cheapest.city_name} at ${money(cheapest.flights_cad_2pax)}, ${cheapest.band === "bad" ? "still in the bad band" : `band ${cheapest.band}`}.`);
-    } else parts.push("No trip fitted a long-weekend window in the last scan.");
-    if (learning) parts.push(dry.length ? `Learning run: ${dry.length} would have fired, nothing alerts yet.` : "Learning run: nothing alerts yet while the bands are tuned from this data.");
-    box.append(el("p", { class: "lead", text: parts.join(" ") }));
-    if (rows.length) box.append(el("div", { class: "bands", role: "group", "aria-label": "Band spread" }, ...BANDS.map((b) => bandPill(b, counts[b] || 0))));
-  }
-  if (stale) {
-    box.append(el("div", { class: "notice" }, icon("i-warn"),
-      el("p", { text: `The last scan is ${Math.round(stale)} hours old, so these fares may be out of date. The daily run may have failed; the health panel has the details.` })));
-  }
-}
-
 function renderCities(latest, series) {
-  const rows = latest.best_by_city || [];
-  const sec = $("cities-sec");
-  sec.hidden = false;
-  if (!rows.length) {
-    $("cities").replaceChildren(emptyCard("i-radar", "No in-window trips found.", "The last scan found no itinerary that fits a long-weekend window for any city. The next scan tries again."));
+  $("cities-sec").hidden = false;
+  const weeks = latest.classes?.dayoff?.min_weeks ?? 6;
+  $("cities-hint").textContent = `Each city's best trip in this scan, judged against what that route normally costs. Day-off trips start ${weeks} weeks out so the time can be approved (leave from 7:30 pm the evening before, home by 4 pm on the last day off). Weekend trips need no day off and run the next 6 weeks (out Friday after 5:30 pm, home Sunday by 4 pm, non-stop). Fares are for two adults with a carry-on each, basic fares included. Tap a city for every weekend and its price history.`;
+  const best = Object.fromEntries((latest.best_by_city || []).map((r) => [r.city, r]));
+  const cities = latest.cities || [];
+  if (!cities.length) {
+    $("cities").replaceChildren(emptyCard("i-radar", "No cities in this scan.", "Every city is switched off in Settings."));
     return;
   }
   const ctx = { series, windows: latest.windows || [] };
-  const mine = Object.fromEntries((latest.cities || []).map((c, i) => [c.key, i]));   // config/cities.yaml order, set in Settings
-  $("cities").replaceChildren(...rows.map((r) => { const card = cityCard(r, ctx); card.dataset.order = mine[r.city] ?? 999; return card; }));
+  $("cities").replaceChildren(...cities.map((c, i) => { const card = cityCard(best[c.key], c, ctx); card.dataset.order = i; return card; }));   // cities.yaml order = "Mine"
   sortCards(document.querySelector("#sort input:checked").value);
-}
-
-function renderDry(latest, hits) {
-  const dry = hits.filter((h) => h.mode === "dry-run").sort((a, b) => b.is_hit - a.is_hit || b.created.localeCompare(a.created));
-  const sec = $("dry-sec");
-  sec.hidden = latest.mode !== "dry-run";
-  if (sec.hidden) return;
-  $("dry").replaceChildren(dry.length
-    ? hitCards(dry, (r) => (r.is_hit ? "Would have fired" : "Near miss"))
-    : emptyCard("i-pulse", "Nothing has reached the hotel check yet.", `A trip lands here once it clears the gates: ${GATES}. Expected after the bands are retuned.`));
 }
 
 async function renderNotes(digests) {
@@ -364,12 +397,21 @@ async function renderNotes(digests) {
   }
   const [latest, ...rest] = digests;
   const md = await getText(latest.path);
-  const brief = md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." });
-  box.replaceChildren(el("article", { class: "card note" }, brief));
-  if (rest.length) {
-    box.append(el("h3", { class: "sub-h", text: "Earlier notes" }),
-      briefList(rest.map((d) => ({ city_name: dayOf(d.date, { weekday: "short", day: "numeric", month: "short" }), path_md: d.path })), () => ""));
+  box.replaceChildren(el("article", { class: "card note" }, md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." })));
+  if (!rest.length) return;
+  const card = el("div", { class: "card" });
+  for (const n of rest) {
+    const d = el("details", { class: "item" },
+      el("summary", {}, el("span", { class: "city", text: dayOf(n.date, { weekday: "short", day: "numeric", month: "short" }) }), icon("i-chev", "ic chev")));
+    d.addEventListener("toggle", async () => {
+      if (!d.open || d.dataset.loaded) return;
+      d.dataset.loaded = "1";
+      const t = await getText(n.path);
+      d.append(t ? renderMd(t) : el("p", { class: "empty", text: "Note not found." }));
+    });
+    card.append(d);
   }
+  box.append(el("h3", { class: "sub-h", text: "Earlier notes" }), card);
 }
 
 function renderHealth(latest, stale) {
@@ -377,15 +419,16 @@ function renderHealth(latest, stale) {
   const names = Object.fromEntries((latest.cities || []).map((c) => [c.key, c.name]));
   const items = [
     ["Last scan", latest.scan_ts ? when(latest.scan_ts) : "–", stale ? "bad" : "ok"],
-    ["Mode", latest.mode === "dry-run" ? "learning run (no alerts)" : latest.mode],
+    ["Mode", latest.mode === "dry-run" ? "learning run (no email)" : latest.mode],
     ["Coverage", `${h.coverage_pct ?? "–"}% of ${h.queries_planned ?? "–"} queries`, (h.coverage_pct ?? 100) < 80 ? "bad" : "ok"],
     ["Requests sent", `${h.queries_attempted ?? "–"} of ${h.budget_max ?? "–"} budget`],
     ["Fetch errors", h.fetch_error_count, h.fetch_error_count ? "bad" : "ok"],
     ["Blocked by Google", h.blocked ? "yes" : "no", h.blocked ? "bad" : "ok"],
-    ["SerpApi this month", `${h.serpapi_used_this_month ?? 0} of ${h.serpapi_cap ?? 60} searches`],
+    ["Candidates today", h.candidates ?? "–"],
+    ["Lodging checks today", h.pass2_checks != null ? `${h.pass2_checks} (${h.serpapi_lookups ?? 0} lookups)` : "–"],
+    ["SerpApi this month", `${h.serpapi_used_this_month ?? 0} of ${h.serpapi_cap ?? 200} lookups`],
     ["Cache hits", h.cache_hits],
     ["Skipped (budget)", h.budget_skipped],
-    ["Lodging checks today", h.pass2_checks != null ? `${h.pass2_checks} (${h.serpapi_lookups ?? 0} lookups)` : "–"],
     ["Host", h.host],
     ["Duration", h.duration_s != null ? `${Math.round(h.duration_s / 60)} min` : "–"],
     ["No non-stop found", (h.no_nonstop || []).map((k) => names[k] || k).join(", ") || "none", null, true],
@@ -426,7 +469,7 @@ async function main() {
   const savedSort = document.querySelector(`#sort input[value="${store.get("radar.sort")}"]`);
   if (savedSort) savedSort.checked = true;
   $("sort").addEventListener("change", (e) => { store.set("radar.sort", e.target.value); sortCards(e.target.value); });
-  const [latest, series, hits, digests] = await Promise.all([
+  const [latest, series, index, digests] = await Promise.all([
     getJSON("data/latest.json"), getJSON("data/series.json"), getJSON("hits/index.json"), getJSON("data/digests/index.json"),
   ]);
   if (!latest) {
@@ -444,10 +487,10 @@ async function main() {
   chip.title = when(latest.scan_ts) + " Calgary time";
   chip.classList.toggle("warn", Boolean(stale));
 
-  const all = hits || [];
-  renderVerdict(latest, all, stale);
+  const rows = (index || []).filter((r) => r.pass != null);   // v2 index rows only
+  renderVerdict(latest, rows, stale);
+  renderPassed(latest, rows);
   renderCities(latest, series || {});
-  renderDry(latest, all);
   renderHealth(latest, stale);
   renderNotes(digests || []);
 }

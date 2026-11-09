@@ -10,14 +10,15 @@ const API = "https://api.github.com/repos/" + REPO;
 const TOKEN_KEY = "radar.githubToken";
 const TOKEN_URL = "https://github.com/settings/personal-access-tokens/new";
 const NEXT_SCAN = "Applies at the next scan, 04:17 Calgary.";
-const BAR = { min: 200, max: 5000, step: 50 };
-const CONFIG = ["cities.yaml", "scoring.yaml", "days_off.yaml", "holidays.yaml"];
+const CAP = { min: 300, max: 10000, step: 50, start: 1500 };   // optional overall cap on a hit's complete trip for two (off by default)
+const HIT = { min: 60, max: 100 };
+const CONFIG = ["cities.yaml", "scoring.yaml", "days_off.yaml", "holidays.yaml", "references.yaml"];
 const DAYS_HEADER = "# Written by the dashboard's Settings panel (the Days off calendar); edit by hand if you prefer.\n"
   + "# extra: vacation days, treated like stat holidays (they create or extend long-weekend windows).\n"
   + "# blocked: no trip may touch these dates. Dates are YYYY-MM-DD. A date cannot be in both lists.\n";
 const MODE_HINT = {
-  "dry-run": "Learning run: trips that would have fired are logged on the page and nobody is alerted.",
-  live: "Live: a trip that passes all three gates is written as a real hit, which the alert routine can email you.",
+  "dry-run": "Learning run: hits and near misses show on the page and nothing is emailed.",
+  live: "Live: a trip that clears all three passes is written as a real hit, which the alert routine can email you.",
 };
 
 // Panel state. It lives as long as the page does, so closing the panel never loses an unsaved edit.
@@ -66,18 +67,21 @@ async function verifyToken() {
 }
 
 async function loadConfig() {
-  const [cities, scoring, days, holidays] = await Promise.all(CONFIG.map(getFile));
-  const c = parse(cities.text), s = parse(scoring.text), d = parse(days.text), h = parse(holidays.text);
+  const [cities, scoring, days, holidays, refs] = await Promise.all(CONFIG.map(getFile));
+  const c = parse(cities.text), s = parse(scoring.text), d = parse(days.text), h = parse(holidays.text), r = parse(refs.text);
   if (!Array.isArray(c.cities) || !c.cities.length) throw new Error("config/cities.yaml on GitHub has no cities list.");
-  S.cities = c.cities.map((x) => ({ key: String(x.key), name: String(x.name), airports: (x.airports || []).join(" · "), enabled: x.enabled !== false, bar: Number(x.bar_cad) }));
+  S.cities = c.cities.map((x) => ({ key: String(x.key), name: String(x.name), airports: (x.airports || []).join(" · "), enabled: x.enabled !== false,
+    ladder: (r[x.key] || {}).flights || null }));
   S.days = { extra: new Set((d.extra || []).map(String)), blocked: new Set((d.blocked || []).map(String)) };
-  S.alerts = { mode: String(s.mode), threshold: Number(s.score_threshold), drop: Number(s.realert_drop_pct),
-    weeks: Number(s.dayoff_min_weeks), weekend: s.weekend_trips === true };
+  const tc = s.trip_classes || {};
+  S.alerts = { mode: String(s.mode), drop: Number(s.realert_drop_pct), weeks: Number(s.dayoff_min_weeks), cap: s.cap_cad == null ? null : Number(s.cap_cad),
+    dayoffOn: tc.dayoff?.enabled === true, weekendOn: tc.weekend?.enabled === true,
+    dayoffHit: Number(tc.dayoff?.hit_threshold), weekendHit: Number(tc.weekend?.hit_threshold) };
   S.stats = new Set((h[h.calendar] || []).map(String));
   S.base = snapshot();
 }
 function snapshot() {
-  return { cities: S.cities.map((c) => ({ key: c.key, enabled: c.enabled, bar: c.bar })), extra: [...S.days.extra].sort(), blocked: [...S.days.blocked].sort(), alerts: { ...S.alerts } };
+  return { cities: S.cities.map((c) => ({ key: c.key, enabled: c.enabled })), extra: [...S.days.extra].sort(), blocked: [...S.days.blocked].sort(), alerts: { ...S.alerts } };
 }
 
 // ---- what changed since the load (per file, and a count for the status line) ----
@@ -90,8 +94,7 @@ function diff() {
   for (const c of S.cities) {
     const w = was[c.key];
     if (!w) continue;
-    const k = (w.enabled !== c.enabled ? 1 : 0) + (w.bar !== c.bar ? 1 : 0);
-    if (k) { out.cities = true; out.n += k; }
+    if (w.enabled !== c.enabled) { out.cities = true; out.n++; }
   }
   out.cities = out.cities || out.order;
   for (const k of ["extra", "blocked"]) {
@@ -104,15 +107,16 @@ function diff() {
 
 function validate() {
   if (!S.cities.some((c) => c.enabled)) return "Keep at least one city on.";
-  for (const c of S.cities) {
-    if (!Number.isInteger(c.bar) || c.bar < BAR.min || c.bar > BAR.max || c.bar % BAR.step) return `${c.name}: the bar must be a multiple of $${BAR.step} between $${BAR.min} and $${BAR.max}.`;
-  }
   const a = S.alerts;
   if (a.mode !== "dry-run" && a.mode !== "live") return "Mode must be learning run or live.";
-  if (!Number.isInteger(a.threshold) || a.threshold < 0 || a.threshold > 100) return "The score threshold must be a whole number from 0 to 100.";
-  if (!Number.isInteger(a.drop) || a.drop < 0 || a.drop > 100) return "The re-alert drop must be a whole number from 0 to 100.";
+  if (!Number.isInteger(a.drop) || a.drop < 0 || a.drop > 100) return "The fresh-look drop must be a whole number from 0 to 100.";
   if (!Number.isInteger(a.weeks) || a.weeks < 2 || a.weeks > 12) return "Day-off trips must start a whole number of weeks out, from 2 to 12.";
-  if (typeof a.weekend !== "boolean") return "Weekend trips must be on or off.";
+  if (typeof a.dayoffOn !== "boolean" || typeof a.weekendOn !== "boolean") return "Each kind of trip must be on or off.";
+  if (!a.dayoffOn && !a.weekendOn) return "Keep at least one kind of trip on.";
+  for (const [k, name] of [["dayoffHit", "day-off trips"], ["weekendHit", "weekend trips"]]) {
+    if (!Number.isInteger(a[k]) || a[k] < HIT.min || a[k] > HIT.max) return `The hit line for ${name} must be a whole number from ${HIT.min} to ${HIT.max}.`;
+  }
+  if (a.cap !== null && (!Number.isInteger(a.cap) || a.cap < CAP.min || a.cap > CAP.max || a.cap % CAP.step)) return `The cap must be a multiple of $${CAP.step} between $${CAP.min} and $${CAP.max.toLocaleString("en-CA")}.`;
   for (const k of ["extra", "blocked"]) {
     for (const d of S.days[k]) {
       const t = Date.parse(d + "T12:00:00Z");
@@ -146,7 +150,6 @@ function editCities(orig) {
     blocks.delete(key);
     const c = S.cities.find((x) => x.key === key), w = was[key];
     if (!c || !w) return p;
-    if (c.bar !== w.bar) p = setLine(p, /^(    bar_cad: )\S+/m, c.bar, `${key} has no bar_cad line in config/cities.yaml`);
     if (c.enabled !== w.enabled) {
       p = p.replace(/^    enabled: .*\n/m, "");                                  // on = the default, so no line at all
       if (!c.enabled) p = setLine(p, /^(    name: .*\n)/m, "    enabled: false\n", `${key} has no name line in config/cities.yaml`);
@@ -158,7 +161,7 @@ function editCities(orig) {
   for (const c of S.cities) {
     const g = got.find((x) => x.key === c.key), w = was[c.key];
     if (!g || !w) throw new Error("The change to config/cities.yaml did not read back as intended, so nothing was saved.");
-    if ((c.bar !== w.bar && g.bar_cad !== c.bar) || (c.enabled !== w.enabled && (g.enabled !== false) !== c.enabled)) {
+    if (c.enabled !== w.enabled && (g.enabled !== false) !== c.enabled) {
       throw new Error("The change to config/cities.yaml did not read back as intended, so nothing was saved.");
     }
   }
@@ -168,17 +171,29 @@ function editCities(orig) {
   return sameEol(orig, next);
 }
 
+// One key inside trip_classes.<cls>: only that block's line changes, its trailing comment kept.
+function setInClass(text, cls, key, value) {
+  const lines = text.split("\n");
+  const start = lines.findIndex((l) => l.startsWith(`  ${cls}:`));
+  for (let i = start + 1; start >= 0 && i < lines.length && /^(    |\s*$|\s*#)/.test(lines[i]); i++) {
+    const m = lines[i].match(new RegExp(`^(    ${key}:[ \\t]*)\\S+(.*)$`));
+    if (m) { lines[i] = m[1] + value + m[2]; return lines.join("\n"); }
+  }
+  throw new Error(`config/scoring.yaml has no trip_classes.${cls}.${key} line, so nothing was saved.`);
+}
+const TOP = { mode: "mode", drop: "realert_drop_pct", weeks: "dayoff_min_weeks", cap: "cap_cad" };
+const NESTED = { dayoffOn: ["dayoff", "enabled"], weekendOn: ["weekend", "enabled"], dayoffHit: ["dayoff", "hit_threshold"], weekendHit: ["weekend", "hit_threshold"] };
 function editScoring(orig) {
-  const keys = { mode: "mode", threshold: "score_threshold", drop: "realert_drop_pct", weeks: "dayoff_min_weeks", weekend: "weekend_trips" };
   let next = lf(orig);
-  for (const [k, yk] of Object.entries(keys)) {
-    if (S.alerts[k] === S.base.alerts[k]) continue;                              // untouched here: keep whatever the daily routine wrote
-    next = setLine(next, new RegExp(`^(${yk}:[ \\t]*)\\S+`, "m"), S.alerts[k], `config/scoring.yaml has no ${yk} line`);
+  const changed = (k) => S.alerts[k] !== S.base.alerts[k];                       // untouched here: keep whatever the daily routine wrote
+  for (const [k, yk] of Object.entries(TOP)) {
+    if (changed(k)) next = setLine(next, new RegExp(`^(${yk}:[ \\t]*)\\S+`, "m"), S.alerts[k] ?? "null", `config/scoring.yaml has no ${yk} line`);
   }
+  for (const [k, [cls, yk]] of Object.entries(NESTED)) if (changed(k)) next = setInClass(next, cls, yk, S.alerts[k]);
   const p = parse(next);
-  for (const [k, yk] of Object.entries(keys)) {
-    if (S.alerts[k] !== S.base.alerts[k] && p[yk] !== S.alerts[k]) throw new Error("The change to config/scoring.yaml did not read back as intended, so nothing was saved.");
-  }
+  const bad = Object.entries(TOP).some(([k, yk]) => changed(k) && (p[yk] ?? null) !== S.alerts[k])
+    || Object.entries(NESTED).some(([k, [cls, yk]]) => changed(k) && (p.trip_classes || {})[cls]?.[yk] !== S.alerts[k]);
+  if (bad) throw new Error("The change to config/scoring.yaml did not read back as intended, so nothing was saved.");
   return sameEol(orig, next);
 }
 
@@ -309,7 +324,7 @@ function connectSection() {
 function citiesSection() {
   const sec = el("section", { class: "pset", "aria-labelledby": "s-cities" });
   sec.append(el("div", { class: "pset-head" }, el("h3", { id: "s-cities", text: "Cities" }), el("span", { class: "count", id: "city-count" })),
-    el("p", { class: "hint", text: "Off skips the city and saves the scan's request budget. Drag a row, or use the arrows, to set the order “Mine” uses on the page. The bar is the all-in price for two that a complete trip must beat to alert." }));
+    el("p", { class: "hint", text: "Off skips the city and saves the scan's request budget. Drag a row, or use the arrows, to set the order “Mine” uses on the page. Under each city is its route ladder: what a round trip normally costs per person, and what counts as good and exceptional. Trips are judged against it; it is read-only here." }));
   const list = el("ul", { class: "crows", id: "crows" });
   fillRows(list);
   wireDrag(list);
@@ -332,28 +347,15 @@ function cityRow(c, i) {
     touched();
   });
   const sw = el("label", { class: "switch" }, cb, el("span", { class: "track", "aria-hidden": "true" }), el("span", { class: "sr", text: `${c.name} on` }));
-  const out = el("output", { text: money(c.bar) });
-  const minus = el("button", { class: "icon-btn sm", type: "button", "aria-label": `Lower ${c.name}'s bar by $${BAR.step}` }, icon("i-minus"));
-  const plus = el("button", { class: "icon-btn sm", type: "button", "aria-label": `Raise ${c.name}'s bar by $${BAR.step}` }, icon("i-plus"));
-  const step = (d) => {
-    c.bar = Math.min(BAR.max, Math.max(BAR.min, c.bar + d));
-    out.textContent = money(c.bar);
-    minus.disabled = c.bar <= BAR.min;
-    plus.disabled = c.bar >= BAR.max;
-    touched();
-  };
-  minus.addEventListener("click", () => step(-BAR.step));
-  plus.addEventListener("click", () => step(BAR.step));
-  minus.disabled = c.bar <= BAR.min;
-  plus.disabled = c.bar >= BAR.max;
+  const l = c.ladder;
+  const lad = el("span", { class: "lad", text: l ? `Typical ${money(l.typical)} · good ${money(l.good)} · exceptional ${money(l.exceptional)} pp` : "No ladder in config/references.yaml" });
   const up = el("button", { class: "icon-btn sm up", type: "button", "aria-label": `Move ${c.name} up`, disabled: i === 0 ? "" : null }, icon("i-chev"));
   const down = el("button", { class: "icon-btn sm down", type: "button", "aria-label": `Move ${c.name} down`, disabled: i === S.cities.length - 1 ? "" : null }, icon("i-chev"));
   up.addEventListener("click", () => move(c.key, i - 1, "up"));
   down.addEventListener("click", () => move(c.key, i + 1, "down"));
   row.append(el("span", { class: "grip", "aria-hidden": "true" }, icon("i-grip")),
     el("div", { class: "cname" }, el("b", { text: c.name }), el("span", { text: c.airports })),
-    sw,
-    el("div", { class: "stepper bar", role: "group", "aria-label": `${c.name} bar` }, el("span", { class: "lbl", text: "Bar" }), minus, out, plus),
+    sw, lad,
     el("div", { class: "move" }, up, down));
   return row;
 }
@@ -464,20 +466,31 @@ function dayCell(d, n, today) {
   return b;
 }
 
-const WEEKEND_HINT = (on) => on
-  ? "Weekend-only trips (leave Friday after 5:30 pm, home Sunday by 4 pm, non-stop, 3 hours or less) are scanned for the next 6 weeks. They need no day off, so they fire only when exceptional."
-  : "Off: only trips that use a day off are scanned.";
+// A class switch: its label carries the class's own pill (gold for weekend trips), the hint says what on and off mean.
+function classSwitch(key, cls, title, hint) {
+  const id = `${key}-l`;
+  const cb = el("input", { type: "checkbox", role: "switch", "aria-labelledby": id, checked: S.alerts[key] ? "" : null });
+  const h = el("p", { class: "hint", text: hint(S.alerts[key]) });
+  cb.addEventListener("change", () => { S.alerts[key] = cb.checked; h.textContent = hint(cb.checked); touched(); });
+  return el("div", { class: "field" },
+    el("div", { class: "field-head" }, el("span", { class: "flabel", id }, el("span", { class: `cls cls-${cls}`, text: title })),
+      el("label", { class: "switch" }, cb, el("span", { class: "track", "aria-hidden": "true" }))),
+    h);
+}
 function tripsSection() {
   const sec = el("section", { class: "pset", "aria-labelledby": "s-trips" });
-  const cb = el("input", { type: "checkbox", role: "switch", "aria-labelledby": "weekend-l", checked: S.alerts.weekend ? "" : null });
-  const hint = el("p", { class: "hint", text: WEEKEND_HINT(S.alerts.weekend) });
-  cb.addEventListener("change", () => { S.alerts.weekend = cb.checked; hint.textContent = WEEKEND_HINT(cb.checked); touched(); });
+  const hitHint = (v) => `A final score of ${v} or more is a hit: the trip's score after real lodging, plus up to 10 for what is on.`;
   sec.append(el("h3", { id: "s-trips", text: "Trips" }),
-    slider("weeks", "Day-off trips at least", 2, 12, " weeks", (v) => `Trips that need a day off start ${v} weeks out and run to ${Number(v) + 10} weeks, so you both have time to get it approved.`),
-    el("div", { class: "field" },
-      el("div", { class: "field-head" }, el("span", { class: "flabel", id: "weekend-l", text: "Weekend trips" }),
-        el("label", { class: "switch" }, cb, el("span", { class: "track", "aria-hidden": "true" }))),
-      hint));
+    el("p", { class: "hint", text: "Two kinds of trip, scanned and judged separately. Each has its own switch and hit line." }),
+    classSwitch("dayoffOn", "dayoff", "Needs a day off", (on) => on
+      ? "Fri off, Mon off and stat long weekends, far enough out to get the time approved."
+      : "Off: no trips that need a day off are scanned."),
+    slider("weeks", "Day-off trips at least", 2, 12, " weeks", (v) => `They start ${v} weeks out and run to ${Number(v) + 10} weeks, so you both have time to get it approved.`),
+    slider("dayoffHit", "Hit line, day-off trips", HIT.min, HIT.max, "", hitHint),
+    classSwitch("weekendOn", "weekend", "No day off needed", (on) => on
+      ? "Friday after 5:30 pm to Sunday by 4 pm, non-stop, 3 hours or less, for the next 6 weeks."
+      : "Off: only trips that use a day off are scanned."),
+    slider("weekendHit", "Hit line, weekend trips", HIT.min, HIT.max, "", hitHint));
   return sec;
 }
 
@@ -492,9 +505,35 @@ function alertsSection() {
   }
   sec.append(el("h3", { id: "s-alerts", text: "Alerts" }),
     el("div", { class: "field" }, el("div", { class: "field-head" }, el("span", { class: "flabel", id: "mode-l", text: "Mode" })), seg, modeHint),
-    slider("threshold", "Score threshold", 0, 100, "", (v) => `A trip can alert only with a score of ${v} or more.`),
-    slider("drop", "Re-alert drop", 0, 100, "%", (v) => `The same city and weekend alert again only if the fare drops another ${v}%.`));
+    capField(),
+    slider("drop", "Fresh look after a drop of", 0, 100, "%", (v) => `A city and weekend already checked this week gets a new lodging check only if its fare drops another ${v}%.`));
   return sec;
+}
+
+// Optional overall cap on a hit's complete trip for two. Off by default: v2 judges trips against their route, not a budget.
+function capField() {
+  const cb = el("input", { type: "checkbox", role: "switch", "aria-labelledby": "cap-l", checked: S.alerts.cap !== null ? "" : null });
+  const out = el("output", { text: S.alerts.cap !== null ? money(S.alerts.cap) : "Off" });
+  const minus = el("button", { class: "icon-btn sm", type: "button", "aria-label": `Lower the cap by $${CAP.step}` }, icon("i-minus"));
+  const plus = el("button", { class: "icon-btn sm", type: "button", "aria-label": `Raise the cap by $${CAP.step}` }, icon("i-plus"));
+  const hint = el("p", { class: "hint" });
+  const paint = () => {
+    const on = S.alerts.cap !== null;
+    out.textContent = on ? money(S.alerts.cap) : "Off";
+    minus.disabled = !on || S.alerts.cap <= CAP.min;
+    plus.disabled = !on || S.alerts.cap >= CAP.max;
+    hint.textContent = on ? `No hit whose complete trip for two costs more than ${money(S.alerts.cap)}, however good the deal.` : "Off: any trip can be a hit if it is exceptional for its route.";
+  };
+  cb.addEventListener("change", () => { S.alerts.cap = cb.checked ? CAP.start : null; paint(); touched(); });
+  const step = (d) => { S.alerts.cap = Math.min(CAP.max, Math.max(CAP.min, S.alerts.cap + d)); paint(); touched(); };
+  minus.addEventListener("click", () => step(-CAP.step));
+  plus.addEventListener("click", () => step(CAP.step));
+  paint();
+  return el("div", { class: "field" },
+    el("div", { class: "field-head" }, el("span", { class: "flabel", id: "cap-l", text: "Cap the complete trip" }),
+      el("label", { class: "switch" }, cb, el("span", { class: "track", "aria-hidden": "true" }))),
+    el("div", { class: "stepper", role: "group", "aria-label": "Cap for two" }, minus, out, plus),
+    hint);
 }
 function slider(key, label, min, max, unit, hint) {
   const id = "f-" + key;

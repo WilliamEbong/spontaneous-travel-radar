@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Travel Radar</title>
-  <meta name="description" content="Weekend trips for two from Calgary: is anything worth booking today, the best current trip per city, price history and scan health.">
+  <meta name="description" content="Weekend trips for two from Calgary, judged against what each route normally costs: hits worth booking, every trip that scored 70 or more, each city's best deal, price history and scan health.">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#15181e" media="(prefers-color-scheme: dark)">
   <meta name="mobile-web-app-capable" content="yes">
@@ -53,6 +53,12 @@
       <h1 id="verdict-h">Checking today’s fares…</h1>
     </section>
 
+    <section id="passed-sec" aria-labelledby="passed-h" hidden>
+      <h2 id="passed-h">Passed</h2>
+      <p class="hint" id="passed-hint"></p>
+      <div id="passed"></div>
+    </section>
+
     <section id="cities-sec" aria-labelledby="cities-h" hidden>
       <div class="sec-head">
         <h2 id="cities-h">Every city</h2>
@@ -64,14 +70,8 @@
           <label><input type="radio" name="sort" value="mine"><span>Mine</span></label>
         </fieldset>
       </div>
-      <p class="hint">Cheapest trip per city. Day-off trips start 6 weeks out so the time can be approved (out from 7:30 pm the evening before, home by 4 pm on the last day off). Weekend trips run the next 6 weeks with no day off (out Friday after 5:30 pm, home Sunday by 4 pm, non-stop). Fares are for two adults with a carry-on each; basic fares only on weekend trips. Tap a city for its price history.</p>
+      <p class="hint" id="cities-hint"></p>
       <div id="cities" class="cards"></div>
-    </section>
-
-    <section id="dry-sec" aria-labelledby="dry-h" hidden>
-      <h2 id="dry-h">Would have fired</h2>
-      <p class="hint">Learning run: trips that reached the hotel check are logged here instead of alerting.</p>
-      <div id="dry"></div>
     </section>
 
     <section id="notes-sec" aria-labelledby="notes-h">

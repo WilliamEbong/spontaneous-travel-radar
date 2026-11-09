@@ -158,8 +158,11 @@ def scan(args) -> int:
         "host": "github-actions" if os.environ.get("GITHUB_ACTIONS") else ("offline" if args.offline else "local"),
         "duration_s": round(time.time() - t0),
     }
+    classes = {k: {"enabled": v["enabled"], "candidate_threshold": v["candidate_threshold"], "hit_threshold": v["hit_threshold"]}
+               for k, v in s.trip_classes.items()}
+    classes["dayoff"]["min_weeks"] = s.dayoff_min_weeks
     write_latest(winners, cities, refs, health, scan_date=today, scan_ts=scan_ts, mode=s.mode,
-                 candidates=cand_ids, passes=passes)
+                 candidates=cand_ids, passes=passes, classes=classes)
     export()
     write_weekly_summary(read_history(90, today=today), today=today)
     return 0
