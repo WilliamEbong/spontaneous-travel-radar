@@ -54,4 +54,10 @@ the weekly digest is where to retune (decisions.md D-04).
 
 ## GitHub Actions block test
 
-See the section appended after Task 1 below.
+**Not blocked.** Run 42577472508 (`.github/workflows/smoke.yml`, `ubuntu-latest`, 2026-11-09 07:09 UTC)
+ran all probes with the same results as the PC (YYC→YVR cheapest 499 for two, Flair 155/241 without
+and with the bag, 0 Flair results with the no-basic flag, YYC→MSY non-stop empty). About 20 requests.
+GitHub Actions is the collector host; the PC Task Scheduler script stays as the documented fallback.
+A full scan sends up to 900 requests, so blocking may still appear at that volume; health shows it.
+(First dispatch failed: fast-flights 3.1.0 imports `typing_extensions` without declaring it, so it is
+listed explicitly in the dependencies.)
