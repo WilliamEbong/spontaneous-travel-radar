@@ -13,7 +13,7 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 - [x] T005 Itineraries and trip-window filter (`radar/itineraries.py`, `tests/test_itineraries.py`)
 
 ## Phase 3: US2 scan pipeline (P1)
-- [ ] T006 Scoring (`radar/score.py`, `tests/test_score.py`)
+- [x] T006 Scoring (`radar/score.py`, `tests/test_score.py`)
 - [ ] T007 Events and weather (`radar/events.py`, `radar/weather.py`, `tests/test_events_weather.py`)
 - [ ] T008 Store and history percentile (`radar/store.py`, `tests/test_store.py`)
 - [ ] T009 Hotel check and hits (`radar/hotels.py`, `radar/hits.py`, `tests/test_hotels_hits.py`)

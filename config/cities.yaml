@@ -207,9 +207,9 @@ cities:
     neighbourhoods: [The Strip, Downtown Las Vegas]
     season_months: []
     flight_group: medium
-    hotel_group: cheap
+    hotel_group: mid      # every window has a Fri/Sat night, when Vegas hotels price as mid
     hotel_currency: USD
-    bar_cad: 850
+    bar_cad: 1050
     climate:
       1: [14.6, 4.2, 3]
       2: [17.2, 6.4, 3]
