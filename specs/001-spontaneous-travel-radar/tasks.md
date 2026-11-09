@@ -10,7 +10,7 @@ Each task maps to the same-numbered task in `BUILD-PLAN.md`, which holds the ste
 - [x] T002 Config files and loader (`config/*.yaml`, `radar/config.py`, `tests/test_config.py`)
 - [x] T003 Window generator (`radar/windows.py`, `tests/test_windows.py`)
 - [x] T004 Flight fetcher (`radar/flights.py`, `tests/test_flights.py`)
-- [ ] T005 Itineraries and trip-window filter (`radar/itineraries.py`, `tests/test_itineraries.py`)
+- [x] T005 Itineraries and trip-window filter (`radar/itineraries.py`, `tests/test_itineraries.py`)
 
 ## Phase 3: US2 scan pipeline (P1)
 - [ ] T006 Scoring (`radar/score.py`, `tests/test_score.py`)
