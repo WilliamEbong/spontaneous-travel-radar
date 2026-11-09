@@ -1,5 +1,9 @@
 # Spontaneous Travel Radar: Implementation Plan
 
+> **Build status (2026-11-09, unattended build):** Tasks 0 to 12 done; 13 and 14 in progress.
+> Per-task status lives in `specs/001-spontaneous-travel-radar/tasks.md`; progress in `SESSION-LOG.md`;
+> every judgment call in `docs/notes/decisions.md`; final state in `HANDOFF.md`.
+
 > **For agentic workers:** This becomes a Spec Kit project (William's standing rule for new app builds). Task 1 runs the Spec Kit init; from then on execute through the speckit-* skills (constitution once, then specify → plan → tasks → implement → converge), feeding this document into `speckit-plan` and `speckit-tasks` as the plan content. Do **not** use superpowers `executing-plans` or `subagent-driven-development` here. Steps use checkbox (`- [ ]`) syntax for tracking. Ponytail applies throughout: stdlib and the named libraries first, no abstraction for a single use, one small runnable check per non-trivial module, shortest diff that works.
 
 **Goal:** A free, mostly-deterministic tracker that scans round-trip fares for two from Calgary to 20 North American cities every day, scores complete weekend trips, logs everything to a public GitHub repo with a static dashboard, and (after a one-month learning run) wakes a cheap Claude routine only for exceptional deals.
