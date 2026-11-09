@@ -1,0 +1,5 @@
+# Written by the dashboard's Settings panel (the Days off calendar); edit by hand if you prefer.
+# extra: vacation days, treated like stat holidays (they create or extend long-weekend windows).
+# blocked: no trip may touch these dates. Dates are YYYY-MM-DD. A date cannot be in both lists.
+extra: []
+blocked: []

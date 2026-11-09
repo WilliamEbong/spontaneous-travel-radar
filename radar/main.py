@@ -11,7 +11,7 @@ import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from radar.config import load_cities, load_holidays, load_scoring
+from radar.config import load_cities, load_days_off, load_holidays, load_scoring
 from radar.events import fetch_events, notable_count
 from radar.export import write_digests_index, write_hits_index, write_latest, write_series, write_weekly_summary
 from radar.flights import HOME, Budget, FetchError, build_queries, fetch_leg
@@ -42,12 +42,13 @@ def scan(args) -> int:
     scan_ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
     today = date.fromisoformat(args.today) if args.today else datetime.now(CALGARY).date()
     s, holidays = load_scoring(), load_holidays()
-    cities = load_cities()
+    extra, blocked = load_days_off()
+    cities = [c for c in load_cities() if c.enabled]
     if args.cities:
         keep = set(args.cities.split(","))
         cities = [c for c in cities if c.key in keep]
     by_key = {c.key: c for c in cities}
-    windows = generate_windows(today, holidays, s.lookahead_min_days, s.lookahead_max_days)
+    windows = generate_windows(today, holidays, s.lookahead_min_days, s.lookahead_max_days, extra=extra, blocked=blocked)
     queries = build_queries(cities, windows, today)
 
     day_cache = Path(f"data/cache/{today}")

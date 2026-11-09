@@ -36,7 +36,11 @@ def _window(pattern: str, first: date, n: int, holidays: set[date]) -> Window:
     )
 
 
-def generate_windows(today: date, holidays: set[date], min_days: int = 3, max_days: int = 45) -> list[Window]:
+def generate_windows(today: date, holidays: set[date], min_days: int = 3, max_days: int = 45,
+                     extra: set[date] = frozenset(), blocked: set[date] = frozenset()) -> list[Window]:
+    """extra: vacation days William marked on the dashboard, treated like stats (they create or extend
+    blocks and cost no vacation day); blocked: no window may include one of these dates."""
+    holidays = set(holidays) | set(extra)
     sat = today + timedelta(days=(5 - today.weekday()) % 7)
     out = []
     while sat <= today + timedelta(days=max_days + 7):
@@ -46,7 +50,7 @@ def generate_windows(today: date, holidays: set[date], min_days: int = 3, max_da
         if sat + 3 * DAY in holidays:
             out.append(_window("stat-tue-4d", sat, 4, holidays))
         sat += 7 * DAY
-    return [w for w in out if min_days <= (w.days_off[0] - today).days <= max_days]
+    return [w for w in out if min_days <= (w.days_off[0] - today).days <= max_days and blocked.isdisjoint(w.days_off)]
 
 
 def scan_dates(windows: list[Window]) -> tuple[set[date], set[date]]:
