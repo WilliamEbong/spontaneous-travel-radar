@@ -1,9 +1,15 @@
 # Handoff: Spontaneous Travel Radar (v2 build of 2026-11-09)
 
 Read this first if you are picking the build up in a fresh session. Then `SESSION-LOG.md`, the end of
-`docs/notes/decisions.md` (D-57 to D-73) and `BUILD-PLAN-v2.md`.
+`docs/notes/decisions.md` (D-57 to D-75) and `BUILD-PLAN-v2.md`.
 
 ## Where things stand
+
+- **Score breakdown (D-75) is built on branch `score-breakdown`, not merged.** Worktree
+  `.claude/worktrees/score-breakdown`, from `main` f49df40. Every score on the page is a button whose panel lists each
+  criterion with its input and points; the rows come from the collector (`breakdown` on `latest.json` rows, candidate
+  and hit files and `hits/index.json`), so the first scan after the merge is what fills them: until then the page shows
+  plain scores. 103 tests. Screenshots in the side-session notes folder, `score-breakdown-screens/`.
 
 - **The v2 deal model is built on branch `v2-deal-model`, not merged.** Worktree:
   `C:\Users\Owner\OneDrive\Documents\Spontaneous Travel\.claude\worktrees\v2-deal-model` (the main
