@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Scoring table · Travel Radar</title>
+  <meta name="description" content="Every trip the radar logged in a scan, spreadsheet-style: the evidence behind each number, the points per criterion, and the score.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15181e" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="site/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="site/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="site/style.css">
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><path d="M12 12l6.4-6.4"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></symbol>
+  </svg>
+
+  <header class="bar">
+    <a class="brand" href="./"><svg class="ic" aria-hidden="true"><use href="#i-radar"/></svg>Travel Radar</a>
+    <div class="bar-right">
+      <label class="sr" for="day">Scan day</label>
+      <select id="day" class="chip day-pick"><option>Loading…</option></select>
+    </div>
+  </header>
+
+  <main>
+    <section aria-labelledby="table-h">
+      <h1 id="table-h">Scoring table</h1>
+      <p class="hint" id="hint">Every trip the scan logged, one row each: the evidence behind each number, the points it earned per criterion, and the score they add up to. Scroll sideways for the full row; the city stays put.</p>
+      <div class="tools">
+        <fieldset class="seg" id="sort">
+          <legend class="sr">Sort trips by</legend>
+          <label><input type="radio" name="sort" value="score" checked><span>Score</span></label>
+          <label><input type="radio" name="sort" value="price"><span>Price</span></label>
+          <label><input type="radio" name="sort" value="city"><span>A–Z</span></label>
+          <label><input type="radio" name="sort" value="class"><span>Class</span></label>
+        </fieldset>
+        <input id="q" class="filter" type="search" placeholder="Filter: a city, an airline, “sunny”…" aria-label="Filter rows">
+        <span id="count" class="muted count" aria-live="polite"></span>
+        <a id="dl" class="btn" href="data/history/latest.csv" download><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg>Download CSV</a>
+      </div>
+      <div class="tscroll" id="wrap" tabindex="0">
+        <table class="stab" id="tbl"><thead></thead><tbody></tbody></table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>The same rows as <code>data/history/&lt;day&gt;.csv</code> in the repository, written by each scan; the evidence lines are the ones the dashboard's score panels show.
+      <a href="./">Dashboard</a> ·
+      <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a></p>
+  </footer>
+  <script src="site/table.js" defer></script>
+</body>
+</html>
