@@ -41,3 +41,21 @@ Claude Code session in this folder and asks. This file tells that session how to
 .venv\Scripts\python -m radar.main export     # rebuild series, CSVs and indexes from what is on disk; no network
 gh run list --workflow scan.yml --limit 3     # did the scan run, how long, did it fail
 ```
+
+## Storage plan (what is kept, where, how big)
+
+- Per scan day, committed to the repo: `data/history/<date>.jsonl` (every logged trip: fares, times,
+  the five components, their inputs, score, pass; about 300 rows, ~250 KB) and `data/history/<date>.csv`
+  (the same rows flattened for a spreadsheet, ~150 KB). Nothing is ever overwritten except a same-day
+  re-run, which replaces that day's files (D-19).
+- Current state: `data/latest.json` (what the dashboard shows, with `breakdown` on every row),
+  `data/series.json` (30-day price lines per city and class), `data/weekly-summary.json`.
+- Decisions by the AI passes: `hits/candidates/`, `hits/near-miss/`, `hits/` (one JSON per trip with all
+  three passes, the lodging options and links, the research and its reasons); `data/research/` caches
+  pass-3 research per city and weekend for a week.
+- Narrative: `data/digests/<date>.md` (the routine's daily note), `docs/notes/decisions.md` (why).
+- Growth: roughly 0.5 MB a day, about 15 MB a month, in a public git repo with no cost and full history.
+  If it ever matters, old JSONL can be gzipped in place; nothing reads it at display time.
+- Asking: open a Claude Code session in this folder and ask in plain words; this file tells the session
+  where to look. The scoring table page (`table.html`) answers most "why did X score Y" questions
+  without a session.

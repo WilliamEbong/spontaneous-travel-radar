@@ -33,7 +33,7 @@ class's date range, hard rules, `enabled` and `hit_threshold`, plus `dayoff_min_
 room ladders and `config/interests.yaml`, the trip-window rule (leave 19:30 the evening before Day 1
 to 23:59 Day 1, home by 16:00: `radar/windows.py` and the Day-1 query) and the `time_rule` block in
 `config/scoring.yaml` (`sleep_hours_per_night`, `overhead_hours`, `time_max_hours`, `time_floor_share`: William's
-scale and floor, D-next),
+scale and floor, D-78),
 secrets or `.env`, `.github/workflows/`, `routine/`, `index.html`, `site/`, `config/days_off.yaml`,
 `config/cities.yaml`. Do not merge your own PR, and do not push to `main` except the note in step 4.
 

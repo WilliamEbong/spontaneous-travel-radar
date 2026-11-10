@@ -23,7 +23,7 @@ quote, and publishes a static dashboard. During month one it runs in dry-run mod
   within a budget of 900 fetch attempts per scan, with rotation and caching.
 - **FR-003** Drop itineraries outside the trip window (design §4: leave from 19:30 the evening before
   Day 1 through 23:59 on Day 1, home in Calgary by 16:00 on the last day off), with 2+ connections,
-  or with under `time_rule.time_floor_share` (25%) of `time_rule.time_max_hours` (31 h) awake there (D-50, D-next).
+  or with under `time_rule.time_floor_share` (25%) of `time_rule.time_max_hours` (31 h) awake there (D-50, D-78).
 - **FR-004** Score trips 0 to 100 per design §7; one winner per city-window.
 - **FR-005** Run the SerpApi hotel check only for candidates, hard-capped (3 per candidate, 60 per month).
 - **FR-006** Append every in-window quote to `data/history/YYYY-MM-DD.jsonl`; write `data/latest.json`

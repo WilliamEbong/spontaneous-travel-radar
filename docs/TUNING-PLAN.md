@@ -84,7 +84,7 @@ A fixed harness, one editable surface, one scalar metric, a fixed budget per tri
   `candidate_threshold` (65 to 80), the `price` weight (40 to 50, others rescaled to keep 100).
 - Guardrails: never edit `config/cities.yaml`, `days_off.yaml`, `interests.yaml`, the room ladders, the
   trip classes' date ranges and hard rules, `enabled`, `hit_threshold` (William's line), `cap_cad`,
-  `time_rule` (D-next), request volume, or anything outside `config/` during the loop. If the final
+  `time_rule` (D-78), request volume, or anything outside `config/` during the loop. If the final
   holdout metric is worse than the baseline holdout, ship only (d) with the static ladders' best
   percentiles and say why.
 
