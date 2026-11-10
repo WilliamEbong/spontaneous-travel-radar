@@ -109,7 +109,7 @@ def scan(args) -> int:
             if not trips:
                 continue
             wx = weather_score(c, list(w.days_off), today=today, cache_dir=None if args.offline else day_cache)
-            sc = [score_trip(t, c, refs[c.key], s, weather_score=wx[0], history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
+            sc = [score_trip(t, c, refs[c.key], s, weather_score=wx, history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
                   for t in trips]
             win = max(sc, key=lambda x: (x.score, -x.total_cad))
             winners.append(win)

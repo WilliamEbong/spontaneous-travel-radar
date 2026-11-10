@@ -128,3 +128,18 @@ def test_best_per_window_keeps_one(vancouver_trip_fixture, nyc_one_stop_trip):
     c = score_trip(nyc_one_stop_trip, city("new_york"), ref("new_york"), S, weather_score=5, history_pct=None)
     best = best_per_window([a, b, c])
     assert len(best) == 2 and b in best and c in best
+
+
+def test_breakdown_sums_to_the_score(scored_vancouver, nyc_one_stop_trip):
+    """D-75: one row per criterion, the points as computed (so they add up to the score) and a plain input line."""
+    from radar.score import breakdown_of
+    rows = breakdown_of(scored_vancouver)
+    assert [r["key"] for r in rows] == ["price", "time", "convenience", "city", "weather"]
+    assert abs(sum(r["points"] for r in rows) - scored_vancouver.score) <= 0.5
+    assert [r["max"] for r in rows] == [45, 20, 10, 15, 10] and all(r["input"] for r in rows)
+    by = {r["key"]: r["input"] for r in rows}
+    assert by["city"] == "Vancouver, rank 8/10" and by["convenience"] == "non-stop both ways"
+    assert by["time"] == "35.0 h there of 49.5 possible" and by["weather"] == "score 8.0 of 10 as given"
+    assert by["price"].startswith("complete trip $") and "% of what this route normally costs" in by["price"]
+    x = score_trip(nyc_one_stop_trip, city("new_york"), ref("new_york"), S, weather_score=5, history_pct=None)
+    assert {r["key"]: r["input"] for r in breakdown_of(x)}["convenience"] == "one stop, 90 min layover, −5"

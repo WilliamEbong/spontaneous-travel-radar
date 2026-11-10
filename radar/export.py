@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from radar.config import City, Reference
-from radar.score import Scored
+from radar.score import Scored, breakdown_of
 
 
 def write_json(path, obj) -> None:
@@ -33,6 +33,7 @@ def _row(x: Scored, city: City, passes: dict) -> dict:
         "share": x.share, "score": x.score, "candidate": x.candidate, "pass": pass_, "final_score": None,
         "candidate_id": cid, "history_pct": None if x.history_pct is None else round(x.history_pct, 1),
         "hours_on_ground": round(t.hours_on_ground, 1), "stops": [t.out.stops, t.back.stops],
+        "breakdown": breakdown_of(x),   # the pass-1 score, criterion by criterion (D-75)
     }
 
 
@@ -100,6 +101,7 @@ def write_hits_index(root="hits") -> None:
             "total_cad": h["total_cad"], "lodging_source": (p3 or h["pass2"])["lodging_source"],
             "drop_reason": h.get("drop_reason"), "created": h["created"],
             "path_json": p.as_posix(), "path_md": p.with_suffix(".md").as_posix(),
+            "breakdown": h.get("breakdown"),   # the latest pass's rows (None for a file written before D-75)
         }
     write_json(Path(root) / "index.json", sorted(rows.values(), key=lambda r: r["created"], reverse=True))
 
