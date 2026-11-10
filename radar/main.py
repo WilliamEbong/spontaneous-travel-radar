@@ -2,7 +2,7 @@
 
 python -m radar.main scan [--offline] [--today YYYY-MM-DD] [--cities a,b] [--budget N]
 python -m radar.main finalize <candidate id> --research data/research/<city>-<window>.json   # pass 3 (radar-daily)
-python -m radar.main export       # rebuild series.json and the hits/digests indexes from what is on disk
+python -m radar.main export       # rebuild series.json, the history CSVs and the hits/digests indexes from what is on disk
 python -m radar.main summarize    # data/weekly-summary.json
 """
 import argparse
@@ -13,7 +13,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 from radar.config import load_cities, load_days_off, load_holidays, load_interests, load_references, load_scoring
-from radar.export import write_digests_index, write_hits_index, write_latest, write_series, write_weekly_summary
+from radar.export import write_digests_index, write_history_csvs, write_hits_index, write_latest, write_series, write_weekly_summary
 from radar.flights import HOME, Budget, FetchError, build_queries, fetch_leg
 from radar.hits import candidate_id, fare_dropped, finalize, pass2, previous_candidate, write_candidate
 from radar.hotels import check_lodging, used_this_month
@@ -178,6 +178,7 @@ def finalize_cmd(args) -> int:
 
 def export(_args=None) -> int:
     write_series(read_history(90))
+    write_history_csvs()
     write_hits_index()
     write_digests_index()
     return 0

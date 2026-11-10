@@ -123,6 +123,47 @@ def test_candidates_get_pass_two_and_a_file(tmp_path, monkeypatch):
     assert len(calls) == 3                              # reused ones take no slot: the three checks went to new city-windows
 
 
+def test_scan_writes_a_scoring_csv_per_day(tmp_path, monkeypatch):
+    """D-77: one CSV beside each day's JSONL (same rows, the points columns add up to the score, the evidence lines are
+    the breakdown's), latest.csv is the newest day's copy, index.json lists the days."""
+    import csv
+    setup(tmp_path, monkeypatch)
+    assert radar_main.main(ARGS) == 0
+    hist = (tmp_path / "data/history/2026-10-08.jsonl").read_text(encoding="utf-8").splitlines()
+    raw = (tmp_path / "data/history/2026-10-08.csv").read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf")                                             # BOM: Excel reads the degree sign
+    rows = list(csv.DictReader(raw.decode("utf-8-sig").splitlines()))
+    from radar.export import CRITERIA, CSV_COLUMNS
+    assert len(rows) == len(hist) and list(rows[0]) == CSV_COLUMNS
+    jl = [json.loads(line) for line in hist]
+    for r, src in zip(rows, jl):
+        assert abs(sum(float(r[f"{k}_pts"]) for k in CRITERIA) - float(r["score"])) <= 0.5
+        assert r["price_input"].startswith("complete trip $") and r["weather_input"].endswith("of 30 days")
+        assert r["city"] == src["inputs"]["city_name"] and r["candidate"] in ("yes", "no") and r["winner"] in ("yes", "no")
+        assert int(r["total_for_two"]) == src["total_cad"] and int(r["lodging_estimate"]) == src["lodging_cad"]
+        assert float(r["typical_trip"]) == src["typical_cad"] and r["dates"].startswith(src["out_dep"][:10])
+    assert '"' in raw.decode("utf-8-sig").splitlines()[1] and "\r" not in raw.decode("utf-8-sig")   # text quoted, LF
+    assert (tmp_path / "data/history/latest.csv").read_bytes() == raw
+    index = json.loads((tmp_path / "data/history/index.json").read_text(encoding="utf-8"))
+    assert index == [{"date": "2026-10-08", "path": "data/history/2026-10-08.csv", "rows": len(hist)}]
+    assert radar_main.main(["export"]) == 0                                                # rebuilds the same files
+    assert (tmp_path / "data/history/2026-10-08.csv").read_bytes() == raw
+
+
+def test_csv_row_tolerates_rows_from_before_the_components():
+    """A v1 row (no totals) and a v2 row without components (before D-76) flatten with blanks, never an error."""
+    from radar.export import csv_row
+    base = {"scan_date": "2026-11-09", "city": "new_york", "window_id": "2026-12-25_fri-off", "trip_class": "dayoff",
+            "out_dep": "2026-12-25T07:25:00-06:00", "back_arr": "2026-12-26T22:47:00-06:00", "airlines": "DL+AA",
+            "stops_out": 1, "stops_back": 1, "flights_cad_2pax": 2790, "price_pp": 1395, "score": 20, "candidate": False,
+            "winner": False, "price_pts": -13.25}
+    v1 = csv_row(base)
+    assert v1["city"] == "New York" and v1["dates"] == "2026-12-25 to 2026-12-26 (1 night)" and v1["price_pts"] == -13.25
+    assert v1["total_for_two"] is None and v1["typical_trip"] is None and v1["weather_pts"] is None and v1["weather_input"] is None
+    v2 = csv_row({**base, "total_cad": 2852, "share": 1.7098, "nights": 2, "pass": 1, "final_score": None})
+    assert v2["typical_trip"] == 1668 and v2["price_input"] is None and v2["pass"] == 1 and v2["winner"] == "no"
+
+
 def test_rows_carry_a_score_breakdown(tmp_path, monkeypatch):
     """D-75: every latest.json row explains its score, criterion by criterion, and the points add up to it."""
     setup(tmp_path, monkeypatch)

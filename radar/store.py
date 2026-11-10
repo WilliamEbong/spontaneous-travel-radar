@@ -18,6 +18,7 @@ def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool, *, pass_: 
         "airlines": "+".join(dict.fromkeys(t.out.airlines + t.back.airlines)),
         "stops_out": t.out.stops, "stops_back": t.back.stops, "flights_cad_2pax": t.flights_cad_2pax,
         "price_pp": x.price_pp, "ladder": x.ladder, "nights": t.nights, "total_cad": round(x.total_cad),
+        "lodging_cad": round(x.lodging_cad), "typical_cad": round(x.typical_cad),   # the price line's figures (scoring table)
         "share": x.share, "score": x.score, "candidate": x.candidate, "winner": winner,
         "pass": pass_, "final_score": None, "candidate_id": candidate_id,
         # the backtest (docs/TUNING-PLAN.md) re-scores a variant as score - price_pts + new price points

@@ -1,4 +1,6 @@
 """JSON the dashboard and the daily routine read: latest, series, indexes, weekly summary. All writes atomic."""
+import csv
+import io
 import json
 import os
 from collections import Counter, defaultdict
@@ -6,7 +8,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from radar.config import City, Reference
-from radar.score import Scored, breakdown_of
+from radar.score import Scored, breakdown, breakdown_of
 
 
 def write_json(path, obj) -> None:
@@ -109,6 +111,65 @@ def write_hits_index(root="hits") -> None:
 def write_digests_index(root="data/digests") -> None:
     files = sorted(Path(root).glob("*.md"), reverse=True)
     write_json(Path(root) / "index.json", [{"date": p.stem, "path": p.as_posix()} for p in files])
+
+
+# ---- scoring table (D-77): one CSV per scan day, flat, for the table page and for Excel ----
+
+CRITERIA = ("price", "time", "convenience", "city", "weather")
+CSV_COLUMNS = ["scan_date", "city", "trip_class", "window_id", "dates", "airlines", "stops_out", "stops_back", "flights_pp",
+               "flights_for_two", "lodging_estimate", "total_for_two", "typical_trip", "share",
+               *[f"{k}_{part}" for k in CRITERIA for part in ("pts", "input")],
+               "score", "pass", "final_score", "candidate", "winner"]
+
+
+def csv_row(r: dict) -> dict:
+    """A history row flattened: the evidence lines are the same `breakdown` lines the dashboard shows. A row logged
+    before D-76 (no components or inputs) keeps its price points and leaves the other criteria blank."""
+    inputs, comps, total, share = r.get("inputs"), r.get("components"), r.get("total_cad"), r.get("share")   # v1 rows: none
+    typical = r.get("typical_cad") or (round(total / share) if total and share else None)
+    lines = {}
+    if inputs and comps and typical:
+        lines = {b["key"]: b["input"] for b in breakdown(inputs, comps, total_cad=total, typical_cad=typical, share=share)}
+    pts = {k: (comps or {}).get(k, r.get("price_pts") if k == "price" else None) for k in CRITERIA}
+    yes = lambda v: "yes" if v else "no"  # noqa: E731
+    nights = r.get("nights") or (date.fromisoformat(r["back_arr"][:10]) - date.fromisoformat(r["out_dep"][:10])).days
+    return {
+        "scan_date": r["scan_date"], "city": (inputs or {}).get("city_name") or r["city"].replace("_", " ").title(),
+        "trip_class": r.get("trip_class", "dayoff"), "window_id": r["window_id"],
+        "dates": f"{r['out_dep'][:10]} to {r['back_arr'][:10]} ({nights} night{'s' if nights != 1 else ''})", "airlines": r["airlines"],
+        "stops_out": r["stops_out"], "stops_back": r["stops_back"], "flights_pp": r["price_pp"], "flights_for_two": r["flights_cad_2pax"],
+        "lodging_estimate": r.get("lodging_cad"), "total_for_two": total, "typical_trip": typical, "share": share,
+        **{f"{k}_pts": pts[k] for k in CRITERIA}, **{f"{k}_input": lines.get(k) for k in CRITERIA},
+        "score": r["score"], "pass": r.get("pass", 1), "final_score": r.get("final_score"),
+        "candidate": yes(r.get("candidate")), "winner": yes(r.get("winner")),
+    }
+
+
+def write_csv(path, rows: list[dict]) -> None:
+    """UTF-8 with a BOM (Excel then reads the accents and the degree sign), text fields quoted, atomic like write_json."""
+    buf = io.StringIO()
+    w = csv.DictWriter(buf, CSV_COLUMNS, quoting=csv.QUOTE_NONNUMERIC, lineterminator="\n")
+    w.writeheader()
+    w.writerows({k: ("" if v is None else v) for k, v in csv_row(r).items()} for r in rows)
+    p = Path(path)
+    tmp = p.with_name(p.name + ".tmp")
+    tmp.write_bytes(buf.getvalue().encode("utf-8-sig"))   # bytes: text mode on Windows would turn the LF into CRLF
+    os.replace(tmp, p)
+
+
+def write_history_csvs(root="data/history") -> list[dict]:
+    """Every scan day's CSV beside its JSONL, latest.csv (the newest day) and index.json (newest first). Rebuilt
+    whole each time: the lines come from the current code, so a wording change reaches every day's file."""
+    index, newest = [], None
+    for p in sorted(Path(root).glob("*.jsonl"), reverse=True):
+        rows = [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
+        write_csv(p.with_suffix(".csv"), rows)
+        newest = rows if newest is None else newest
+        index.append({"date": p.stem, "path": p.with_suffix(".csv").as_posix(), "rows": len(rows)})
+    if newest is not None:
+        write_csv(Path(root) / "latest.csv", newest)
+    write_json(Path(root) / "index.json", index)
+    return index
 
 
 def _pct(sorted_vals: list, q: float):
