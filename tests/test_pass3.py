@@ -138,3 +138,27 @@ def test_finalize_cli(tmp_path, monkeypatch):
     r = research(tmp_path)
     assert radar_main.main(["finalize", cand["id"], "--research", str(r)]) == 0
     assert json.loads((tmp_path / "hits/index.json").read_text())[0]["pass"] == 3
+
+
+def test_breakdown_follows_the_passes(tmp_path):
+    """D-75: pass 2 adds the lodging row (no points of its own) and pass 3 the what's-on row; each pass's rows add up
+    to that pass's score, and a cheaper Airbnb re-renders the price and lodging lines."""
+    cand = candidate(tmp_path, lodging=1500)
+    p1, p2 = cand["pass1"]["breakdown"], cand["pass2"]["breakdown"]
+    assert [r["key"] for r in p1] == ["price", "time", "convenience", "city", "weather"]
+    assert [r["key"] for r in p2] == [*(r["key"] for r in p1), "lodging"] and cand["breakdown"] == p2
+    assert abs(sum(r["points"] for r in p1) - cand["pass1"]["score"]) <= 0.5
+    assert abs(sum(r["points"] for r in p2 if r["points"] is not None) - cand["pass2"]["score"]) <= 0.5
+    assert p2[-1]["input"].startswith("Central hotel, hotel, $750 a night all-in, total $1,500") and p2[-1]["points"] is None
+    assert p2[2]["input"] == "non-stop both ways · central room"
+    dates = {"check_in": cand["dates"]["check_in"], "check_out": cand["dates"]["check_out"]}
+    airbnb = {"total_cad": 500, "link": "https://www.airbnb.ca/rooms/1", "title": "Loft", **dates}
+    h = json.loads(finalize(cand["id"], research(tmp_path, airbnb=airbnb), S, I, root=tmp_path).read_text())
+    p3 = h["pass3"]["breakdown"]
+    assert [r["key"] for r in p3][-2:] == ["lodging", "whats_on"] and h["breakdown"] == p3
+    assert p3[-1]["points"] == h["pass3"]["events_pts"] == 5.2 and p3[-1]["max"] == 10
+    assert p3[-1]["input"] == "+5.2: Free block party (+3), Jazz trio at Smalls (+1.6), Famous rapper (+0.6)"
+    assert p3[-2]["input"] == "Airbnb: Loft, $250 a night all-in, total $500" and "$1,232 for two" in p3[0]["input"]
+    assert abs(sum(r["points"] for r in p3 if r["points"] is not None) - h["final_score"]) <= 0.5
+    write_hits_index(tmp_path)
+    assert json.loads((tmp_path / "index.json").read_text())[0]["breakdown"] == p3

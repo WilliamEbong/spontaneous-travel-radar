@@ -118,3 +118,18 @@ def test_candidates_get_pass_two_and_a_file(tmp_path, monkeypatch):
     again = [w for w in latest["windows"] if (w["city"], w["window_id"]) in day1]
     assert again and all(w["pass"] == 2 and w["candidate_id"] == day1[(w["city"], w["window_id"])] for w in again)
     assert len(calls) == 3                              # reused ones take no slot: the three checks went to new city-windows
+
+
+def test_rows_carry_a_score_breakdown(tmp_path, monkeypatch):
+    """D-75: every latest.json row explains its score, criterion by criterion, and the points add up to it."""
+    setup(tmp_path, monkeypatch)
+    assert radar_main.main(ARGS) == 0
+    latest = json.loads((tmp_path / "data/latest.json").read_text())
+    rows = latest["windows"] + latest["best_by_city"]
+    assert rows
+    for r in rows:
+        bd = r["breakdown"]
+        assert [b["key"] for b in bd] == ["price", "time", "convenience", "city", "weather"]
+        assert abs(sum(b["points"] for b in bd) - r["score"]) <= 0.5
+        assert all(b["label"] and b["input"] and b["max"] > 0 for b in bd)
+        assert bd[4]["input"].endswith("of 30 days")     # offline: climate normals, never a forecast

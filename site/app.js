@@ -211,6 +211,79 @@ function groupHead(cls, n) {
   return el("h3", { class: `grp grp-${cls}` }, classPill(cls), el("span", { class: "n", text: n === 1 ? "1 trip" : `${n} trips` }));
 }
 
+// ---- score breakdown (D-75): the score is a button. Hover or keyboard focus opens its panel on wide screens (it floats by
+// the button); a tap toggles it on phones (it sits inline under the row). Escape, a tap outside or leaving closes it; one
+// open at a time. Rows come from the collector: {key, label, points, max, input}; the points add up to the score. ----
+let bdSeq = 0, bdOpen = null, bdTimer = 0;
+const floating = () => matchMedia("(min-width: 720px)").matches;
+const fmtPts = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1)).replace("-", "−");
+function bdFill(panel, rows, score) {
+  const tbody = el("tbody");
+  for (const r of rows) {
+    const td = el("td");
+    if (r.points != null) {   // lodging has no points of its own: it moves price and convenience
+      const bar = el("span", { class: "bdbar", "aria-hidden": "true" }, el("i"));
+      bar.firstChild.style.width = `${Math.max(0, Math.min(100, (100 * r.points) / r.max))}%`;
+      td.append(el("span", { class: "pts", text: `${fmtPts(r.points)} / ${r.max}` }), bar);
+    }
+    td.append(el("span", { class: "in", text: r.input }));
+    tbody.append(el("tr", {}, el("th", { scope: "row", text: r.label }), td));
+  }
+  panel.replaceChildren(el("p", { class: "bd-h", text: `How ${score} adds up` }), el("table", { class: "bdt" }, tbody));
+}
+function bdClose() {
+  if (!bdOpen) return;
+  bdOpen.panel.hidden = true;
+  bdOpen.panel.style.cssText = "";
+  bdOpen.btn.setAttribute("aria-expanded", "false");
+  bdOpen = null;
+}
+// Wide screens: the panel is fixed, so no card or list clips it; below the button, or above when there is no room.
+function bdPlace({ btn, panel }) {
+  if (!floating()) { panel.style.cssText = ""; return; }
+  const r = btn.getBoundingClientRect(), w = panel.offsetWidth, h = panel.offsetHeight;
+  const below = r.bottom + 6 + h <= window.innerHeight || r.top - 6 - h < 0;
+  const left = r.left + w + 8 <= window.innerWidth ? r.left : r.right - w;   // under the score's left edge, else right-aligned
+  panel.style.left = `${Math.max(8, Math.min(window.innerWidth - w - 8, left))}px`;
+  panel.style.top = `${below ? r.bottom + 6 : r.top - 6 - h}px`;
+}
+function bdShow(btn, panel, by) {
+  clearTimeout(bdTimer);
+  if (bdOpen && bdOpen.btn !== btn) bdClose();
+  if (bdOpen) { bdOpen.by = by; return; }
+  panel.hidden = false;
+  btn.setAttribute("aria-expanded", "true");
+  bdOpen = { btn, panel, by };
+  bdPlace(bdOpen);
+}
+// [button, panel] to drop where the score text was; plain text when a row has no breakdown (data from before D-75).
+function scoreUI(score, rows, label = "Score", short = false) {
+  const lbl = short ? el("span", { class: "lbl", text: label }) : `${label} `;   // the table's column head already says Score
+  if (!rows || !rows.length) return [el("span", { class: "strong" }, lbl, String(score))];
+  const id = `bd-${++bdSeq}`;
+  const btn = el("button", { type: "button", class: "score", "aria-expanded": "false", "aria-controls": id }, lbl, String(score));
+  const panel = el("div", { class: "bd", id, role: "group", "aria-label": `${label} ${score} breakdown`, hidden: "" });
+  let filled = false;
+  const open = (by) => { if (!filled) { bdFill(panel, rows, score); filled = true; } bdShow(btn, panel, by); };
+  const mine = () => bdOpen && bdOpen.btn === btn;
+  btn.addEventListener("click", (e) => {
+    e.preventDefault(); e.stopPropagation();   // inside a <summary>: a tap on the score must not toggle the card
+    if (mine() && bdOpen.by !== "hover") bdClose(); else open("click");
+  });
+  btn.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && !mine()) open("hover"); });
+  const leave = (e) => { if (e.pointerType === "mouse" && mine() && bdOpen.by === "hover") bdTimer = setTimeout(bdClose, 150); };
+  btn.addEventListener("pointerleave", leave);
+  panel.addEventListener("pointerleave", leave);
+  panel.addEventListener("pointerenter", () => clearTimeout(bdTimer));
+  btn.addEventListener("focus", () => { if (btn.matches(":focus-visible")) open("focus"); });
+  btn.addEventListener("blur", () => { if (mine()) bdClose(); });
+  panel.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); });
+  return [btn, panel];
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") bdClose(); });
+document.addEventListener("pointerdown", (e) => { if (bdOpen && !bdOpen.btn.contains(e.target) && !bdOpen.panel.contains(e.target)) bdClose(); });
+for (const ev of ["scroll", "resize"]) window.addEventListener(ev, () => { if (bdOpen) bdPlace(bdOpen); }, { passive: true });   // a floating panel follows its button (focus may scroll it into view)
+
 // ---- hits ----
 function hitCard(r) {
   const w = windowDays(r.window_id);
@@ -219,7 +292,7 @@ function hitCard(r) {
     el("span", { class: "row" },
       el("span", { class: "main" }, el("span", { class: "name", text: r.city_name }), el("span", { class: "sub", text: `${w.text} · ${w.pattern}` })),
       el("span", { class: "price" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "complete trip for two" }))),
-    el("span", { class: "meta" }, classPill(r.trip_class), el("span", { class: "strong", text: `Final ${r.final_score}` }),
+    el("span", { class: "meta" }, classPill(r.trip_class), ...scoreUI(r.final_score, r.breakdown, "Final"),
       el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder),
       r.mode === "dry-run" ? el("span", { class: "muted", text: "Learning run, not emailed" }) : null,
       icon("i-chev", "ic chev"))));
@@ -278,7 +351,7 @@ function passedRow({ r, st }) {
   const head = el("span", { class: "prow-main" },
     el("span", { class: "prow-top" }, el("b", { class: "city", text: r.city_name }), el("span", { class: "small", text: `${w.text} · ${w.pattern}` })),
     el("span", { class: "prow-meta" }, classPill(r.trip_class), el("span", { text: `${money(r.price_pp)} pp` }), ladderPill(r.ladder),
-      el("span", { class: "strong", text: `Score ${st.score ?? r.score}` }),
+      ...scoreUI(st.score ?? r.score, st.c ? st.c.breakdown : r.breakdown),   // the candidate's latest pass, else pass 1
       el("span", { class: `stage${st.hit ? " hit" : ""}`, text: `Pass ${st.step}` })),
     el("span", { class: "prow-stage", text: st.text }));
   const cls = `prow c-${r.trip_class}`;
@@ -331,7 +404,7 @@ function cityCard(r, c, ctx) {
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
     ladderLine,
     el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null,
-      el("span", { text: `Score ${r.score}` }), icon("i-chev", "ic chev"))));
+      ...scoreUI(r.score, r.breakdown), icon("i-chev", "ic chev"))));
   d.addEventListener("toggle", () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
@@ -358,7 +431,7 @@ function cityBody(r, c, { series, windows }) {
         el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)} · ${money(w.price_pp)} pp` })),
       el("td", {}, ladderPill(w.ladder)),
       el("td", { class: "num", text: money(w.total_cad) }),
-      el("td", { class: "num", text: String(w.score) })));
+      el("td", { class: "num sc" }, ...scoreUI(w.score, w.breakdown, "Score", true))));
   }
   right.append(el("table", { class: "wins" },
     el("thead", {}, el("tr", {}, ...["Trip", "Fare", "For two", "Score"].map((h, i) => el("th", { scope: "col", class: i > 1 ? "num" : null, text: h })))), tbody));

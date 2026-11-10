@@ -13,7 +13,7 @@ from urllib.parse import quote
 from radar.config import City, Reference, Scoring
 from radar.flights import Leg
 from radar.hotels import LodgingCheck
-from radar.score import Scored, components_dict, rescore, transfers_cad
+from radar.score import Scored, breakdown, breakdown_of, components_dict, rescore, transfers_cad
 
 ROOT = "hits"
 EVENTS_CAP = 10
@@ -53,6 +53,14 @@ def fare_dropped(flights_cad: float, previous: dict, drop_pct: int) -> bool:
     return flights_cad <= previous["flights"]["cad_2pax"] * (1 - drop_pct / 100)
 
 
+def lodging_line(opt: dict | None, nights: int, estimate_cad: float) -> str:
+    """The breakdown's lodging row: the option chosen in pass 2, or the estimate that still stands in."""
+    if opt is None:
+        return f"nothing acceptable within 6 km; the route's good room rate stands in ({_money(estimate_cad)} for {nights} nights)"
+    deal = f" (Google: {_plain(opt['deal'])})" if opt.get("deal") else ""
+    return f"{_plain(opt['name'])}, {opt['kind']}, {_money(opt['total_cad'] / nights)} a night all-in, total {_money(opt['total_cad'])}{deal}"
+
+
 def pass2(x: Scored, city: City, check: LodgingCheck, s: Scoring) -> dict:
     """Score every acceptable option on the real total; the best score wins, then the lower total (D-65)."""
     base = dict(components=components_dict(x), flights_cad=x.trip.flights_cad_2pax, transfers=transfers_cad(city),
@@ -65,11 +73,16 @@ def pass2(x: Scored, city: City, check: LodgingCheck, s: Scoring) -> dict:
     opts.sort(key=lambda o: (-o["trip_score"], o["trip_total_cad"]))
     out = {"searches": check.searches, "skipped": check.skipped, "options": [{k: v for k, v in o.items() if k != "result"}
                                                                              for o in opts[:MAX_OPTIONS]]}
+    nights = x.trip.nights
     if opts:
-        best = opts[0]
-        return {**out, "chosen": 0, **best["result"], "lodging_source": best["kind"], "fringe": best["fringe"]}
+        best, r = opts[0], opts[0]["result"]
+        bd = breakdown(x.inputs, r["components"], total_cad=r["total_cad"], typical_cad=x.typical_cad, share=r["share"],
+                       fringe=best["fringe"], lodging=lodging_line(best, nights, x.lodging_cad))
+        return {**out, "chosen": 0, **r, "lodging_source": best["kind"], "fringe": best["fringe"], "breakdown": bd}
+    bd = breakdown(x.inputs, components_dict(x), total_cad=x.total_cad, typical_cad=x.typical_cad, share=x.share,
+                   lodging=lodging_line(None, nights, x.lodging_cad))
     return {**out, "chosen": None, "components": components_dict(x), "score": x.score, "total_cad": x.total_cad,
-            "share": x.share, "lodging_cad": x.lodging_cad, "lodging_source": "estimate", "fringe": False}
+            "share": x.share, "lodging_cad": x.lodging_cad, "lodging_source": "estimate", "fringe": False, "breakdown": bd}
 
 
 def _leg(leg: Leg) -> dict:
@@ -113,10 +126,11 @@ def write_candidate(x: Scored, city: City, ref: Reference, p2: dict, weather: tu
         "typical_cad": x.typical_cad, "transfers_cad": transfers_cad(city), "conv_pts": x.conv_pts,
         "hours_on_ground": round(t.hours_on_ground, 1), "airport_to_core_min": city.airport_to_core_min,
         "weather": {"score": round(weather[0], 1), "source": weather[1]},
+        "inputs": x.inputs,   # what the pass-1 components were computed from; finalize re-renders the breakdown from it
         "pass1": {"score": x.score, "components": components_dict(x), "lodging_cad": x.lodging_cad,
-                  "lodging_source": "estimate", "total_cad": x.total_cad, "share": x.share},
+                  "lodging_source": "estimate", "total_cad": x.total_cad, "share": x.share, "breakdown": breakdown_of(x)},
         "pass2": p2, "pass3": None, "final_score": None,
-        "score": p2["score"], "total_cad": p2["total_cad"],
+        "score": p2["score"], "total_cad": p2["total_cad"], "breakdown": p2.get("breakdown"),
         "links": links(city, t.out.dest, t.out.dep.date().isoformat(), t.back.dep.date().isoformat(),
                        t.check_in.isoformat(), t.check_out.isoformat()),
     }
@@ -175,14 +189,23 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
         a = affordability(it["price_cad"], it["famous"], interests)
         items.append({**it, "affordability": a, "points": round(it["uniqueness"] * it["fit"] * a, 2)})
     events = round(min(EVENTS_CAP, sum(it["points"] for it in items)), 1)
-    base = {k: cand["pass2"][k] for k in ("components", "score", "total_cad", "share", "lodging_cad", "lodging_source")}
+    p2 = cand["pass2"]
+    base = {k: p2[k] for k in ("components", "score", "total_cad", "share", "lodging_cad", "lodging_source")}
+    nights = cand["dates"]["nights"]
+    lodging = next((row["input"] for row in p2.get("breakdown") or () if row["key"] == "lodging"), None)
+    fringe = p2.get("fringe", False)
     airbnb = research.get("airbnb") or {}
     same_stay = (airbnb.get("check_in"), airbnb.get("check_out")) == (cand["dates"]["check_in"], cand["dates"]["check_out"])
     if airbnb.get("total_cad") is not None and same_stay and (base["lodging_source"] == "estimate" or airbnb["total_cad"] < base["lodging_cad"]):
-        r = rescore(cand["pass2"]["components"], flights_cad=cand["flights"]["cad_2pax"], lodging_cad=airbnb["total_cad"],
+        r = rescore(p2["components"], flights_cad=cand["flights"]["cad_2pax"], lodging_cad=airbnb["total_cad"],
                     transfers=cand["transfers_cad"], typical_cad=cand["typical_cad"], conv_pts=cand["conv_pts"], fringe=False, s=s)
-        base = {**r, "lodging_source": "airbnb"}   # listed neighbourhoods only, so never fringe
+        base, fringe = {**r, "lodging_source": "airbnb"}, False   # listed neighbourhoods only, so never fringe
+        lodging = f"Airbnb: {_plain(airbnb.get('title') or 'listing')}, {_money(airbnb['total_cad'] / nights)} a night all-in, total {_money(airbnb['total_cad'])}"
     final = round(base["score"] + events)
+    on = ", ".join(f"{_plain(it['name'])} (+{it['points']:g})" for it in sorted(items, key=lambda it: -it["points"]) if it["points"] > 0)
+    events_line = f"+{events:g}: {on or 'nothing that passes the Calgary test'}"
+    bd = breakdown(cand["inputs"], base["components"], total_cad=base["total_cad"], typical_cad=cand["typical_cad"], share=base["share"],
+                   fringe=fringe, lodging=lodging, events=(events, events_line)) if cand.get("inputs") else None   # None: a pre-D-75 candidate file
     cls = s.trip_classes[cand["trip_class"]]
     why = None
     if base["lodging_source"] == "estimate":
@@ -196,8 +219,8 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
            "drop_reason": why, "hit_threshold": cls["hit_threshold"], "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "pass3": {"events_pts": events, "items": items, "negatives": [str(n) for n in research.get("negatives") or []],
                      "airbnb": airbnb or None, "airbnb_used": base["lodging_source"] == "airbnb",
-                     "research": Path(research_path).as_posix(), "researched": research.get("researched"), **base},
-           "final_score": final, "score": final, "total_cad": base["total_cad"]}
+                     "research": Path(research_path).as_posix(), "researched": research.get("researched"), **base, "breakdown": bd},
+           "final_score": final, "score": final, "total_cad": base["total_cad"], "breakdown": bd}
     for old in ("", "dry-run", "near-miss"):   # a re-run with other research must not leave the earlier verdict behind
         for ext in (".json", ".md"):
             Path(root, old, cid + ext).unlink(missing_ok=True)
