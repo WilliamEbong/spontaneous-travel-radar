@@ -279,9 +279,9 @@ tr:last-child td, tr:last-child th { border-bottom: 0; }
 td:last-child, th:last-child { padding-right: 0; }
 .num { text-align: right; }
 .wins th { white-space: nowrap; }
-.wins tbody th { white-space: normal; }
+.wins > tbody > tr > th { white-space: normal; }   /* child combinators: the score breakdown table inside a cell keeps its own layout */
 .wins .sub { display: block; color: var(--ink-2); font-size: 0.75rem; font-weight: 400; }
-.wins .is-best th { font-weight: 650; }
+.wins > tbody > .is-best > th { font-weight: 650; }
 details.tbl { margin-top: 8px; font-size: 0.875rem; }
 details.tbl summary { cursor: pointer; color: var(--accent-ink); font-size: 0.8125rem; padding: 6px 0; }
 details.tbl table { margin-top: 6px; }
@@ -330,15 +330,14 @@ details.item .small { color: var(--ink-2); font-size: 0.8125rem; }
 @media (max-width: 719px) {
   .sheet { position: fixed; inset: auto 0 0 0; margin: 0; width: 100%; max-width: none; border-radius: 16px 16px 0 0; padding-bottom: env(safe-area-inset-bottom); }
   /* "Every long weekend" stacks: the trip on one line, band · price · score underneath */
-  .wins, .wins tbody { display: block; }
-  .wins thead { display: none; }
-  .wins tr { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .wins tr:last-child { border-bottom: 0; }
-  .wins th, .wins td { border: 0; padding: 0; }
-  .wins tbody th { grid-column: 1 / -1; }
-  .wins td.num { text-align: left; }
-  .wins td:last-child { justify-self: end; }
-  .wins td:last-child::before { content: "Score "; color: var(--ink-2); }
+  .wins, .wins > tbody { display: block; }
+  .wins > thead { display: none; }
+  .wins > tbody > tr { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 4px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .wins > tbody > tr:last-child { border-bottom: 0; }
+  .wins > tbody > tr > th, .wins > tbody > tr > td { border: 0; padding: 0; }
+  .wins > tbody > tr > th { grid-column: 1 / -1; }
+  .wins > tbody > tr > td.num { text-align: left; }
+  .wins > tbody > tr > td:last-child { justify-self: end; }
 }
 
 footer { max-width: 1040px; margin: 0 auto; padding: 0 16px 28px; color: var(--ink-2); font-size: 0.8125rem; }
@@ -524,4 +523,37 @@ input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-of
 
 @media (prefers-reduced-motion: reduce) {
   *, ::backdrop { transition: none !important; animation: none !important; }
+}
+
+/* ---- score breakdown (D-75): the score is a button; its panel floats by the button on wide screens and sits inline under the row on phones ---- */
+.score {
+  display: inline-flex; align-items: baseline; margin: -2px -6px; padding: 2px 6px; border: 0; border-radius: 6px;
+  background: none; font: inherit; font-weight: 650; color: var(--ink); cursor: pointer; white-space: nowrap;
+  text-decoration: underline dotted var(--muted); text-decoration-thickness: 1px; text-underline-offset: 3px;
+}
+.score:hover, .score[aria-expanded="true"] { background: var(--accent-soft); text-decoration-color: var(--accent-ink); }
+.bd {
+  z-index: 10; padding: 10px 12px; text-align: left; font-size: 0.8125rem; line-height: 1.4; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+}
+.bd-h { margin: 0 0 4px; font-weight: 650; }
+.bdt { font-size: inherit; }
+.bdt th, .bdt td { padding: 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.bdt th { width: 1%; padding-right: 12px; white-space: nowrap; font-size: inherit; font-weight: 600; color: var(--ink); }
+.bdt tr:last-child th, .bdt tr:last-child td { border-bottom: 0; }
+.bdt .pts { display: inline-block; min-width: 4.5em; font-weight: 650; font-variant-numeric: tabular-nums; }
+.bdt .bdbar { display: inline-block; width: 72px; height: 4px; margin-left: 6px; border-radius: 2px; background: var(--line); vertical-align: middle; overflow: hidden; }
+.bdt .bdbar i { display: block; height: 100%; border-radius: 2px; background: var(--accent); }
+.bdt .in { display: block; color: var(--muted); font-weight: 400; }
+.wins .score { margin: -2px -4px; padding: 2px 4px; }
+.score .lbl { margin-right: 0.25em; }
+@media (min-width: 720px) {
+  .bd { position: fixed; width: min(400px, calc(100vw - 32px)); }
+  .wins .lbl { display: none; }           /* the column head already says Score */
+}
+@media (max-width: 719px) {
+  .bd { flex-basis: 100%; order: 99; margin-top: 6px; }
+  .wins td.sc { display: contents; }       /* the score and its panel become items of the stacked row's grid */
+  .wins td.sc > :not(.bd) { justify-self: end; }
+  .wins .bd { grid-column: 1 / -1; margin-top: 2px; }
 }
