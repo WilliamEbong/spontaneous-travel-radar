@@ -150,7 +150,7 @@ def test_breakdown_follows_the_passes(tmp_path):
     assert abs(sum(r["points"] for r in p1) - cand["pass1"]["score"]) <= 0.5
     assert abs(sum(r["points"] for r in p2 if r["points"] is not None) - cand["pass2"]["score"]) <= 0.5
     assert p2[-1]["input"].startswith("Central hotel, hotel, $750 a night all-in, total $1,500") and p2[-1]["points"] is None
-    assert p2[2]["input"] == "non-stop both ways · central room"
+    assert p2[2]["input"] == "non-stop both ways (10) · airport 45 min from downtown · no car needed · lands 14:00 · central room"
     dates = {"check_in": cand["dates"]["check_in"], "check_out": cand["dates"]["check_out"]}
     airbnb = {"total_cad": 500, "link": "https://www.airbnb.ca/rooms/1", "title": "Loft", **dates}
     h = json.loads(finalize(cand["id"], research(tmp_path, airbnb=airbnb), S, I, root=tmp_path).read_text())

@@ -49,7 +49,7 @@ class Scoring:
     realert_drop_pct: int
     dayoff_min_weeks: int              # Settings panel, 2-12
     serpapi_monthly_cap: int
-    time_curve: dict[str, float]       # {zero_at, full_at}: share of the window's best possible waking hours
+    time_rule: dict[str, float]        # {sleep_hours_per_night, overhead_hours, time_max_hours, time_floor_share}: one scale for every trip
     trip_classes: dict[str, dict]      # {"dayoff": {...}, "weekend": {...}}, see config/scoring.yaml
 
 

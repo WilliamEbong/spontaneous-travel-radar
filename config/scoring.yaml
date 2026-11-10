@@ -8,9 +8,15 @@ weights: {price: 45, time: 20, convenience: 10, city: 15, weather: 10}
 price_curve:             # price points vs share = complete trip for two / the route's typical trip (v2, D-57)
   points: [[0.60, 45], [0.75, 25], [1.00, 0], [1.30, -10]]   # straight lines between; full points at or under 0.60
   floor: -100            # past 1.30 the line keeps its slope down to this (share 4.0), so the cheaper of two dear trips wins (D-59)
-time_curve:              # time score vs share of the window's best possible waking hours (D-51)
-  zero_at: 0.10          # 0 points here; trips below it are dropped as not worth flying
-  full_at: 0.70          # full points here (real trips top out near 0.70-0.75: flights eat the rest)
+time_rule:               # one objective scale for every trip class and window (D-next, William 2026-11-10); off-limits to the routines
+  sleep_hours_per_night: 10    # hours awake there = landing to take-off, minus overhead_hours, minus this per night
+  overhead_hours: 4.5          # per trip: 1 h after landing, 2.5 h at the airport before the return flight, 1 h of other airport time
+  time_max_hours: 31           # the most a 3-day weekend can give: 19:30 the evening before to 16:00 on day 3 is 68.5 h,
+                               # minus the shortest realistic flights (Vancouver, 1.5 h each way = 3 h), minus 4.5 h overhead,
+                               # minus 3 nights x 10 h = 31. Points = 20 x min(1, hours / 31): a perfect weekend-only trip
+                               # (Fri 17:30 out, home Sun 16:00: 43.5 h in Vancouver, 2 nights) is 19 h = 12.3 points;
+                               # a 4-day stat block caps at 20
+  time_floor_share: 0.25       # trips under this share of time_max_hours (7.75 h awake) are dropped before scoring
 trip_classes:            # D-52. Window ranges and hard rules are William's; thresholds are tunable (v2: 70 to look closer, 80 to hit)
   dayoff:                # fri-off, mon-off and stat blocks; Day 1 from dayoff_min_weeks to + span_weeks out
     enabled: true        # Settings panel

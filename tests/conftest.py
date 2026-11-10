@@ -33,7 +33,7 @@ def vancouver_trip_fixture():
     from radar.itineraries import Trip
     out = make_leg("YYC", "YVR", "2026-12-04T08:00", "2026-12-04T08:45", "America/Edmonton", "America/Vancouver", 110)
     back = make_leg("YVR", "YYC", "2026-12-06T13:00", "2026-12-06T15:30", "America/Vancouver", "America/Edmonton", 110)
-    return Trip("vancouver", "YVR", "2026-12-04_fri-off", out, back, 220, date(2026, 12, 4), date(2026, 12, 6), 2, 35.0, 49.5)
+    return Trip("vancouver", "YVR", "2026-12-04_fri-off", out, back, 220, date(2026, 12, 4), date(2026, 12, 6), 2, 31.0)
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def nyc_one_stop_trip():
     from radar.itineraries import Trip
     out = make_leg("YYC", "EWR", "2026-12-04T07:00", "2026-12-04T16:00", "America/Edmonton", "America/New_York", 500, 1, 90)
     back = make_leg("EWR", "YYC", "2026-12-06T08:00", "2026-12-06T11:00", "America/New_York", "America/Edmonton", 500)
-    return Trip("new_york", "EWR", "2026-12-04_fri-off", out, back, 1000, date(2026, 12, 4), date(2026, 12, 6), 2, 30.0, 49.5)
+    return Trip("new_york", "EWR", "2026-12-04_fri-off", out, back, 1000, date(2026, 12, 4), date(2026, 12, 6), 2, 24.0)
 
 
 @pytest.fixture

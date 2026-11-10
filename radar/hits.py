@@ -204,8 +204,9 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
     final = round(base["score"] + events)
     on = ", ".join(f"{_plain(it['name'])} (+{it['points']:g})" for it in sorted(items, key=lambda it: -it["points"]) if it["points"] > 0)
     events_line = f"+{events:g}: {on or 'nothing that passes the Calgary test'}"
+    has_inputs = bool((cand.get("inputs") or {}).get("convenience_parts"))   # False: a file from before D-75 or the time rule
     bd = breakdown(cand["inputs"], base["components"], total_cad=base["total_cad"], typical_cad=cand["typical_cad"], share=base["share"],
-                   fringe=fringe, lodging=lodging, events=(events, events_line)) if cand.get("inputs") else None   # None: a pre-D-75 candidate file
+                   fringe=fringe, lodging=lodging, events=(events, events_line)) if has_inputs else None
     cls = s.trip_classes[cand["trip_class"]]
     why = None
     if base["lodging_source"] == "estimate":
@@ -278,7 +279,7 @@ def render_brief(h: dict) -> str:
         f"- **Lodging, {h['dates']['nights']} nights:** {_money(best['lodging_cad'])} all-in ({lodging})",
         f"- **Airport transfers:** {_money(h['transfers_cad'])}; airport to core about {h['airport_to_core_min']} min",
         f"- **Complete trip for two:** {_money(best['total_cad'])}, {best['share'] * 100:.0f}% of what this trip typically costs ({_money(h['typical_cad'])})",
-        f"- **Time on the ground:** {h['hours_on_ground']} waking hours",
+        f"- **Awake there:** {h['hours_on_ground']} h",
         f"- **Weather:** {h['weather']['score']}/10 ({h['weather']['source']})",
         "",
         "## Score",
