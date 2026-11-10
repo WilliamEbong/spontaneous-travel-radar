@@ -1,9 +1,11 @@
 # Handoff: Spontaneous Travel Radar (v2 build of 2026-11-09)
 
 Read this first if you are picking the build up in a fresh session. Then `SESSION-LOG.md`, the end of
-`docs/notes/decisions.md` (D-57 to D-75) and `BUILD-PLAN-v2.md`.
+`docs/notes/decisions.md` (D-57 to D-77) and `BUILD-PLAN-v2.md`.
 
 ## Where things stand
+
+- **Scoring table (D-77) is built on branch `scoring-table`, not merged.** Worktree `.claude/worktrees/scoring-table`, from `main` d199e1b. Each scan writes `data/history/<day>.csv` (plus `latest.csv` and `index.json`) with the evidence line, the points and the score for every logged trip; `table.html` shows the chosen day's file (sort, filter, download), linked from the health panel and the footer; the weather line gains a sky word from Open-Meteo's `weathercode`. The first scan after the merge writes the first CSV (the page says "No scoring table yet" until then; `python -m radar.main export` on the checkout writes the 9 and 10 Nov files early, with blanks where those rows kept no components). 106 tests. Screenshots in the side-session notes folder, `scoring-table-screens/`.
 
 - **Score breakdown (D-75) is built on branch `score-breakdown`, not merged.** Worktree
   `.claude/worktrees/score-breakdown`, from `main` f49df40. Every score on the page is a button whose panel lists each

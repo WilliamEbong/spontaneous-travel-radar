@@ -70,8 +70,8 @@ route's typical trip (pass 1). Candidates (a fare at or under the route's good a
 real lodging, Google Hotels and vacation rentals through SerpApi, at most three a scan (pass 2), written
 to `hits/candidates/`. The daily routine researches what is on for those dates and runs
 `python -m radar.main finalize` (pass 3), which files hits and near misses. Open-Meteo adds weather.
-The scan writes `data/latest.json`, `data/series.json`, `data/history/<date>.jsonl` and the weekly
-summary, and runs without API keys too (lodging check `skipped: no-key`).
+The scan writes `data/latest.json`, `data/series.json`, `data/history/<date>.jsonl` and `.csv` (the
+scoring table, `table.html`) and the weekly summary, and runs without API keys too (lodging check `skipped: no-key`).
 
 ## Run locally (Python 3.12)
 

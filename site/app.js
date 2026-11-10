@@ -520,6 +520,8 @@ function renderHealth(latest, stale) {
   const errs = (h.fetch_errors || []).slice(0, 5);
   $("health-body").replaceChildren(dl,
     errs.length ? el("ul", { class: "errs" }, ...errs.map((e) => el("li", { text: `${e.route} ${e.day}: ${e.error}` }))) : "",
+    el("p", { class: "sheet-foot" }, "Every trip this scan logged, with the evidence behind each number: ",
+      el("a", { href: "table.html", text: "Scoring table" }), " · ", el("a", { href: "data/history/latest.csv", download: "", text: "download CSV" })),
     el("p", { class: "sheet-foot", text: "Healthy means coverage above 80%, no fetch errors, not blocked, and a scan in the last 30 hours." }));
   const state = h.blocked || stale ? "bad" : (h.coverage_pct ?? 100) < 80 || h.fetch_error_count ? "warn" : "ok";
   $("health-dot").className = "dot " + state;

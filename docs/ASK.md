@@ -12,7 +12,8 @@ Claude Code session in this folder and asks. This file tells that session how to
   Every trip row carries `breakdown`: each criterion with its `input` (the evidence in words), `points`
   and `max`. Quote those lines; they are the explanation.
 - `data/history/YYYY-MM-DD.jsonl` and `.csv`: every logged trip for that scan with `components` and
-  `inputs` (D-76). Use these for "what changed since yesterday" and for anything not on the page.
+  `inputs` (D-76). Use these for "what changed since yesterday" and for anything not on the page. The `.csv` is the scoring table
+  (`table.html` on the site): one row per trip, the evidence line, points and score per criterion (D-77).
 - `hits/candidates/`, `hits/near-miss/`, `hits/`: the three-pass files (pass 1 score, pass 2 real
   lodging with the options and links, pass 3 research with each find and its reason).
 - `data/digests/<date>.md`: the daily routine's note (health, what changed, what it is watching).

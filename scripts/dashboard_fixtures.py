@@ -51,6 +51,7 @@ def build(out: Path, state: str) -> None:
     shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True)
     shutil.copy(ROOT / "index.html", d)
+    shutil.copy(ROOT / "table.html", d)   # the scoring table reads the CSVs the scan below writes
     for sub in ("site", "config", "tests/fixtures/offline"):
         shutil.copytree(ROOT / sub, d / sub)
     refs = d / "config/references.yaml"
