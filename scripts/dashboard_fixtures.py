@@ -68,7 +68,7 @@ def build(out: Path, state: str) -> None:
     import os
     os.chdir(d)
     rm.check_lodging = fake_lodging
-    rm.MAX_CANDIDATES_PER_SCAN = 6
+    rm.MAX_CANDIDATES_PER_SCAN = 8   # the six day-off trips outscore the two weekend ones on the one time scale (D-next)
     assert rm.main(ARGS) == 0
     s = load_scoring()
     cands = sorted((json.loads(p.read_text()) for p in Path("hits/candidates").glob("*.json")), key=lambda h: -h["score"])
