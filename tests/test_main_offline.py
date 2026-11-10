@@ -33,6 +33,9 @@ def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):
         assert (tmp_path / f).exists(), f
     hist = [json.loads(line) for line in (tmp_path / "data/history/2026-10-08.jsonl").read_text().splitlines()]
     assert all(-100 <= r["price_pts"] <= 45 and abs(r["score"] - r["price_pts"]) <= 100 for r in hist)  # backtest input
+    for r in hist:                                                     # D-76: every number behind the score is kept
+        assert set(r["components"]) == {"price", "time", "convenience", "city", "weather"}
+        assert abs(sum(r["components"].values()) - r["score"]) <= 0.5 and isinstance(r["inputs"], dict) and r["inputs"]
     for r in hist + latest["windows"] + latest["best_by_city"]:       # acceptance check 9
         assert r["ladder"] in ("exceptional", "good", "typical", "above") and r["share"] > 0 and r["pass"] in (1, 2)
         assert "final_score" in r and r["final_score"] is None

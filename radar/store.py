@@ -3,7 +3,7 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
-from radar.score import Scored
+from radar.score import Scored, components_dict
 
 
 def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool, *, pass_: int = 1, candidate_id: str | None = None) -> dict:
@@ -23,6 +23,9 @@ def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool, *, pass_: 
         # the backtest (docs/TUNING-PLAN.md) re-scores a variant as score - price_pts + new price points
         "price_pts": round(x.components.price, 2),
         "history_pct": None if x.history_pct is None else round(x.history_pct, 1),
+        # every number behind the score and what it was computed from, so a later re-score or a display change never
+        # needs the fares fetched again (William, 2026-11-10: "save not just the score but the numbers and reasons")
+        "components": components_dict(x), "inputs": x.inputs,
     }
 
 
