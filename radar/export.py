@@ -64,13 +64,13 @@ def dayoff_rows(history: list[dict]) -> list[dict]:
 
 
 def write_series(history: list[dict], path="data/series.json", days: int = 30) -> None:
-    """{city: [[scan_date, cheapest price_pp that day], ...]} for the last `days` scan days, day-off trips only (the
-    sparkline compares like with like: weekend trips are short-lead and non-stop only)."""
-    lo: dict[str, dict[str, int]] = defaultdict(dict)
-    for r in dayoff_rows(history):
-        d = lo[r["city"]]
+    """{city: {trip_class: [[scan_date, cheapest price_pp that day], ...]}} for the last `days` scan days, one line per
+    class (a weekend card's history must not mix with day-off fares: different lead times and rules)."""
+    lo: dict[str, dict[str, dict[str, int]]] = defaultdict(lambda: defaultdict(dict))
+    for r in history:
+        d = lo[r["city"]][r.get("trip_class", "dayoff")]
         d[r["scan_date"]] = min(d.get(r["scan_date"], r["price_pp"]), r["price_pp"])
-    write_json(path, {c: sorted(v.items())[-days:] for c, v in sorted(lo.items())})
+    write_json(path, {c: {k: sorted(v.items())[-days:] for k, v in sorted(cls.items())} for c, cls in sorted(lo.items())})
 
 
 def hit_files(root="hits"):

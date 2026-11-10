@@ -344,7 +344,11 @@ function cityCard(r, c, ctx) {
 
 function cityBody(r, c, { series, windows }) {
   const body = el("div", { class: "body" });
-  const left = el("div", {}, el("h3", { class: "sub-h", text: "Cheapest day-off fare per person, by scan day" }), history(series[c.key], c.name));
+  // history follows the card's class; older series files were a bare day-off list
+  const all = Array.isArray(series[c.key]) ? { dayoff: series[c.key] } : (series[c.key] || {});
+  const cls = (all[r.trip_class] || []).length ? r.trip_class : (all.dayoff ? "dayoff" : "weekend");
+  const label = cls === "weekend" ? "Cheapest weekend fare per person, by scan day" : "Cheapest day-off fare per person, by scan day";
+  const left = el("div", {}, el("h3", { class: "sub-h", text: label }), history(all[cls] || [], c.name));
   const right = el("div", {}, el("h3", { class: "sub-h", text: "Every weekend, best first" }));
   const ws = windows.filter((w) => w.city === c.key).sort((a, b) => b.score - a.score || a.total_cad - b.total_cad);
   const tbody = el("tbody");
