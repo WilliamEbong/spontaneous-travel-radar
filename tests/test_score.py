@@ -4,9 +4,9 @@ from datetime import date
 import pytest
 
 from radar.config import load_scoring
-from radar.itineraries import Trip
-from radar.score import (best_per_window, is_candidate, ladder_label, price_points, rescore, score_trip, season, time_points,
-                         typical_trip_cad, worth_flying)
+from radar.itineraries import Trip, hours_on_ground
+from radar.score import (best_per_window, convenience, convenience_line, is_candidate, ladder_label, price_points, rescore,
+                         score_trip, season, time_points, typical_trip_cad, worth_flying)
 from tests.conftest import city, make_leg, ref
 
 S = load_scoring()
@@ -44,23 +44,23 @@ def test_vancouver_worked_example(vancouver_trip_fixture):
 
 
 def test_cheaper_above_typical_trip_wins_despite_fewer_hours():
-    """Acceptance check 2, the day-one bug: Toronto 21-23 Nov, 01:20 out / 12:10 back at $1,357 pp kept 34.9 h on the
-    ground, 07:30 out / 06:15 back at $1,002 pp kept 22.8 h. Both far above typical; the cheaper must win."""
+    """Acceptance check 2, the day-one bug: Toronto 21-23 Nov, 01:20 out / 12:10 back at $1,357 pp keeps 29.4 h awake
+    there, 14:25 out / 06:15 back at $1,002 pp keeps 10.5 h. Both far above typical; the cheaper must win."""
     c, r = city("toronto"), ref("toronto")
     out = make_leg("YYC", "YYZ", "2026-11-21T07:30", "2026-11-21T13:20", "America/Edmonton", "America/Toronto", 1000)
     back = make_leg("YYZ", "YYC", "2026-11-23T06:15", "2026-11-23T08:45", "America/Toronto", "America/Edmonton", 1004)
 
     def trip(price_2pax, hours):
-        t = Trip("toronto", "YYZ", "2026-11-21_mon-off", out, back, price_2pax, date(2026, 11, 21), date(2026, 11, 23), 2, hours, 49.5)
+        t = Trip("toronto", "YYZ", "2026-11-21_mon-off", out, back, price_2pax, date(2026, 11, 21), date(2026, 11, 23), 2, hours)
         return score_trip(t, c, r, S, weather_score=5, history_pct=None)
 
-    dear, cheap = trip(2714, 34.9), trip(2004, 22.8)
+    dear, cheap = trip(2714, 29.4), trip(2004, 10.5)
     assert dear.share > cheap.share > 1.3 and dear.ladder == cheap.ladder == "above"
     assert dear.components.time > cheap.components.time
     assert best_per_window([dear, cheap]) == [cheap]
     a, b = trip(1000, 30), trip(1100, 30)                   # just above typical: the cheaper scores higher too
     assert 1 < a.share < b.share < 1.3 and a.score > b.score
-    far, farther = trip(3600, 22.8), trip(5400, 34.9)       # review finding 4: far past 2.2, more hours on the dearer
+    far, farther = trip(3600, 10.5), trip(5400, 29.4)       # review finding 4: far past 2.2, more hours on the dearer
     assert 2.2 < far.share < farther.share and best_per_window([farther, far]) == [far]
 
 
@@ -90,7 +90,7 @@ def test_ladder_label_and_season():
 def test_usd_rooms_convert_and_tax():
     """New York, a US city: the typical room is USD, x 1.40, x 1.16 per night (the US default tax)."""
     c, r = city("new_york"), ref("new_york")
-    t = Trip("new_york", "EWR", "2026-12-04_fri-off", None, None, 0, date(2026, 12, 4), date(2026, 12, 6), 2, 30, 49.5)
+    t = Trip("new_york", "EWR", "2026-12-04_fri-off", None, None, 0, date(2026, 12, 4), date(2026, 12, 6), 2, 30)
     room = r.rooms["winter"]["typical"]
     assert c.hotel_tax == 1.16 and typical_trip_cad(t, c, r, S) == pytest.approx(2 * r.flights["typical"] + 2 * room * 1.40 * 1.16 + 4 * 23)
 
@@ -107,14 +107,48 @@ def test_rescore_moves_only_price_and_convenience(scored_vancouver):
     assert dearer["share"] > same["share"] and dearer["score"] < same["score"]
 
 
-def test_time_curve_is_linear_between_its_anchors():
-    curve = {"zero_at": 0.4, "full_at": 0.9}
-    assert [time_points(r * 100, 100, curve) for r in (0.3, 0.4, 0.65, 0.9, 1.0)] == pytest.approx([0, 0, 0.5, 1, 1])
+def test_time_is_one_scale_for_every_trip(vancouver_trip_fixture):
+    """D-next: time = 20 x min(1, hours awake there / 31), the same line for every class and window. The day-one Toronto
+    pair: the red-eye (lands 06:16 Sat, leaves 12:10 Mon: 53.9 h, 2 nights) keeps 29.4 h awake and gets 19.0; the
+    afternoon flight (lands 19:15 Sat, leaves 06:15 Mon: 35 h) keeps 10.5 h and gets 6.8. A weekend trip landing Fri
+    20:55 and leaving Sun 09:30 keeps 12.1 h and gets 7.8. A 4-day stat block caps at 20."""
+    rule = S.time_rule
+    assert rule == {"sleep_hours_per_night": 10, "overhead_hours": 4.5, "time_max_hours": 31, "time_floor_share": 0.25}
+
+    def awake(land, leave, nights, tz="America/Toronto"):
+        out = make_leg("YYC", "YYZ", "2026-11-21T01:20", land, "America/Edmonton", tz)
+        back = make_leg("YYZ", "YYC", leave, "2026-11-23T14:30", tz, "America/Edmonton")
+        return hours_on_ground(out, back, nights, overhead_h=rule["overhead_hours"], sleep_h=rule["sleep_hours_per_night"])
+
+    red_eye, afternoon = awake("2026-11-21T06:16", "2026-11-23T12:10", 2), awake("2026-11-21T19:15", "2026-11-23T06:15", 2)
+    assert (red_eye, afternoon) == pytest.approx((29.4, 10.5), abs=0.01)
+    assert 20 * time_points(red_eye, rule) == pytest.approx(19.0, abs=0.05)
+    assert 20 * time_points(afternoon, rule) == pytest.approx(6.8, abs=0.05)
+    weekend = awake("2026-11-20T20:55", "2026-11-22T09:30", 2, tz="America/Vancouver")
+    assert weekend == pytest.approx(12.1, abs=0.05) and 20 * time_points(weekend, rule) == pytest.approx(7.8, abs=0.05)
+    assert time_points(31, rule) == time_points(40, rule) == 1                       # a 4-day stat block caps at 20
+    t = replace(vancouver_trip_fixture, trip_class="weekend", hours_on_ground=weekend)   # the same scale through score_trip
+    assert score_trip(t, city("vancouver"), ref("vancouver"), S, weather_score=5, history_pct=None).components.time == pytest.approx(7.8, abs=0.05)
 
 
-def test_floor_drops_a_trip_with_too_little_time(vancouver_trip_fixture):
+def test_floor_drops_a_trip_under_a_quarter_of_the_max(vancouver_trip_fixture):
+    """Under 25% of 31 h (7.75 h awake there) a trip is dropped before scoring; 8 h is kept."""
     assert worth_flying(vancouver_trip_fixture, S)
-    assert not worth_flying(replace(vancouver_trip_fixture, hours_on_ground=0.09 * 49.5), S)
+    assert worth_flying(replace(vancouver_trip_fixture, hours_on_ground=8.0), S)
+    assert not worth_flying(replace(vancouver_trip_fixture, hours_on_ground=7.5), S)
+
+
+def test_convenience_shows_its_evidence_with_the_points(nyc_one_stop_trip):
+    """D-next: one part per rule, deductions carry their points, the parts travel in inputs and the room part follows pass 2."""
+    far = replace(city("new_york"), airport_to_core_min=50)
+    night = replace(nyc_one_stop_trip, out=replace(nyc_one_stop_trip.out, arr=nyc_one_stop_trip.out.arr.replace(hour=4, minute=40)))
+    pts, parts = convenience(night, far)
+    assert pts == 1 and parts == ["one stop, 90-min layover (5)", "airport 50 min from downtown (−2)", "no car needed", "lands 04:40 (−2)"]
+    x = score_trip(night, far, ref("new_york"), S, weather_score=5, history_pct=None)
+    assert x.conv_pts == 1 and x.components.convenience == 1 and x.inputs["convenience_parts"] == parts
+    assert convenience_line(x.inputs, fringe=True, room=True) == " · ".join(parts) + " · room on the fringe (−3)"
+    assert convenience_line(x.inputs, fringe=False, room=False) == " · ".join(parts)
+    assert convenience(nyc_one_stop_trip, replace(far, car_needed=True))[0] == 0      # 5 - 2 - 3 floors at 0
 
 
 def test_connection_costs_convenience(nyc_one_stop_trip):
@@ -138,8 +172,10 @@ def test_breakdown_sums_to_the_score(scored_vancouver, nyc_one_stop_trip):
     assert abs(sum(r["points"] for r in rows) - scored_vancouver.score) <= 0.5
     assert [r["max"] for r in rows] == [45, 20, 10, 15, 10] and all(r["input"] for r in rows)
     by = {r["key"]: r["input"] for r in rows}
-    assert by["city"] == "Vancouver, rank 8/10" and by["convenience"] == "non-stop both ways"
-    assert by["time"] == "35.0 h there of 49.5 possible" and by["weather"] == "score 8.0 of 10 as given"
+    assert by["city"] == "Vancouver, rank 8/10"
+    assert by["convenience"] == "non-stop both ways (10) · airport 25 min from downtown · no car needed · lands 08:45"
+    assert by["time"] == "31 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+    assert by["weather"] == "score 8.0 of 10 as given"
     assert by["price"].startswith("complete trip $") and "% of what this route normally costs" in by["price"]
     x = score_trip(nyc_one_stop_trip, city("new_york"), ref("new_york"), S, weather_score=5, history_pct=None)
-    assert {r["key"]: r["input"] for r in breakdown_of(x)}["convenience"] == "one stop, 90 min layover, −5"
+    assert {r["key"]: r["input"] for r in breakdown_of(x)}["convenience"] == "one stop, 90-min layover (5) · airport 45 min from downtown · no car needed · lands 16:00"

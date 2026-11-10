@@ -66,28 +66,32 @@ def ladder_label(price_pp: float, flights: dict) -> str:
     return "above"
 
 
-def time_points(hours: float, best: float, curve: dict) -> float:
-    """0..1: zero at curve['zero_at'] of the window's best possible waking hours, full at curve['full_at']."""
-    r = hours / best if best else 0.0
-    return max(0.0, min(1.0, (r - curve["zero_at"]) / (curve["full_at"] - curve["zero_at"])))
+def time_points(hours: float, rule: dict) -> float:
+    """0..1, one objective scale for every trip class and window: a straight line from 0 to time_max_hours awake there,
+    the most a 3-day weekend can give (config/scoring.yaml: time_rule, D-next)."""
+    return max(0.0, min(1.0, hours / rule["time_max_hours"]))
 
 
 def worth_flying(trip: Trip, s: Scoring) -> bool:
-    """Hard floor (D-51): below zero_at of the possible time there is no trip worth flying."""
-    return trip.best_possible_hours > 0 and trip.hours_on_ground >= s.time_curve["zero_at"] * trip.best_possible_hours
+    """Hard floor: under time_floor_share of time_max_hours awake there is no trip worth flying."""
+    return trip.hours_on_ground >= s.time_rule["time_floor_share"] * s.time_rule["time_max_hours"]
 
 
-def convenience(trip: Trip, city: City) -> float:
-    """0..10 from the flights and the city; pass 2 takes 3 more off for fringe lodging (FRINGE_PTS)."""
+def convenience(trip: Trip, city: City) -> tuple[int, list[str]]:
+    """(0..10, one evidence part per rule with its points) from the flights and the city; pass 2 takes 3 more off
+    for fringe lodging (FRINGE_PTS, the room part is added by convenience_line)."""
     legs = (trip.out, trip.back)
     if all(leg.stops == 0 for leg in legs):
-        c = 10
+        c, parts = 10, ["non-stop both ways (10)"]
     else:
-        c = 5 if max(leg.layover_min for leg in legs if leg.stops) <= 150 else 2
-    c -= 2 if city.airport_to_core_min > 45 else 0
-    c -= 3 if city.car_needed else 0
-    c -= 2 if trip.out.arr.hour < 5 else 0      # arrival after midnight
-    return max(0, c)
+        layover = max(leg.layover_min for leg in legs if leg.stops)
+        c = 5 if layover <= 150 else 2
+        parts = [f"{'one stop each way' if all(leg.stops for leg in legs) else 'one stop'}, {layover}-min layover ({c})"]
+    far, car, night = city.airport_to_core_min > 45, city.car_needed, trip.out.arr.hour < 5
+    parts.append(f"airport {city.airport_to_core_min} min from downtown" + (" (−2)" if far else ""))
+    parts.append("car needed (−3)" if car else "no car needed")
+    parts.append(f"lands {trip.out.arr:%H:%M}" + (" (−2)" if night else ""))   # arrival after midnight
+    return max(0, c - 2 * far - 3 * car - 2 * night), parts
 
 
 FRINGE_PTS = 3   # lodging 3 to 6 km from the centre (pass 2)
@@ -140,20 +144,23 @@ def score_trip(trip: Trip, city: City, ref: Reference, s: Scoring, *, weather_sc
     total = trip.flights_cad_2pax + lodging + transfers_cad(city)
     typical = typical_trip_cad(trip, city, ref, s)
     share, price = price_component(total, typical, s)
-    conv = convenience(trip, city)
+    conv, conv_parts = convenience(trip, city)
     comp = Components(
         price=price,
-        time=w["time"] * time_points(trip.hours_on_ground, trip.best_possible_hours, s.time_curve),
+        time=w["time"] * time_points(trip.hours_on_ground, s.time_rule),
         convenience=convenience_component(conv, False, s),
         city=w["city"] * city.rank / 10,
         weather=w["weather"] * max(0.0, min(10.0, wx.score)) / 10,
     )
     score = round(sum(vars(comp).values()))
     legs = (trip.out, trip.back)
+    tr = s.time_rule
     inputs = {   # plain values only: the candidate file carries them so pass 3 can re-render the lines
-        "weights": dict(w), "hours": round(trip.hours_on_ground, 1), "best_hours": round(trip.best_possible_hours, 1),
+        "weights": dict(w), "hours": round(trip.hours_on_ground, 1), "max_hours": tr["time_max_hours"],
+        "sleep_h": tr["sleep_hours_per_night"], "overhead_h": tr["overhead_hours"],
         "stops": [trip.out.stops, trip.back.stops], "layover_min": max((leg.layover_min for leg in legs if leg.stops), default=0),
         "airport_to_core_min": city.airport_to_core_min, "car_needed": city.car_needed, "night_arrival": trip.out.arr.hour < 5,
+        "convenience_parts": conv_parts,
         "city_name": city.name, "rank": city.rank, "nights": trip.nights, "weather": wx._asdict(),
     }
     return Scored(
@@ -194,22 +201,17 @@ def price_line(total_cad: float, typical_cad: float, share: float) -> str:
     return f"complete trip {_money(total_cad)} for two, {share * 100:.0f}% of what this route normally costs (~{_money(typical_cad)})"
 
 
+def time_line(i: dict) -> str:
+    return (f"{i['hours']:.0f} h awake there, of the {i['max_hours']:g} a 3-day weekend can give "
+            f"({i['sleep_h']:g} h a night for sleep, {i['overhead_h']:g} h for airports)")
+
+
 def convenience_line(i: dict, fringe: bool, room: bool) -> str:
-    """'non-stop both ways · central room'; penalties print their points so the total can be followed."""
-    stops = i["stops"]
-    if not any(stops):
-        parts = ["non-stop both ways"]
-    else:   # a connection starts at 5 of 10, a layover over 150 min at 2 (convenience())
-        n = "one stop each way" if all(stops) else "one stop"
-        parts = [f"{n}, {i['layover_min']} min layover, " + ("−8" if i["layover_min"] > 150 else "−5")]
-    if i["airport_to_core_min"] > 45:
-        parts.append(f"airport {i['airport_to_core_min']} min from the centre, −2")
-    if i["car_needed"]:
-        parts.append("car needed, −3")
-    if i["night_arrival"]:
-        parts.append("arrives after midnight, −2")
+    """The parts convenience() recorded, each with its points, then the room once pass 2 has found one:
+    'non-stop both ways (10) · airport 25 min from downtown · no car needed · lands 06:16 · central room'."""
+    parts = list(i["convenience_parts"])
     if room:
-        parts.append("room on the fringe, −3" if fringe else "central room")
+        parts.append(f"room on the fringe (−{FRINGE_PTS})" if fringe else "central room")
     return " · ".join(parts)
 
 
@@ -220,7 +222,7 @@ def breakdown(inputs: dict, components: dict, *, total_cad: float, typical_cad: 
     w = inputs["weights"]
     lines = {
         "price": price_line(total_cad, typical_cad, share),
-        "time": f"{inputs['hours']:.1f} h there of {inputs['best_hours']:.1f} possible",
+        "time": time_line(inputs),
         "convenience": convenience_line(inputs, fringe, lodging is not None),
         "city": f"{inputs['city_name']}, rank {inputs['rank']}/10",
         "weather": weather_line(Weather(**inputs["weather"])),

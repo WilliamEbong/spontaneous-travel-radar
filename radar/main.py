@@ -105,7 +105,8 @@ def scan(args) -> int:
             cls = w.trip_class   # a class's legs never pair with the other class's windows
             outs = [leg for d in w.out_dates for a in c.airports for leg in legs.get((cls, HOME, a, d), [])]
             backs = [leg for d in w.back_dates for a in c.airports for leg in legs.get((cls, a, HOME, d), [])]
-            trips = [t for t in assemble(c, w, outs, backs) if worth_flying(t, s)]
+            trips = [t for t in assemble(c, w, outs, backs, overhead_h=s.time_rule["overhead_hours"],
+                                         sleep_h=s.time_rule["sleep_hours_per_night"]) if worth_flying(t, s)]
             if not trips:
                 continue
             wx = weather_score(c, list(w.days_off), today=today, cache_dir=None if args.offline else day_cache)

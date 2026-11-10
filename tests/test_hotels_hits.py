@@ -110,7 +110,7 @@ def test_cap_holds_over_a_simulated_month(tmp_path, fake_serpapi):
 def _nyc_nonstop(price_2pax=640):
     out = make_leg("YYC", "EWR", "2026-12-04T08:00", "2026-12-04T14:00", "America/Edmonton", "America/New_York", price_2pax // 2)
     back = make_leg("EWR", "YYC", "2026-12-06T09:00", "2026-12-06T12:00", "America/New_York", "America/Edmonton", price_2pax // 2)
-    t = Trip("new_york", "EWR", "2026-12-04_fri-off", out, back, price_2pax, date(2026, 12, 4), date(2026, 12, 6), 2, 32.0, 49.5)
+    t = Trip("new_york", "EWR", "2026-12-04_fri-off", out, back, price_2pax, date(2026, 12, 4), date(2026, 12, 6), 2, 26.0)
     return score_trip(t, city("new_york"), ref("new_york"), S, weather_score=6, history_pct=None)
 
 

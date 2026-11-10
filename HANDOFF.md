@@ -6,6 +6,13 @@ Read this first if you are picking the build up in a fresh session. Then `SESSIO
 ## Where things stand
 
 - **Scoring table (D-77) is built on branch `scoring-table`, not merged.** Worktree `.claude/worktrees/scoring-table`, from `main` d199e1b. Each scan writes `data/history/<day>.csv` (plus `latest.csv` and `index.json`) with the evidence line, the points and the score for every logged trip; `table.html` shows the chosen day's file (sort, filter, download), linked from the health panel and the footer; the weather line gains a sky word from Open-Meteo's `weathercode`. The first scan after the merge writes the first CSV (the page says "No scoring table yet" until then; `python -m radar.main export` on the checkout writes the 9 and 10 Nov files early, with blanks where those rows kept no components). 106 tests. Screenshots in the side-session notes folder, `scoring-table-screens/`.
+- **One time scale and convenience evidence (D-78) is built on branch `time-score`, not merged.** Worktree
+  `.claude/worktrees/time-score`, from `main` d199e1b. Time = 20 × min(1, hours awake there ÷ 31), the same line for every
+  class and window (4.5 h of airport overhead, 10 h a night; under 7.75 h the trip is dropped); `config/scoring.yaml: time_rule`
+  replaces `time_curve`. The convenience breakdown line lists one evidence part per rule with its points. The first scan after
+  the merge fills the new lines; the Toronto day-one pair now scores 19.0 and 6.8 on time. 103 tests. Screenshots in the
+  side-session notes folder, `time-score-screens/`. Replayed over the 584 logged rows, the floor would drop 155 (29 of the 324
+  winners, 15 of them weekend): William's call, `time_floor_share` is the knob.
 
 - **Score breakdown (D-75) is built on branch `score-breakdown`, not merged.** Worktree
   `.claude/worktrees/score-breakdown`, from `main` f49df40. Every score on the page is a button whose panel lists each

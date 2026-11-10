@@ -87,7 +87,7 @@ Look for:
 - parse anomalies: price outliers (over 3x the city median), impossible times, zero-hour trips;
 - hard window rule violations (day-off trips: leave from 19:30 Calgary the evening before day 1 through
   23:59 on day 1, home by 16:00 on the last day off; weekend trips: leave Friday 17:30 to Saturday
-  12:00, home Sunday by 16:00, non-stop) or a trip under the `time_curve.zero_at` floor: a bug;
+  12:00, home Sunday by 16:00, non-stop) or a trip under the `time_rule` floor (`time_floor_share` x `time_max_hours`, 7.75 h awake there): a bug;
 - scoring results no human would pick (a one-stop red-eye ranked above a cheaper non-stop; a dearer
   trip beating a cheaper one in the same window on hours alone);
 - ladder fit (flag only, never change `config/references.yaml`): a route where more than 20% of the
@@ -109,7 +109,8 @@ were good fares).
   lookups per candidate), each trip class's date range and hard rules (`dayoff_min_weeks`,
   `span_weeks`, `rotate_days`, the weekend `min_days`/`max_days`/`depart_*`/`max_air_min`, either
   class's `enabled`), the trip-window rule (`radar/windows.py`, the Day-1 query in
-  `radar/flights.py`), the `time_curve` and `price_curve` blocks, `cap_cad`, `mode`,
+  `radar/flights.py`), the `time_rule` block (`sleep_hours_per_night`, `overhead_hours`,
+  `time_max_hours`, `time_floor_share`) and the `price_curve` block, `cap_cad`, `mode`,
   `config/references.yaml` (flag only), `config/interests.yaml`, secrets or `.env`,
   `.github/workflows/`, `routine/` (your own instructions), `index.html`, `site/`.
 - Work on a new branch `radar/iter-<date>`. `python -m pytest -q` must pass. Commit with a

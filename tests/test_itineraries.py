@@ -5,7 +5,7 @@ import pytest
 
 from radar.config import load_cities
 from radar.flights import Leg
-from radar.itineraries import assemble, best_possible_hours, hotel_dates, hours_on_ground, in_window
+from radar.itineraries import assemble, hotel_dates, hours_on_ground, in_window
 from radar.windows import generate_windows
 
 
@@ -44,8 +44,9 @@ def test_return_landing_before_5pm_day2_is_out():
 def test_hours_on_ground_crosses_time_zones():
     out = leg("YYC", "EWR", "2026-11-19T19:45", "2026-11-20T01:30", "America/Edmonton", "America/New_York")   # Review Focus 2
     back = leg("EWR", "YYC", "2026-11-22T07:00", "2026-11-22T09:45", "America/New_York", "America/Edmonton")
-    # 01:30 Fri -> 07:00 Sun local = 53.5h; minus 3h overhead and 16h sleep = 34.5
-    assert hours_on_ground(out, back, 2) == pytest.approx(34.5)
+    # 01:30 Fri -> 07:00 Sun local = 53.5 h; minus 4.5 h of airport overhead and 2 x 10 h of sleep = 29
+    assert hours_on_ground(out, back, 2) == pytest.approx(29.0)
+    assert hours_on_ground(out, back, 2, overhead_h=3, sleep_h=8) == pytest.approx(34.5)   # the config's values pass through
 
 
 def test_hotel_dates_cover_the_arrival_night():
@@ -55,11 +56,6 @@ def test_hotel_dates_cover_the_arrival_night():
     out2 = leg("YYC", "LAX", "2026-11-19T19:45", "2026-11-19T22:00", "America/Edmonton", "America/Los_Angeles")
     back2 = leg("LAX", "YYC", "2026-11-22T06:30", "2026-11-22T10:00", "America/Los_Angeles", "America/Edmonton")
     assert hotel_dates(out2, back2) == (date(2026, 11, 19), date(2026, 11, 22))
-
-
-def test_best_possible_hours_fri_off():
-    # 19:30 Thu -> 16:00 Sun = 68.5h; minus 3 minus 16 = 49.5
-    assert best_possible_hours(W) == pytest.approx(49.5)
 
 
 def test_assemble_keeps_only_in_window_pairs_and_sums_prices():
@@ -74,4 +70,4 @@ def test_assemble_keeps_only_in_window_pairs_and_sums_prices():
 def test_hours_on_ground_counts_the_dst_hour():
     out = leg("YYC", "LAS", "2027-03-13T06:00", "2027-03-13T09:00", "America/Edmonton", "America/Los_Angeles")
     back = leg("LAS", "YYC", "2027-03-15T09:00", "2027-03-15T12:00", "America/Los_Angeles", "America/Edmonton")
-    assert hours_on_ground(out, back, 2) == pytest.approx(47 - 3 - 16)   # clocks spring forward on 2027-03-14
+    assert hours_on_ground(out, back, 2) == pytest.approx(47 - 4.5 - 20)   # clocks spring forward on 2027-03-14
