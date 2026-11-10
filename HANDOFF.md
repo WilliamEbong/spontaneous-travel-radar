@@ -114,7 +114,7 @@ fixed text (the range is config).
 
 ## Routines (unchanged by this build; manage at https://claude.ai/code/routines)
 
-- `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 12 * * *`, 2026-11-10 to 2026-12-08,
+- `radar-daily` `trig_01VGioWFbgQxwEh1iZRypsCw`, Opus, cron `30 14 * * *` (07:30 Calgary, after the 10:17 and 13:17 UTC scan slots, D-74), 2026-11-10 to 2026-12-08,
   instructions `routine/PROMPT-daily.md` (repo file, D-35). Enabled.
 - `radar-tune` `trig_01E542toF6zwmddqDsjRGXeX`, Opus, one-shot 2026-12-09T13:00:00Z, follows
   `routine/PROMPT-tune.md` and `docs/TUNING-PLAN.md`. Enabled.

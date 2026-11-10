@@ -2,7 +2,8 @@ name: scan
 # Daily collector + Pages deploy. A push that touches the dashboard or the digests only redeploys Pages (no scan).
 on:
   schedule:
-    - cron: "17 10 * * *"   # 03:17 MST / 04:17 MDT; a full scan takes about 80 min, done before the Monday 07:00 digest
+    - cron: "17 10 * * *"   # 04:17 Calgary; a full scan takes about an hour
+    - cron: "17 13 * * *"   # backup slot: GitHub ran the first one 10 h late on 2026-11-09 and not at all by 16:00 on 11-10; skipped when today's scan already exists
   workflow_dispatch:
     inputs:
       cities:
@@ -40,8 +41,15 @@ jobs:
       - name: Install
         if: github.event_name != 'push'
         run: pip install -e .
+      - name: Already scanned today?
+        id: done
+        if: github.event_name == 'schedule'
+        run: |
+          d=$(python -c "import json; print(json.load(open('data/latest.json')).get('scan_date', ''))")
+          echo "today=$([ "$d" = "$(date -u +%F)" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+          echo "latest scan_date=$d"
       - name: Scan
-        if: github.event_name != 'push'
+        if: github.event_name != 'push' && steps.done.outputs.today != 'yes'
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
           PYTHONTZPATH: ""   # use the pip tzdata package (Alberta/BC rule changes), not the runner's older zone files
