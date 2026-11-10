@@ -116,7 +116,9 @@ async function load(day, path) {
     return;
   }
   rows = parseCSV(text.replace(/^﻿/, ""));
-  for (const r of rows) r._text = Object.values(r).join(" ").toLowerCase();
+  for (const r of rows) {   // the filter matches the raw values and the two labels the table shows instead of them
+    r._text = [...Object.values(r), PATTERN[r.window_id.split("_")[1]], CLASS[r.trip_class]].join(" ").toLowerCase();
+  }
   tbl.tHead.replaceChildren(el("tr", {}, ...COLUMNS.map(([h, , cls]) => el("th", { scope: "col", class: cls, text: h }))));
   $("dl").href = path;
   $("dl").download = `travel-radar-${day}.csv`;
