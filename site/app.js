@@ -204,7 +204,9 @@ function lazyBrief(d, path, base) {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
     const md = await getText(path);
-    d.append(el("div", { class: "body" }, md ? renderMd(md, base) : el("p", { class: "empty", text: "Brief not found." })));
+    const brief = md ? renderMd(md, base) : el("p", { class: "empty", text: "Brief not found." });
+    if (md && /^H[2-6]$/.test(brief.firstChild?.tagName || "")) brief.firstChild.remove();   // the card already names the city, dates and score
+    d.append(el("div", { class: "body" }, brief));
   });
 }
 function groupHead(cls, n) {
@@ -261,7 +263,7 @@ function scoreUI(score, rows, label = "Score", short = false) {
   const lbl = short ? el("span", { class: "lbl", text: label }) : `${label} `;   // the table's column head already says Score
   if (!rows || !rows.length) return [el("span", { class: "strong" }, lbl, String(score))];
   const id = `bd-${++bdSeq}`;
-  const btn = el("button", { type: "button", class: "score", "aria-expanded": "false", "aria-controls": id }, lbl, String(score));
+  const btn = el("button", { type: "button", class: "score", "aria-expanded": "false", "aria-controls": id }, lbl, el("span", { class: "n", text: String(score) }));
   const panel = el("div", { class: "bd", id, role: "group", "aria-label": `${label} ${score} breakdown`, hidden: "" });
   let filled = false;
   const open = (by) => { if (!filled) { bdFill(panel, rows, score); filled = true; } bdShow(btn, panel, by); };
@@ -287,15 +289,15 @@ for (const ev of ["scroll", "resize"]) window.addEventListener(ev, () => { if (b
 // ---- hits ----
 function hitCard(r) {
   const w = windowDays(r.window_id);
+  const [num, ...panel] = scoreUI(r.final_score, r.breakdown, "Final", true);   // the same anatomy as a city tray, the numeral in rust
   const d = el("details", {});
   d.append(el("summary", {},
     el("span", { class: "row" },
       el("span", { class: "main" }, el("span", { class: "name", text: r.city_name }), el("span", { class: "sub", text: `${w.text} · ${w.pattern}` })),
-      el("span", { class: "price" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "complete trip for two" }))),
-    el("span", { class: "meta" }, classPill(r.trip_class), ...scoreUI(r.final_score, r.breakdown, "Final", true),
-      el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder),
-      r.mode === "dry-run" ? el("span", { class: "muted", text: "Learning run, not emailed" }) : null,
-      icon("i-chev", "ic chev"))));
+      el("span", { class: "num" }, num)),
+    el("span", { class: "fig" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "complete trip for two" })),
+    el("span", { class: "meta" }, classPill(r.trip_class), el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder), icon("i-chev", "ic chev")),
+    ...panel));
   lazyBrief(d, r.path_md, 2);
   return el("article", { class: `city hit c-${r.trip_class}` }, d);
 }
@@ -304,29 +306,33 @@ const hitLine = (latest) => {
   return `score of ${t.length ? t.join(" or ") : 80}`;
 };
 
-// The headline lives in the first frame, above the horizon; the lead and the hit cards begin on the paper below it.
+// The headline and the one line under the horizon live in the first frame; the lead and the hit cards begin on the paper.
+function frameLead(kicker, city, figure, href) {
+  const a = $("frame-lead");
+  a.replaceChildren(el("span", { class: "k", text: kicker }), el("span", { class: "c", text: city }), el("span", { class: "f", text: figure }));
+  a.href = href;
+  a.hidden = false;
+}
 function renderVerdict(latest, index, stale) {
   const box = $("verdict-body"), h1 = $("verdict-h"), lead = $("lead");
   const today = todayISO();
   // Hit files are never deleted, so a hit stays on the page only until its trip has started.
   const hits = index.filter((h) => h.is_hit && h.window_id.slice(0, 10) >= today).sort((a, b) => b.final_score - a.final_score);
   box.replaceChildren();
-  const learning = latest.mode === "dry-run";
+  const note = latest.mode === "dry-run" ? " Learning run: nothing is emailed yet." : "";
   if (hits.length) {
+    const top = hits[0];
     h1.textContent = hits.length === 1 ? "One trip worth booking." : `${hits.length} trips worth booking.`;
+    frameLead(hits.length === 1 ? "The hit" : "The top hit", top.city_name, `${windowLabel(top.window_id)} · ${money(top.total_cad)} for two · final ${top.final_score}`, "#verdict");
     lead.textContent = `${hits.length === 1 ? "It" : "Each"} cleared all three passes: a fare at or under the route's good, a complete trip well under what it normally costs, and enough on for those dates to reach a final ${hitLine(latest)}.`
-      + (learning ? " Learning run: nothing is emailed yet." : " Open the brief for the lodging, what's on and the links.");
+      + (note || " Open the brief for the lodging, what's on and the links.");
     for (const [cls, rows] of byClass(hits)) box.append(groupHead(cls, rows.length), el("div", { class: "cards" }, ...rows.map(hitCard)));
   } else {
     h1.textContent = "Nothing worth booking today.";
     const best = (latest.best_by_city || [])[0];
-    lead.replaceChildren();
-    if (best) {
-      lead.append("Best deal: ", el("b", { text: best.city_name }), `, ${windowLabel(best.window_id)}, about ${money(best.total_cad)} for two`
-        + (best.share != null ? `, ${pct(best.share)} of what that trip normally costs. ` : ". "));
-    } else lead.append("No trip fitted a window in the last scan. ");
-    lead.append(`A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.`
-      + (learning ? " Learning run: nothing is emailed yet." : ""));
+    if (best) frameLead("Best deal today", best.city_name, `${windowLabel(best.window_id)} · ${money(best.total_cad)} for two` + (best.share != null ? ` · ${pct(best.share)} of typical` : ""), `#city-${best.city}`);
+    else $("frame-lead").hidden = true;
+    lead.textContent = (best ? "" : "No trip fitted a window in the last scan. ") + `A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.` + note;
   }
   if (stale) {
     box.append(el("div", { class: "notice" }, icon("i-warn"),
@@ -375,12 +381,14 @@ function renderPassed(latest, index) {
     .sort((a, b) => Boolean(b.st.hit) - Boolean(a.st.hit) || (b.st.score ?? b.r.score) - (a.st.score ?? a.r.score));
   const lines = [...new Set(Object.values(classes).map((c) => c.candidate_threshold))].join(" or ") || "70";
   $("passed-sec").hidden = false;
-  $("passed-n").textContent = items.length ? (items.length === 1 ? "1 trip at 70 or more" : `${items.length} trips at ${lines} or more`) : "";
-  $("passed-hint").textContent = `Every trip that scored ${lines} or more today, and how far it got: fares (pass 1), then real lodging within about 20 minutes of the centre (pass 2), then what is on for those dates (pass 3). Only a fare at or under the route's good gets a lodging check, three a day at most.`;
-  if (!items.length) {
-    $("passed").replaceChildren(emptyCard("i-pulse", `No trip scored ${lines} or more today.`, "Every route's fares sit near or above what they normally cost. Quiet is the radar working: it waits for something exceptional."));
+  $("passed-h").textContent = `Scored ${lines} or more`;
+  $("passed-n").textContent = items.length === 1 ? "1 trip" : `${items.length} trips`;
+  if (!items.length) {   // a quiet day collapses to one line
+    $("passed-hint").textContent = "";
+    $("passed").replaceChildren(el("p", { class: "quiet", text: "None today. Every route's fares sit near or above what they normally cost; quiet is the radar working." }));
     return;
   }
+  $("passed-hint").textContent = "How far each one got: fares (pass 1), then real lodging near the centre (pass 2), then what is on for those dates (pass 3).";
   const box = el("div", {});
   for (const [cls, rs] of byClass(items, (x) => x.r.trip_class)) box.append(groupHead(cls, rs.length), el("ul", { class: "plist" }, ...rs.map(passedRow)));
   $("passed").replaceChildren(box);
@@ -391,7 +399,7 @@ function cityCard(r, c, ctx) {
   const lad = c.ladder || {};
   const ladderLine = el("span", { class: "sub lad-line", text: `Typical for this route ${money(lad.typical)} pp · exceptional under ${money(lad.exceptional)}` });
   if (!r) {
-    const card = el("article", { class: "city none" }, el("div", { class: "nosum" },
+    const card = el("article", { class: "city none", id: `city-${c.key}` }, el("div", { class: "nosum" },
       el("span", { class: "name", text: c.name }), ladderLine, el("span", { class: "sub", text: "No trip fits a window in this scan." })));
     Object.assign(card.dataset, { score: -999, price: 1e9, name: c.name });
     return card;
@@ -405,24 +413,24 @@ function cityCard(r, c, ctx) {
         el("span", { class: "name", text: c.name }),
         el("span", { class: "sub", text: `${r.airport} · ${r.airlines} · ${stopsText(r.stops)}` })),
       el("span", { class: "num" }, num)),
-    ...panel,
     el("span", { class: "fig" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: `for two · flights ${money(r.price_pp)} pp` })),
     el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) }), classPill(r.trip_class)),
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
-    ladderLine,
-    el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null, icon("i-chev", "ic chev"))));
+    el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null, icon("i-chev", "ic chev")),
+    ...panel));   // the route's ladder moves into the opened body: the word and the share already say it
   d.addEventListener("toggle", () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
     d.append(cityBody(r, c, ctx));
   });
-  const card = el("article", { class: `city c-${r.trip_class}` }, d);
+  const card = el("article", { class: `city c-${r.trip_class}`, id: `city-${c.key}` }, d);
   Object.assign(card.dataset, { score: r.score, price: r.total_cad, name: c.name });
   return card;
 }
 
 function cityBody(r, c, { series, windows }) {
   const body = el("div", { class: "body" });
+  const lad = c.ladder || {};
   // history follows the card's class; older series files were a bare day-off list
   const all = Array.isArray(series[c.key]) ? { dayoff: series[c.key] } : (series[c.key] || {});
   const cls = (all[r.trip_class] || []).length ? r.trip_class : (all.dayoff ? "dayoff" : "weekend");
@@ -443,7 +451,7 @@ function cityBody(r, c, { series, windows }) {
     el("thead", {}, el("tr", {}, ...["Trip", "Fare", "For two", "Score"].map((h, i) => el("th", { scope: "col", class: i > 1 ? "num" : null, text: h })))), tbody));
   body.append(left, right, el("p", { class: "links" },
     el("a", { href: flightsLink(r), rel: "noopener", target: "_blank" }, icon("i-plane"), "Open in Google Flights"),
-    el("span", { class: "muted", text: ` · For two: flights ${money(r.flights_cad_2pax)}, lodging about ${money(r.lodging_cad)} (a good room rate until a closer look), transfers. This trip normally costs about ${money(r.typical_cad)}.` })));
+    el("span", { class: "muted", text: ` · For two: flights ${money(r.flights_cad_2pax)}, lodging about ${money(r.lodging_cad)} (a good room rate until a closer look), transfers. This trip normally costs about ${money(r.typical_cad)}; flights on this route are typically ${money(lad.typical)} pp, exceptional under ${money(lad.exceptional)}.` })));
   return body;
 }
 
@@ -461,7 +469,10 @@ function sortCards(by) {
 function renderCities(latest, series) {
   $("cities-sec").hidden = false;
   const weeks = latest.classes?.dayoff?.min_weeks ?? 6;
-  $("cities-hint").textContent = `Each city's best trip in this scan, judged against what that route normally costs. Day-off trips start ${weeks} weeks out so the time can be approved (leave from 7:30 pm the evening before, home by 4 pm on the last day off). Weekend trips need no day off and run the next 6 weeks (out Friday after 5:30 pm, home Sunday by 4 pm, non-stop). Fares are for two adults with a carry-on each, basic fares included. Tap a city for every weekend and its price history.`;
+  $("cities-hint").textContent = "Each city's best trip in this scan, judged against what that route normally costs. Tap a city for every weekend and its price history.";
+  $("how").replaceChildren(el("summary", { text: "How trips are judged" }),
+    el("p", { text: `Two kinds of trip. Needs a day off: scanned ${weeks} to ${latest.classes?.dayoff?.max_weeks ?? 16} weeks out so the time can be approved; leave from 7:30 pm the evening before, home by 4 pm on the last day off. No day off needed: the next 6 weeks, out Friday after 5:30 pm, home Sunday by 4 pm, non-stop only.` }),
+    el("p", { text: "Fares are for two adults with a carry-on each, basic fares included. The score adds price (45 points: the complete trip against what the route normally costs), time there (20), convenience (10), city (15) and weather (10). 70 or more passes; a fare at or under the route's good gets a real lodging check; a final 80 with lodging in hand is a hit." }));
   const best = Object.fromEntries((latest.best_by_city || []).map((r) => [r.city, r]));
   const cities = latest.cities || [];
   if (!cities.length) {
@@ -481,9 +492,7 @@ async function renderNotes(digests) {
   }
   const [latest, ...rest] = digests;
   const md = await getText(latest.path);
-  box.replaceChildren(el("article", { class: "slip page" },
-    el("p", { class: "page-cap", text: `Written by the daily routine, ${dayOf(latest.date, { weekday: "long", day: "numeric", month: "long" })}` }),
-    md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." })));
+  box.replaceChildren(el("article", { class: "slip page" }, md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." })));
   if (!rest.length) return;
   const card = el("div", { class: "slip" });
   for (const n of rest) {

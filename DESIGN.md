@@ -7,10 +7,11 @@ horizon, paper below it, serif headlines, mono figures, ivory and ink with one p
 
 ## The one device
 
-The first frame (`.frame`, `index.html`) is a title card: 100svh tall, night ground, the verdict in serif above the
-horizon, the Earth's night limb (NASA, ISS, `site/art/`) landing on the horizon at 63.3% of the frame, the dark
-planet with city lights below it, a mono plate caption at the foot. Everything after the frame is paper. No other
-frame draws the axis; section rules are ordinary hairlines.
+The first frame (`.frame`, `index.html`) is a title card: 100svh tall, the photograph filling it, the verdict in serif
+above the horizon, the Earth's night limb (NASA, ISS, `site/art/`) landing on the horizon at 63.3% of the frame, and
+under the horizon one line in ivory (mono kicker, serif city, mono figures): today's best deal or the top hit, a link
+to its card. The photograph's credit sits in the footer. Everything after the frame is paper. No other frame draws
+the axis; section rules are ordinary hairlines.
 
 ## Tokens (`:root` in `site/style.css`)
 
@@ -28,6 +29,8 @@ frame draws the axis; section rules are ordinary hairlines.
 | `--series` | `#236292` Prussian blue | `#7FA6C8` | the price line |
 | `--night` | `#181417` | same | the first frame's ground, matched to the photograph |
 | `--keyline`, `--hairline` | ink at 30%, 16% | ivory at 30%, 16% | card edges, table rules |
+| `--control-line` | ink at 55% | ivory at 55% | boundaries of switches, buttons, inputs (3.6:1) |
+| `--caption-card`, `--rust-card`, `--ochre-card` | `#5F5A50`, `#8E4A2E`, `#7A5818` | ivory at 72%, `#D1A458` | the three text colours on cream, where the ivory values fall under 4.5:1 |
 
 Status words: ok green, warn ochre-text, bad rust. Colour never carries meaning alone: every class, ladder rung and
 status is printed as a word beside it.
@@ -46,13 +49,15 @@ status is printed as a word beside it.
 
 ## Surfaces
 
-- Trays (`.city`) and drawers (`.prow`): transparent on the paper, 1 px keyline, a 3 px rule on top in the class
-  colour (ochre = no day off needed, grey = needs a day off). Hits and empty states are cream slips (`.slip`).
+- Trays (`article.city`) and drawers (`.prow`): transparent on the paper, 1 px keyline, a 3 px rule on top in the class
+  colour (ochre = no day off needed, grey = needs a day off). A hit is a tray on cream with a rust keyline and a rust
+  numeral. Empty states and the daily note are cream slips (`.slip`).
 - The daily note is a page specimen: cream, keyline, a mono caption line, serif title.
 - Dialogs: cream, keyline, no radius, no shadow; the backdrop is ink at 50%.
-- Controls: square. Buttons keylined, the primary one rust with ivory text; the switch is a square slide (ink when
-  on); the sort is plain mono words with a rust underline on the chosen one; inputs and the filter are keylined on the
-  page ground.
+- Controls: square. Buttons bounded at 55% ink, the primary one rust with ivory text; the switch is a square slide
+  (ink when on); the sort is plain mono words with a rust underline on the chosen one; inputs and the filter are
+  bounded on the page ground. Links are rust in Franklin Gothic Medium with no underline, ink on hover. Hover washes
+  only on devices with a pointer (`@media (hover: hover)`).
 - Grain: one fixed SVG `feTurbulence` layer over the page at 8% multiply (7% screen in dark), `body::after`.
 - Corners square everywhere except the health dot, the chart's end dot and status dots.
 

@@ -87,8 +87,9 @@ body::after {
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body::after { mix-blend-mode: screen; opacity: 0.07; } }
 :root[data-theme="dark"] body::after { mix-blend-mode: screen; opacity: 0.07; }
-a { color: inherit; text-decoration: underline; text-decoration-color: var(--keyline); text-underline-offset: 3px; text-decoration-thickness: 1px; transition: text-decoration-color 0.15s; }
-a:hover { text-decoration-color: var(--rust); }
+a { color: var(--rust-ink); font-family: var(--sans-m); font-weight: 500; text-decoration: none; transition: color 0.15s; }
+a:hover { color: var(--ink); }
+footer a, .bar a { font-family: inherit; font-weight: inherit; }
 ::selection { background: rgba(185, 138, 62, 0.35); }
 :focus-visible { outline: 2px solid var(--rust); outline-offset: 3px; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -112,16 +113,12 @@ h3 { font-size: 1.375rem; }
 /* ---- the first frame: night sky, the verdict above the horizon, the Earth's limb on it ---- */
 .frame {
   position: relative; height: 100svh; min-height: 560px; overflow: clip; padding: 1px 0; color: #F3EFE4; background: var(--night);
-  --limb: 0.235;                /* where the limb sits in the photograph, as a share of its height */
   --below: 0.367;               /* the frame under the horizon: 1 - 0.633 */
 }
-.frame-art {
-  position: absolute; left: 0; right: 0; bottom: 0; height: calc(100% * var(--below) / (1 - var(--limb))); overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32%); mask-image: linear-gradient(to bottom, transparent, #000 32%);
-}
+.frame-art { position: absolute; inset: 0; overflow: hidden; }
 .frame-art img {
-  display: block; width: 100%; height: 100%; object-fit: cover; object-position: 42% calc(100% * var(--limb));
-  transform-origin: 50% calc(100% * var(--limb));
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: 42% 63.3%;   /* the limb sits at 63.3% of the photograph too, so it lands on the axis at any aspect */
+  transform-origin: 50% 63.3%;
   animation: push 28s cubic-bezier(0.3, 0, 0.7, 1) both;
 }
 @keyframes push { from { transform: scale(1); } to { transform: scale(1.045); } }
@@ -134,11 +131,19 @@ h3 { font-size: 1.375rem; }
   animation: rise 0.6s cubic-bezier(0.3, 0, 0.7, 1) both;
 }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
-.plate-cap {
-  position: absolute; left: 0; right: 0; bottom: max(12px, env(safe-area-inset-bottom)); margin: 0;
-  padding: 0 max(16px, calc((100% - 1088px) / 2)); font: 0.75rem/1.4 var(--mono); color: rgba(243, 239, 228, 0.7);
+/* the one line under the horizon: today's best deal, or the top hit; a link to its card */
+.frame-lead {
+  position: absolute; left: 0; right: 0; top: calc(100% * (1 - var(--below)) + 22px); display: grid; gap: 2px; justify-items: start;
+  padding: 0 max(16px, calc((100% - 1088px) / 2)); color: #F3EFE4; font-family: var(--sans); font-weight: 400; text-decoration: none;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7); animation: rise 0.6s cubic-bezier(0.3, 0, 0.7, 1) 0.15s both;
 }
-@media (min-width: 720px) { .plate-cap { font-size: 0.8125rem; } }
+.frame-lead[hidden] { display: none; }
+.frame-lead:hover { color: #F3EFE4; }
+.frame-lead .k { font: 0.75rem/1.4 var(--mono); color: rgba(243, 239, 228, 0.72); }
+.frame-lead .c { font-family: var(--serif); font-weight: 500; font-size: 1.75rem; line-height: 1.05; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 5px; text-decoration-thickness: 1px; transition: text-decoration-color 0.15s; }
+.frame-lead:hover .c, .frame-lead:focus-visible .c { text-decoration-color: rgba(243, 239, 228, 0.6); }
+.frame-lead .f { font: 0.8125rem/1.5 var(--mono); color: rgba(243, 239, 228, 0.85); }
+@media (min-width: 720px) { .frame-lead .c { font-size: 2.125rem; } .frame-lead .f, .frame-lead .k { font-size: 0.875rem; } }
 
 /* ---- the bar: a mono byline and meta line over the frame, then paper with a hairline once the page scrolls ---- */
 .bar {
@@ -161,7 +166,7 @@ h3 { font-size: 1.375rem; }
   transition: background 0.15s, border-color 0.15s;
 }
 .bar .icon-btn { border-color: color-mix(in srgb, currentColor 55%, transparent); }
-.icon-btn:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+@media (hover: hover) { .icon-btn:hover { background: color-mix(in srgb, currentColor 8%, transparent); } }
 .icon-btn:active { transform: translateY(1px); }
 .dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--grey); }
 .dot.ok { background: var(--ok); }
@@ -176,6 +181,14 @@ section { margin: 0 0 56px; }
 .sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 10px; }
 .sec-head .n { font: 0.8125rem/1.4 var(--mono); color: var(--caption); }
 .hint { color: var(--graphite); font-size: 0.9375rem; margin: 6px 0 18px; max-width: 70ch; }
+.hint:empty { display: none; }
+.quiet { margin: 0; font: 0.9375rem/1.5 var(--mono); color: var(--graphite); max-width: 70ch; }
+details.how { margin: -6px 0 22px; max-width: 70ch; font-size: 0.9375rem; color: var(--graphite); }
+details.how summary { cursor: pointer; list-style: none; display: inline-block; color: var(--rust-ink); font: 500 0.9375rem/1.5 var(--sans-m); padding: 2px 0; }
+details.how summary::-webkit-details-marker { display: none; }
+details.how summary::after { content: " +"; }
+details.how[open] summary::after { content: " \2212"; }
+details.how p { margin: 8px 0 0; }
 .lead { font-size: 1.1875rem; line-height: 1.4; margin: 0 0 18px; max-width: 62ch; text-wrap: pretty; }
 .lead b { font-family: var(--sans-m); font-weight: 500; }
 .notice {
@@ -212,16 +225,17 @@ section { margin: 0 0 56px; }
 /* ---- a tray or drawer: the card every trip gets. A 3 px rule on top names the class (ochre = no day off), the label repeats it. ---- */
 article.city { position: relative; background: transparent; border: 1px solid var(--keyline); border-top-width: 3px; border-top-color: var(--grey); }
 article.city.c-weekend { border-top-color: var(--ochre); }
-article.city.hit { background: var(--card); }
+article.city.hit { background: var(--card); border-color: var(--rust); border-top-color: var(--grey); }
+article.city.hit.c-weekend { border-top-color: var(--ochre); }
+article.city { scroll-margin-top: 72px; }
 .city details > summary { list-style: none; cursor: pointer; padding: 16px 18px 14px; transition: background 0.15s; }
 .city summary::-webkit-details-marker { display: none; }
-.city summary:hover { background: var(--wash); }
+@media (hover: hover) { .city summary:hover { background: var(--wash); } }
 .city .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .city .main { min-width: 0; }
 .city .name { display: block; font-family: var(--serif); font-weight: 500; font-size: 1.875rem; line-height: 1.02; letter-spacing: 0; }
 .city .sub { display: block; color: var(--caption); font: 0.8125rem/1.45 var(--mono); margin-top: 5px; }
 .city .num { flex: none; text-align: right; }
-.city .price { flex: none; display: grid; gap: 2px; text-align: right; }   /* hit cards: the complete trip for two, its caption under it */
 .city .fig { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin-top: 12px; }
 .city .for2 { font: 1.375rem/1.2 var(--mono); color: var(--ink); }
 .city .pp { color: var(--caption); font: 0.8125rem/1.4 var(--mono); }
@@ -247,7 +261,7 @@ article.city.none { border-style: dashed; border-top-style: solid; }
 .prow-sum { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 16px; align-items: start; padding: 14px 18px 16px; list-style: none; }
 summary.prow-sum { cursor: pointer; transition: background 0.15s; }
 summary.prow-sum::-webkit-details-marker { display: none; }
-summary.prow-sum:hover { background: var(--wash); }
+@media (hover: hover) { summary.prow-sum:hover { background: var(--wash); } }
 .prow-sum .chev { margin-top: 10px; color: var(--caption); transition: transform 0.2s; }
 .prow details[open] .chev { transform: rotate(180deg); }
 .prow-main { display: grid; gap: 6px; min-width: 0; }
@@ -266,11 +280,13 @@ summary.prow-sum:hover { background: var(--wash); }
 .score {
   display: inline-flex; align-items: baseline; margin: 0 -4px; padding: 0 4px; border: 0; background: none; cursor: pointer;
   font-family: var(--serif); font-weight: 500; font-size: 2.5rem; line-height: 0.95; color: var(--ink); white-space: nowrap;
-  text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 1px; text-underline-offset: 6px; transition: text-decoration-color 0.15s;
 }
 .score .lbl { font: 0.75rem/1 var(--mono); color: var(--caption); margin-right: 6px; }
-.score:hover, .score[aria-expanded="true"] { text-decoration-color: var(--rust); }
-.wins .score { font-size: 1.5rem; margin: 0; padding: 0; text-underline-offset: 4px; }
+.score .n { text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 1px; text-underline-offset: 6px; transition: text-decoration-color 0.15s; }
+.score:hover .n, .score[aria-expanded="true"] .n { text-decoration-color: var(--rust); }
+.hit .score .n { color: var(--rust-ink); }
+.wins .score { font-size: 1.5rem; margin: 0; padding: 0; }
+.wins .score .n { text-underline-offset: 4px; }
 .bd {
   z-index: 10; padding: 12px 14px 14px; text-align: left; font: 0.8125rem/1.45 var(--mono); color: var(--ink);
   background: var(--card); border: 1px solid var(--keyline);
@@ -308,7 +324,7 @@ summary.prow-sum:hover { background: var(--wash); }
 /* ---- the price line: one series in Prussian blue on paper, baseline rule, crosshair, mono figures ---- */
 .spark { display: block; width: 100%; height: auto; overflow: visible; cursor: crosshair; }
 .spark:focus-visible { outline: 2px solid var(--rust); outline-offset: 4px; }
-.spark .line { fill: none; stroke: var(--series); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
+.spark .line { fill: none; stroke: var(--series); stroke-width: 1.75; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
 .spark .dot { fill: var(--series); stroke: var(--ground); stroke-width: 2; }
 .spark .cross { stroke: var(--keyline); stroke-width: 1; }
 .spark .base { stroke: var(--keyline); stroke-width: 1; }
@@ -334,7 +350,7 @@ td:last-child, th:last-child { padding-right: 0; }
 .wins th .cls { margin-left: 8px; }
 .wins > tbody > .is-best > th { font-family: var(--sans-m); font-weight: 500; }
 details.tbl { margin-top: 10px; font-size: 0.9375rem; }
-details.tbl summary { cursor: pointer; font: 0.8125rem/1.4 var(--mono); color: var(--graphite); padding: 6px 0; text-decoration: underline; text-decoration-color: var(--keyline); text-underline-offset: 3px; }
+details.tbl summary { cursor: pointer; font: 0.8125rem/1.4 var(--mono); color: var(--rust-ink); padding: 6px 0; }
 details.tbl table { margin-top: 6px; }
 
 /* ---- briefs and the daily note (a page specimen) ---- */
@@ -460,13 +476,13 @@ html:has(.panel[open]) { overflow: hidden; }
   border: 1px solid var(--control-line); background: transparent; color: var(--ink); font: 500 0.9375rem/1 var(--sans-m); cursor: pointer;
   white-space: nowrap; text-decoration: none; transition: background 0.15s, border-color 0.15s, opacity 0.15s;
 }
-.btn:hover { background: var(--wash); border-color: var(--ink); }
+@media (hover: hover) { .btn:hover { background: var(--wash); border-color: var(--ink); } }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 .btn.primary { background: var(--rust); border-color: var(--rust); color: var(--on-rust); }
 .btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--rust) 88%, var(--ink)); }
-.btn.quiet { border-color: transparent; color: var(--graphite); padding: 0 8px; min-height: 32px; text-decoration: underline; text-decoration-color: var(--keyline); text-underline-offset: 3px; }
-.btn.quiet:hover { background: transparent; border-color: transparent; text-decoration-color: var(--rust); }
+.btn.quiet { border-color: transparent; color: var(--rust-ink); padding: 0 8px; min-height: 32px; }
+@media (hover: hover) { .btn.quiet:hover { background: transparent; border-color: transparent; color: var(--ink); } }
 .icon-btn.sm { width: 36px; height: 36px; }
 .icon-btn.sm .ic { width: 18px; height: 18px; }
 main .icon-btn, .sheet .icon-btn { border-color: var(--control-line); color: var(--ink); }
@@ -485,7 +501,7 @@ main .icon-btn, .sheet .icon-btn { border-color: var(--control-line); color: var
 .connected .ic { color: var(--ok); width: 18px; height: 18px; }
 .connected .btn { margin-left: auto; }
 details.steps { margin: 12px 0 4px; font-size: 0.9375rem; }
-details.steps summary { cursor: pointer; color: var(--graphite); padding: 4px 0; text-decoration: underline; text-decoration-color: var(--keyline); text-underline-offset: 3px; }
+details.steps summary { cursor: pointer; color: var(--rust-ink); font-family: var(--sans-m); font-weight: 500; padding: 4px 0; }
 details.steps ol { margin: 8px 0 0; padding-left: 20px; color: var(--graphite); }
 details.steps li { margin: 0 0 6px; }
 details.steps b { color: var(--ink); font-family: var(--sans-m); font-weight: 500; }
@@ -534,12 +550,12 @@ details.steps b { color: var(--ink); font-family: var(--sans-m); font-weight: 50
 .cal-wrap { display: grid; gap: 16px; }
 .cal h4 { margin: 0 0 6px; font: 500 0.9375rem/1.3 var(--sans-m); color: var(--graphite); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-.cal-wd { text-align: center; font: 0.6875rem/1.4 var(--mono); color: var(--caption); padding: 2px 0 4px; }
+.cal-wd { text-align: center; font: 0.75rem/1.4 var(--mono); color: var(--caption); padding: 2px 0 4px; }
 .cal-day {
   position: relative; display: flex; align-items: center; justify-content: center; min-height: 40px;
   border: 1px solid transparent; background: transparent; cursor: pointer; font: 0.9375rem/1 var(--mono); transition: background 0.15s, color 0.15s;
 }
-.cal-day:hover:not(:disabled) { background: var(--wash); }
+@media (hover: hover) { .cal-day:hover:not(:disabled) { background: var(--wash); } }
 .cal-day:disabled { color: var(--caption); opacity: 0.45; cursor: default; }
 .cal-day.wknd:not(.extra):not(.blocked):not(:disabled) { background: var(--wash); }
 .cal-day.today { border-color: var(--ink); }
@@ -571,6 +587,7 @@ input[type="range"]:focus-visible { outline: 2px solid var(--rust); outline-offs
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* ---- scoring table (table.html): the head and the city column stay put while the rest scrolls ---- */
+.bar .mono-link { font: 0.8125rem/1.4 var(--mono); color: var(--rust-ink); margin-right: 6px; }
 .day-pick { font: 0.8125rem/1.4 var(--mono); color: var(--ink); background: transparent; border: 1px solid var(--control-line); padding: 6px 8px; max-width: 60vw; cursor: pointer; }
 .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0 0 14px; }
 .filter { flex: 1 1 14rem; }

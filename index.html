@@ -63,7 +63,7 @@
     <div class="frame-title">
       <h1 id="verdict-h">Checking today’s fares…</h1>
     </div>
-    <p class="plate-cap">Fig. 1&nbsp;&nbsp;Night limb with city lights, from the ISS. NASA / Rick Mastracchio</p>
+    <a id="frame-lead" class="frame-lead" href="#main" hidden></a>
   </div>
 
   <main id="main">
@@ -73,7 +73,7 @@
     </section>
 
     <section id="passed-sec" aria-labelledby="passed-h" hidden>
-      <div class="sec-head"><h2 id="passed-h">Passed</h2><span class="n" id="passed-n"></span></div>
+      <div class="sec-head"><h2 id="passed-h">Scored 70 or more</h2><span class="n" id="passed-n"></span></div>
       <p class="hint" id="passed-hint"></p>
       <div id="passed"></div>
     </section>
@@ -90,6 +90,7 @@
         </fieldset>
       </div>
       <p class="hint" id="cities-hint"></p>
+      <details class="how" id="how"></details>
       <div id="cities" class="cards"></div>
     </section>
 
@@ -124,9 +125,9 @@
 
   <footer>
     <p>Sources: Google Flights, SerpApi Google Hotels, Open-Meteo. Collector on GitHub Actions, free.
+      Photograph: the Earth's limb at night from the ISS, NASA / Rick Mastracchio.
       <a href="table.html">Scoring table</a> · <a href="data/history/latest.csv" download>Download CSV</a> ·
-      <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a> ·
-      <a href="https://github.com/WilliamEbong/spontaneous-travel-radar/blob/main/docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md">Design</a></p>
+      <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a></p>
   </footer>
   <div id="tip" class="tip" role="status" hidden></div>
   <!-- js-yaml, pinned, the only external script: the Settings panel parses config/*.yaml with it. -->

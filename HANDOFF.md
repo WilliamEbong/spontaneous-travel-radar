@@ -20,7 +20,8 @@ everything is logged and shown.
 Branch `archive-look` (worktree `.claude/worktrees/archive-look`) holds the dashboard redesign in William's
 archive-of-looking system: the night-limb first frame, paper, serif numerals, cream slips. `DESIGN.md` has the tokens,
 `PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance. Verified in Playwright on real and
-fixture data at phone and desktop widths, both colour schemes; 106 tests pass. Merge with `git merge archive-look` in
+fixture data at phone and desktop widths, both colour schemes; 106 tests pass; reviewed by a design critic and a code
+reviewer in fresh context, their findings fixed (D-80 lists them). Merge with `git merge archive-look` in
 the main checkout, push, then check the live page on a phone (fonts come from Google Fonts there; the PC uses the
 installed Perpetua, Franklin Gothic and Consolas).
 
