@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Travel Radar</title>
   <meta name="description" content="Weekend trips for two from Calgary, judged against what each route normally costs: hits worth booking, every trip that scored 70 or more, each city's best deal, price history and scan health.">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#15181e" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#181417">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Radar">
   <link rel="manifest" href="site/manifest.webmanifest">
   <link rel="icon" href="site/icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="site/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Web fallbacks for the installed Perpetua, Franklin Gothic and Consolas (archive-of-looking): the installed faces win where they exist. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Libre+Franklin:wght@400;500&family=IBM+Plex+Mono&display=swap">
   <link rel="stylesheet" href="site/style.css">
 </head>
 <body>
@@ -35,10 +38,12 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
   </svg>
 
-  <header class="bar">
-    <span class="brand"><svg class="ic" aria-hidden="true"><use href="#i-radar"/></svg>Travel Radar</span>
+  <a class="skip" href="#main">Skip to the trips</a>
+
+  <header class="bar" id="bar">
+    <span class="brand"><svg class="ic" aria-hidden="true"><use href="#i-radar"/></svg>Travel Radar<span class="brand-x"> · Calgary</span></span>
     <div class="bar-right">
-      <span id="scan-age" class="chip" aria-live="polite">Loading…</span>
+      <span id="scan-age" class="scan-meta" aria-live="polite">Loading…</span>
       <button id="health-btn" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="health" aria-label="Scan health">
         <span id="health-dot" class="dot" aria-hidden="true"></span><svg class="ic" aria-hidden="true"><use href="#i-pulse"/></svg>
       </button>
@@ -48,13 +53,26 @@
     </div>
   </header>
 
-  <main>
-    <section id="verdict" class="verdict" aria-labelledby="verdict-h">
+  <!-- The first frame: the verdict above the horizon, the Earth's night limb on it. -->
+  <div class="frame" id="frame">
+    <div class="frame-art">
+      <img src="site/art/limb-960.jpg" srcset="site/art/limb-960.jpg 960w, site/art/limb-1800.jpg 1800w" sizes="100vw" fetchpriority="high"
+        alt="The Earth's limb at night from orbit: a thin blue rim of atmosphere under a green aurora, the Moon above it, and city lights scattered across the dark planet below.">
+    </div>
+    <div class="frame-title">
       <h1 id="verdict-h">Checking today’s fares…</h1>
+    </div>
+    <p class="plate-cap">Fig. 1&nbsp;&nbsp;Night limb with city lights, from the ISS. NASA / Rick Mastracchio</p>
+  </div>
+
+  <main id="main">
+    <section id="verdict" class="verdict" aria-labelledby="verdict-h">
+      <p class="lead" id="lead"></p>
+      <div id="verdict-body"></div>
     </section>
 
     <section id="passed-sec" aria-labelledby="passed-h" hidden>
-      <h2 id="passed-h">Passed</h2>
+      <div class="sec-head"><h2 id="passed-h">Passed</h2><span class="n" id="passed-n"></span></div>
       <p class="hint" id="passed-hint"></p>
       <div id="passed"></div>
     </section>
@@ -66,8 +84,8 @@
           <legend class="sr">Sort cities by</legend>
           <label><input type="radio" name="sort" value="score" checked><span>Score</span></label>
           <label><input type="radio" name="sort" value="price"><span>Price</span></label>
-          <label><input type="radio" name="sort" value="city"><span>A–Z</span></label>
-          <label><input type="radio" name="sort" value="mine"><span>Mine</span></label>
+          <label><input type="radio" name="sort" value="city"><span>A to Z</span></label>
+          <label><input type="radio" name="sort" value="mine"><span>My order</span></label>
         </fieldset>
       </div>
       <p class="hint" id="cities-hint"></p>
@@ -75,7 +93,7 @@
     </section>
 
     <section id="notes-sec" aria-labelledby="notes-h">
-      <h2 id="notes-h">Notes</h2>
+      <div class="sec-head"><h2 id="notes-h">Daily note</h2></div>
       <div id="notes"></div>
     </section>
   </main>
@@ -104,8 +122,8 @@
   </dialog>
 
   <footer>
-    <p>Free collector on GitHub Actions. Data from Google Flights, SerpApi Google Hotels and Open-Meteo.
-      <a href="table.html">Scoring table</a> · <a href="data/history/latest.csv" download>download CSV</a> ·
+    <p>Sources: Google Flights, SerpApi Google Hotels, Open-Meteo. Collector on GitHub Actions, free.
+      <a href="table.html">Scoring table</a> · <a href="data/history/latest.csv" download>Download CSV</a> ·
       <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a> ·
       <a href="https://github.com/WilliamEbong/spontaneous-travel-radar/blob/main/docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md">Design</a></p>
   </footer>

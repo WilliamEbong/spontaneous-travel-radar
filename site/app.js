@@ -86,7 +86,7 @@ function flightsLink(r) {
 const ladderPill = (label) => (label ? el("span", { class: `pill lad-${label}`, text: LADDER[label] || label }) : null);
 const classPill = (cls) => el("span", { class: `cls cls-${cls}`, text: CLASS[cls] || cls });
 function emptyCard(iconName, title, text) {
-  return el("div", { class: "card empty-card" }, icon(iconName), el("p", {}, el("b", { text: title }), text));
+  return el("div", { class: "slip empty-card" }, icon(iconName), el("p", {}, el("b", { text: title }), text));
 }
 const pct = (share) => (share == null ? "–" : `${Math.round(share * 100)}%`);
 const byClass = (rows, cls = (r) => r.trip_class) => CLASS_ORDER.map((c) => [c, rows.filter((r) => (cls(r) || "dayoff") === c)]).filter(([, rs]) => rs.length);
@@ -292,40 +292,41 @@ function hitCard(r) {
     el("span", { class: "row" },
       el("span", { class: "main" }, el("span", { class: "name", text: r.city_name }), el("span", { class: "sub", text: `${w.text} · ${w.pattern}` })),
       el("span", { class: "price" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "complete trip for two" }))),
-    el("span", { class: "meta" }, classPill(r.trip_class), ...scoreUI(r.final_score, r.breakdown, "Final"),
+    el("span", { class: "meta" }, classPill(r.trip_class), ...scoreUI(r.final_score, r.breakdown, "Final", true),
       el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder),
       r.mode === "dry-run" ? el("span", { class: "muted", text: "Learning run, not emailed" }) : null,
       icon("i-chev", "ic chev"))));
   lazyBrief(d, r.path_md, 2);
-  return el("article", { class: `card city hit c-${r.trip_class}` }, d);
+  return el("article", { class: `city hit c-${r.trip_class}` }, d);
 }
 const hitLine = (latest) => {
   const t = [...new Set(Object.values(latest.classes || {}).map((c) => c.hit_threshold))];
   return `score of ${t.length ? t.join(" or ") : 80}`;
 };
 
+// The headline lives in the first frame, above the horizon; the lead and the hit cards begin on the paper below it.
 function renderVerdict(latest, index, stale) {
-  const box = $("verdict");
+  const box = $("verdict-body"), h1 = $("verdict-h"), lead = $("lead");
   const today = todayISO();
   // Hit files are never deleted, so a hit stays on the page only until its trip has started.
   const hits = index.filter((h) => h.is_hit && h.window_id.slice(0, 10) >= today).sort((a, b) => b.final_score - a.final_score);
-  const h1 = el("h1", { id: "verdict-h" });
-  box.replaceChildren(h1);
+  box.replaceChildren();
   const learning = latest.mode === "dry-run";
   if (hits.length) {
     h1.textContent = hits.length === 1 ? "One trip worth booking." : `${hits.length} trips worth booking.`;
-    box.append(el("p", { class: "lead", text: `${hits.length === 1 ? "It" : "Each"} cleared all three passes: a fare at or under the route's good, a complete trip well under what it normally costs, and enough on for those dates to reach a final ${hitLine(latest)}.`
-      + (learning ? " Learning run: nothing is emailed yet." : " Open the brief for the lodging, what's on and the links.") }));
+    lead.textContent = `${hits.length === 1 ? "It" : "Each"} cleared all three passes: a fare at or under the route's good, a complete trip well under what it normally costs, and enough on for those dates to reach a final ${hitLine(latest)}.`
+      + (learning ? " Learning run: nothing is emailed yet." : " Open the brief for the lodging, what's on and the links.");
     for (const [cls, rows] of byClass(hits)) box.append(groupHead(cls, rows.length), el("div", { class: "cards" }, ...rows.map(hitCard)));
   } else {
     h1.textContent = "Nothing worth booking today.";
     const best = (latest.best_by_city || [])[0];
-    const parts = [];
-    if (best) parts.push(`Best deal: ${best.city_name}, ${windowLabel(best.window_id)}, about ${money(best.total_cad)} for two` + (best.share != null ? `, ${pct(best.share)} of what that trip normally costs.` : "."));
-    else parts.push("No trip fitted a window in the last scan.");
-    parts.push(`A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.`);
-    if (learning) parts.push("Learning run: nothing is emailed yet.");
-    box.append(el("p", { class: "lead", text: parts.join(" ") }));
+    lead.replaceChildren();
+    if (best) {
+      lead.append("Best deal: ", el("b", { text: best.city_name }), `, ${windowLabel(best.window_id)}, about ${money(best.total_cad)} for two`
+        + (best.share != null ? `, ${pct(best.share)} of what that trip normally costs. ` : ". "));
+    } else lead.append("No trip fitted a window in the last scan. ");
+    lead.append(`A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.`
+      + (learning ? " Learning run: nothing is emailed yet." : ""));
   }
   if (stale) {
     box.append(el("div", { class: "notice" }, icon("i-warn"),
@@ -346,17 +347,20 @@ function stage(r, good, idx) {
   return { ...base, step: 2, text: `Lodging checked: ${money(c.total_cad)} for two, score ${c.score_p2}. What's on is researched next.` };
 }
 
+// A catalogue drawer: the score as a big serif numeral, the trip beside it, the stage it reached underneath.
 function passedRow({ r, st }) {
   const w = windowDays(r.window_id);
-  const head = el("span", { class: "prow-main" },
-    el("span", { class: "prow-top" }, el("b", { class: "city", text: r.city_name }), el("span", { class: "small", text: `${w.text} · ${w.pattern}` })),
-    el("span", { class: "prow-meta" }, classPill(r.trip_class), el("span", { text: `${money(r.price_pp)} pp` }), ladderPill(r.ladder),
-      ...scoreUI(st.score ?? r.score, st.c ? st.c.breakdown : r.breakdown),   // the candidate's latest pass, else pass 1
-      el("span", { class: `stage${st.hit ? " hit" : ""}`, text: `Pass ${st.step}` })),
-    el("span", { class: "prow-stage", text: st.text }));
+  const [num, ...panel] = scoreUI(st.score ?? r.score, st.c ? st.c.breakdown : r.breakdown, "Score", true);   // the candidate's latest pass, else pass 1
+  const head = [num,
+    el("span", { class: "prow-main" },
+      el("span", { class: "prow-top" }, el("b", { class: "city", text: r.city_name }), el("span", { class: "small", text: `${w.text} · ${w.pattern}` })),
+      el("span", { class: "prow-meta" }, classPill(r.trip_class), el("span", { text: `${money(r.price_pp)} pp` }), ladderPill(r.ladder),
+        el("span", { class: `stage${st.hit ? " hit" : ""}`, text: `Pass ${st.step}` })),
+      el("span", { class: "prow-stage", text: st.text })),
+    ...panel];
   const cls = `prow c-${r.trip_class}`;
-  if (!st.c) return el("li", { class: cls }, el("div", { class: "prow-sum" }, head));
-  const d = el("details", {}, el("summary", { class: "prow-sum" }, head, icon("i-chev", "ic chev")));
+  if (!st.c) return el("li", { class: cls }, el("div", { class: "prow-sum" }, ...head));
+  const d = el("details", {}, el("summary", { class: "prow-sum" }, ...head, icon("i-chev", "ic chev")));
   lazyBrief(d, st.c.path_md, 3);
   return el("li", { class: cls }, d);
 }
@@ -371,13 +375,14 @@ function renderPassed(latest, index) {
     .sort((a, b) => Boolean(b.st.hit) - Boolean(a.st.hit) || (b.st.score ?? b.r.score) - (a.st.score ?? a.r.score));
   const lines = [...new Set(Object.values(classes).map((c) => c.candidate_threshold))].join(" or ") || "70";
   $("passed-sec").hidden = false;
+  $("passed-n").textContent = items.length ? (items.length === 1 ? "1 trip at 70 or more" : `${items.length} trips at ${lines} or more`) : "";
   $("passed-hint").textContent = `Every trip that scored ${lines} or more today, and how far it got: fares (pass 1), then real lodging within about 20 minutes of the centre (pass 2), then what is on for those dates (pass 3). Only a fare at or under the route's good gets a lodging check, three a day at most.`;
   if (!items.length) {
     $("passed").replaceChildren(emptyCard("i-pulse", `No trip scored ${lines} or more today.`, "Every route's fares sit near or above what they normally cost. Quiet is the radar working: it waits for something exceptional."));
     return;
   }
   const box = el("div", {});
-  for (const [cls, rs] of byClass(items, (x) => x.r.trip_class)) box.append(groupHead(cls, rs.length), el("ul", { class: "card plist" }, ...rs.map(passedRow)));
+  for (const [cls, rs] of byClass(items, (x) => x.r.trip_class)) box.append(groupHead(cls, rs.length), el("ul", { class: "plist" }, ...rs.map(passedRow)));
   $("passed").replaceChildren(box);
 }
 
@@ -386,31 +391,32 @@ function cityCard(r, c, ctx) {
   const lad = c.ladder || {};
   const ladderLine = el("span", { class: "sub lad-line", text: `Typical for this route ${money(lad.typical)} pp · exceptional under ${money(lad.exceptional)}` });
   if (!r) {
-    const card = el("article", { class: "card city none" }, el("div", { class: "nosum" },
+    const card = el("article", { class: "city none" }, el("div", { class: "nosum" },
       el("span", { class: "name", text: c.name }), ladderLine, el("span", { class: "sub", text: "No trip fits a window in this scan." })));
     Object.assign(card.dataset, { score: -999, price: 1e9, name: c.name });
     return card;
   }
+  // A tray: the city in serif with its score numeral beside it, the figures in mono underneath.
+  const [num, ...panel] = scoreUI(r.score, r.breakdown, "Score", true);
   const d = el("details", {});
   d.append(el("summary", {},
     el("span", { class: "row" },
       el("span", { class: "main" },
         el("span", { class: "name", text: c.name }),
         el("span", { class: "sub", text: `${r.airport} · ${r.airlines} · ${stopsText(r.stops)}` })),
-      el("span", { class: "price" },
-        el("span", { class: "for2", text: money(r.total_cad) }),
-        el("span", { class: "pp", text: `for two · flights ${money(r.price_pp)} pp` }))),
+      el("span", { class: "num" }, num)),
+    ...panel,
+    el("span", { class: "fig" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: `for two · flights ${money(r.price_pp)} pp` })),
     el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) }), classPill(r.trip_class)),
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
     ladderLine,
-    el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null,
-      ...scoreUI(r.score, r.breakdown), icon("i-chev", "ic chev"))));
+    el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null, icon("i-chev", "ic chev"))));
   d.addEventListener("toggle", () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
     d.append(cityBody(r, c, ctx));
   });
-  const card = el("article", { class: `card city c-${r.trip_class}` }, d);
+  const card = el("article", { class: `city c-${r.trip_class}` }, d);
   Object.assign(card.dataset, { score: r.score, price: r.total_cad, name: c.name });
   return card;
 }
@@ -431,7 +437,7 @@ function cityBody(r, c, { series, windows }) {
         el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)} · ${money(w.price_pp)} pp` })),
       el("td", {}, ladderPill(w.ladder)),
       el("td", { class: "num", text: money(w.total_cad) }),
-      el("td", { class: "num sc" }, ...scoreUI(w.score, w.breakdown, "Score", true))));
+      el("td", { class: "num sc" }, ...scoreUI(w.score, w.breakdown, "Score", true))));   // the column head says Score; the label is for screen readers
   }
   right.append(el("table", { class: "wins" },
     el("thead", {}, el("tr", {}, ...["Trip", "Fare", "For two", "Score"].map((h, i) => el("th", { scope: "col", class: i > 1 ? "num" : null, text: h })))), tbody));
@@ -475,9 +481,11 @@ async function renderNotes(digests) {
   }
   const [latest, ...rest] = digests;
   const md = await getText(latest.path);
-  box.replaceChildren(el("article", { class: "card note" }, md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." })));
+  box.replaceChildren(el("article", { class: "slip page" },
+    el("p", { class: "page-cap", text: `Written by the daily routine, ${dayOf(latest.date, { weekday: "long", day: "numeric", month: "long" })}` }),
+    md ? renderMd(md) : el("p", { class: "empty", text: "Note not found." })));
   if (!rest.length) return;
-  const card = el("div", { class: "card" });
+  const card = el("div", { class: "slip" });
   for (const n of rest) {
     const d = el("details", { class: "item" },
       el("summary", {}, el("span", { class: "city", text: dayOf(n.date, { weekday: "short", day: "numeric", month: "short" }) }), icon("i-chev", "ic chev")));
@@ -552,10 +560,15 @@ async function main() {
   const [latest, series, index, digests] = await Promise.all([
     getJSON("data/latest.json"), getJSON("data/series.json"), getJSON("hits/index.json"), getJSON("data/digests/index.json"),
   ]);
+  // The bar sits over the night frame, then turns to paper once the page has scrolled past it.
+  const bar = $("bar"), frame = $("frame");
+  const paper = () => bar.classList.toggle("on-paper", window.scrollY > frame.offsetHeight - 64);
+  window.addEventListener("scroll", paper, { passive: true });
+  paper();
   if (!latest) {
     $("scan-age").textContent = "No scan yet";
-    $("verdict").replaceChildren(el("h1", { id: "verdict-h", text: "No scan published yet." }),
-      el("p", { class: "lead", text: "The collector runs every day at 10:17 UTC and publishes its results here." }));
+    $("verdict-h").textContent = "No scan published yet.";
+    $("lead").textContent = "The collector runs every morning at 04:17 Calgary and publishes its results here.";
     $("health-body").replaceChildren(el("p", { class: "sheet-foot", text: "No scan has been published yet." }));
     renderNotes(digests || []);
     return;
