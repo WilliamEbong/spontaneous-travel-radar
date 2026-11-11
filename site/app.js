@@ -83,7 +83,7 @@ function flightsLink(r) {
   return "https://www.google.com/travel/flights?q=" + encodeURIComponent(q);
 }
 // Pills always print their text: colour never carries the meaning alone (D-22).
-const ladderPill = (label) => (label ? el("span", { class: `pill lad-${label}`, text: LADDER[label] || label }) : null);
+const ladderPill = (label) => (label ? el("span", { class: `lad lad-${label}`, text: LADDER[label] || label }) : null);
 const classPill = (cls) => el("span", { class: `cls cls-${cls}`, text: CLASS[cls] || cls });
 function emptyCard(iconName, title, text) {
   return el("div", { class: "slip empty-card" }, icon(iconName), el("p", {}, el("b", { text: title }), text));
@@ -488,7 +488,7 @@ async function renderNotes(digests) {
   const card = el("div", { class: "slip" });
   for (const n of rest) {
     const d = el("details", { class: "item" },
-      el("summary", {}, el("span", { class: "city", text: dayOf(n.date, { weekday: "short", day: "numeric", month: "short" }) }), icon("i-chev", "ic chev")));
+      el("summary", {}, el("span", { class: "date", text: dayOf(n.date, { weekday: "short", day: "numeric", month: "short" }) }), icon("i-chev", "ic chev")));
     d.addEventListener("toggle", async () => {
       if (!d.open || d.dataset.loaded) return;
       d.dataset.loaded = "1";
