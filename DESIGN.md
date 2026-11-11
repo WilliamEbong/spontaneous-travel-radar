@@ -69,15 +69,18 @@ seconds a day, so nothing loops, bounces or springs, and nothing waits for a cho
 
 - **The one authored moment: the handover.** The first frame is `position: sticky` under the paper (`.paper`, opaque, at
   least a viewport tall), so the paper slides up over the Earth's limb as the visitor scrolls. Scrubbed by the scroll
-  itself (`animation-timeline: scroll(root)`): the headline and the deal line lift 20 px and fade over the first 70% of
-  a viewport, the plate pushes in 4% and a night overlay darkens it to 65% over the first viewport. The bar turns to
-  paper 64 px before the paper reaches it, and the frame stops painting once covered (`.gone`), both from
-  IntersectionObservers on a one-pixel sentinel at the paper's top edge. Engines that cannot read the scroll get
-  `.frame.past`, a 0.4 s fade once the paper is half way up.
+  itself (`animation-timeline: scroll(root)`): the headline and the deal line lift 20 px and fade over the first 36% of
+  a viewport, so they are gone when the paper reaches the horizon (at 36.7%) and the words leave with the limb; the
+  plate pushes in 4% and a night overlay darkens it to 50% over the first viewport. The bar turns to paper 64 px
+  before the paper reaches it, and the frame stops painting once covered (`.gone`), both from IntersectionObservers on
+  a sentinel the height of the frame ending at the paper's top edge (pixel margins, rebuilt on resize; a jump straight
+  past it still changes its state). Engines that cannot read the scroll get `.frame.past`, a 0.4 s fade once the paper
+  is half way up.
 - **Arrival.** The headline rises 10 px over 0.6 s, the deal line 0.15 s later; the photograph pushes in 4.5% over 28 s.
-  Six skeleton trays and one lead line sit in the markup (cream bars pulsing 0.55 to 1 over 1.4 s) until the JSON lands.
-  Trays, drawers and hit cards fade up 10 px over 0.5 s the first time they come into view, the ones arriving together
-  60 ms apart (300 at most); the classes come from JS and come off again after the transition.
+  Six empty keyline trays and one caption ("Reading today's scan…") sit in the markup until the JSON lands; nothing
+  loops. Trays, drawers and hit cards fade up 10 px over 0.5 s the first time they come into view, the ones arriving
+  together 60 ms apart (300 at most); the classes come from JS and come off again after the card's own transition (a
+  focused card shows regardless).
 - **Open and close.** Every `<details>` opens through `::details-content` with `interpolate-size: allow-keywords`: the
   height eases over 0.35 s and the body fades in over 0.45 s; closing runs the same in reverse. This is the one layout
   animation on the page, one card at a time; engines without it cut. The chevron turns over 0.25 s. The breakdown slip
@@ -87,9 +90,12 @@ seconds a day, so nothing loops, bounces or springs, and nothing waits for a cho
   so the height eases in one movement.
 - **Feedback.** Hover washes and keyline darkening on devices with a pointer; a press (`:active`) washes every summary,
   sort word and calendar day; buttons settle 1 px; links turn ink; 150 ms. Sorting slides each tray from where it was to
-  where it lands over 0.4 s (FLIP, transform only). Dialogs rise 12 px (the panel 24) and fade over 0.3 to 0.35 s.
-- **Reduced motion.** `prefers-reduced-motion: reduce` turns off every transition and animation, the scroll-driven ones
-  and `::details-content` included; the reveal classes are never added; the page cuts straight.
+  where it lands over 0.4 s (FLIP, transform only; a tray coming from more than a viewport away fades in instead).
+  Dialogs rise 12 px (the panel 24) and fade over 0.3 to 0.35 s. A breakdown opened while its card is still moving
+  finishes the card's motion first, so the fixed slip is placed against the viewport.
+- **Reduced motion.** `prefers-reduced-motion: reduce` turns off every transition and animation, pseudo-elements, the
+  scroll-driven ones and `::details-content` included; the reveal classes are never added; the Web Animations are
+  skipped, and cancelled if the preference changes mid-visit; the page cuts straight.
 
 ## Not here
 

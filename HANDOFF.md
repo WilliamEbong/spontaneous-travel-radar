@@ -32,7 +32,9 @@ the scoring table; 0 console errors, no horizontal scroll at 390 on either page,
 (unchanged). Screenshots: `Documents/.playwright-mcp/ux-motion/` (`base-*` before, `r1`/`r2`/`r3-*` after). Not
 verified: a real phone (iOS Safari's support for `::details-content`, `interpolate-size` and scroll-driven animations
 decides whether it eases or cuts there; both are designed to degrade to a cut), and the live Pages deploy. Reviews:
-see the SESSION-LOG lines of 2026-11-12 for the design critic's and Codex's findings and what was fixed.
+a design critic and Codex, both fresh context; their confirmed findings are fixed (the SESSION-LOG line of
+2026-11-12 02:20 UTC lists each, and what was declined). Commits on the branch, oldest first: `e9c963e` (the build),
+`598f2e0` (records), `732b4d3` (review fixes), then the final records commit.
 
 To merge, from the main checkout: `git merge ux-motion` (`SESSION-LOG.md`, `HANDOFF.md` and `decisions.md` are
 append-only; union-merge if another branch touched them), `pytest -q`, push, then check the live page on the phone:

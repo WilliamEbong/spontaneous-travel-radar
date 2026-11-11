@@ -945,12 +945,12 @@ cards (trays, drawers, hit cards). The archive-of-looking system wins every clas
 `animation-timeline` (context7 / web).
 
 **Acceptance checks (definition of done).**
-- [ ] A1 Tray heights equal within every row at 390 and 1440 (real data); drawer and hit card heights equal within rows (fixture `hits`, `passed`); sort words one width; group heads aligned.
-- [ ] A2 First frame: sticky handover, words fade with scroll, bar turns to paper, frame hidden once covered; reduced motion = straight cuts; screenshots at 0, mid-scroll, past.
-- [ ] A3 Trays open with an eased height and fade; breakdown slip fades; sparkline draws on open; staggered first reveal; FLIP on sort; skeleton before data.
-- [ ] A4 No console errors, no horizontal scroll at 390; both colour schemes; keyboard focus visible.
-- [ ] A5 `pytest -q` 106 pass; impeccable detector run and mechanical findings fixed.
-- [ ] A6 Fresh-context reviews: web-design-reviewer and Codex; confirmed findings fixed.
-- [ ] A7 D-81, DESIGN.md motion section, SESSION-LOG, HANDOFF updated; committed on `ux-motion`.
+- [x] A1 Tray heights equal within every row at 390 and 1440 (real data); drawer and hit card heights equal within rows (fixture `hits`, `passed`); sort words one width; group heads aligned.
+- [x] A2 First frame: sticky handover, words fade with scroll, bar turns to paper, frame hidden once covered; reduced motion = straight cuts; screenshots at 0, mid-scroll, past.
+- [x] A3 Trays open with an eased height and fade; breakdown slip fades; sparkline draws on open; staggered first reveal; FLIP on sort; skeleton before data.
+- [x] A4 No console errors, no horizontal scroll at 390; both colour schemes; keyboard focus visible.
+- [x] A5 `pytest -q` 106 pass; impeccable detector run and mechanical findings fixed.
+- [x] A6 Fresh-context reviews: web-design-reviewer and Codex; confirmed findings fixed.
+- [x] A7 D-81, DESIGN.md motion section, SESSION-LOG, HANDOFF updated; committed on `ux-motion`.
 
 **Later (not built).** View Transitions for the sort; self-hosted fonts; an animated horizon rule drawn across the paper.
