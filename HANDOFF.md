@@ -15,29 +15,23 @@ at most one tuning change. William wants alerts only for deals so exceptional he
 dashboard is the system working. Month one (to about 2026-12-08) is a learning run: nothing alerts,
 everything is logged and shown.
 
-## Pending on a branch: the archive-of-looking redesign (D-80)
-
-Branch `archive-look` (worktree `.claude/worktrees/archive-look`) holds the dashboard redesign in William's
-archive-of-looking system: the night-limb first frame, paper, serif numerals, cream slips. `DESIGN.md` has the tokens,
-`PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance. Verified in Playwright on real and
-fixture data at phone and desktop widths, both colour schemes; 106 tests pass; reviewed by a design critic and a code
-reviewer in fresh context, their findings fixed (D-80 lists them). Merge with `git merge archive-look` in
-the main checkout, push, then check the live page on a phone (fonts come from Google Fonts there; the PC uses the
-installed Perpetua, Franklin Gothic and Consolas).
-
-## Everything else on `main` is live
+## Everything on `main` is live (nothing pending on branches)
 
 Merged and deployed on 2026-11-09/10, newest last: dashboard v2 (D-36), settings panel (D-43 to D-48),
 softened departure rule and time curve (D-50/51), two trip classes (D-52 to D-55), price below the bad
 line (D-56), the v2 deal model and three passes (D-57 to D-73), schedule hardening (D-74), score
 breakdown panel (D-75), components and inputs on every history row (D-76), scoring table and sky words
-(D-77), one objective time scale and convenience evidence (D-78). `pytest -q`: 106 tests, no network.
-Last commit `0ac2dd3`. The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
-`v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed.
+(D-77), one objective time scale and convenience evidence (D-78), hourly backup scan slots (D-79), the dashboard in
+William's archive-of-looking system (D-80, merged and deployed 2026-11-11 16:10 Calgary as `bac6a89`: `DESIGN.md`
+holds the tokens, `PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance). `pytest -q`:
+106 tests, no network. The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
+`v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` was
+removed after its merge.
 
 Live: https://williamebong.github.io/spontaneous-travel-radar/ and `table.html` (scoring table).
-Verified on the live site at 16:10 Calgary after the bonus scan: every score opens its breakdown with
-the new time and convenience lines; `data/history/latest.csv` (296 trips, 135 KB) downloads.
+Verified on the live site at 16:12 Calgary on 2026-11-11 after the redesign deploy: the first frame with the
+best deal under the horizon, 20 trays, the breakdown slip on tap, no console errors; the web fonts only download
+where Perpetua, Franklin Gothic and Consolas are not installed (William's phone), so check it there once.
 
 ## What runs, and when (Calgary time; the repo and logs use UTC)
 
