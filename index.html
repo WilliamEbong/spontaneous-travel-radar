@@ -63,12 +63,15 @@
     <div class="frame-title">
       <h1 id="verdict-h">Checking today’s fares…</h1>
     </div>
-    <a id="frame-lead" class="frame-lead" href="#main" hidden></a>
+    <div class="frame-under"><a id="frame-lead" class="frame-lead" href="#main" hidden></a></div>
   </div>
 
+  <!-- The paper slides up over the frame; the sentinel at its top edge tells the bar and the frame where it is. -->
+  <div class="paper">
+  <div class="frame-end" aria-hidden="true"></div>
   <main id="main">
     <section id="verdict" class="verdict" aria-labelledby="verdict-h">
-      <p class="lead" id="lead"></p>
+      <p class="lead" id="lead"><span class="skel" style="width: 72%" aria-hidden="true"></span></p>
       <div id="verdict-body"></div>
     </section>
 
@@ -78,7 +81,7 @@
       <div id="passed"></div>
     </section>
 
-    <section id="cities-sec" aria-labelledby="cities-h" hidden>
+    <section id="cities-sec" aria-labelledby="cities-h">
       <div class="sec-head">
         <h2 id="cities-h">Every city</h2>
         <fieldset class="seg" id="sort">
@@ -91,7 +94,15 @@
       </div>
       <p class="hint" id="cities-hint"></p>
       <details class="how" id="how"></details>
-      <div id="cities" class="cards"></div>
+      <!-- six skeleton trays hold the paper's shape until the scan's JSON lands -->
+      <div id="cities" class="cards" aria-busy="true">
+        <div class="skel-tray" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="skel-tray" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="skel-tray" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="skel-tray" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="skel-tray" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="skel-tray" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
     </section>
 
     <section id="notes-sec" aria-labelledby="notes-h">
@@ -129,6 +140,7 @@
       <a href="table.html">Scoring table</a> · <a href="data/history/latest.csv" download>Download CSV</a> ·
       <a href="https://github.com/WilliamEbong/spontaneous-travel-radar">Repository</a></p>
   </footer>
+  </div>
   <div id="tip" class="tip" role="status" hidden></div>
   <!-- js-yaml, pinned, the only external script: the Settings panel parses config/*.yaml with it. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js" integrity="sha384-+pxiN6T7yvpryuJmE1gM9PX7yQit15auDb+ZwwvJOd/4be2Cie5/IuVXgQb/S9du" crossorigin="anonymous" defer></script>

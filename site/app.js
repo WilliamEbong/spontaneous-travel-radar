@@ -8,6 +8,8 @@ const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Th
 const CLASS = { weekend: "No day off needed", dayoff: "Needs a day off" };
 const CLASS_ORDER = ["weekend", "dayoff"];
 const LADDER = { exceptional: "exceptional", good: "good", typical: "typical", above: "above typical" };
+const EASE = "cubic-bezier(0.3, 0, 0.7, 1)";   // the page's one easing (DESIGN.md, Motion)
+const MOTION = !matchMedia("(prefers-reduced-motion: reduce)").matches;   // false = straight cuts everywhere
 
 const $ = (id) => document.getElementById(id);
 function el(tag, props = {}, ...kids) {
@@ -115,7 +117,7 @@ function sparkline(points, cityName) {
   svg.append(svgEl("line", { class: "base", x1: 0, x2: W, y1: H - 0.5, y2: H - 0.5 }));
   const cross = svgEl("line", { class: "cross", y1: 0, y2: H, visibility: "hidden" });
   svg.append(cross);
-  if (points.length > 1) svg.append(svgEl("path", { class: "line", d: points.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join("") }));
+  if (points.length > 1) svg.append(svgEl("path", { class: "line", pathLength: "1", d: points.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join("") }));   // pathLength 1: the line draws itself with a dash offset when its tray opens
   svg.append(svgEl("circle", { class: "dot", cx: x(points.length - 1), cy: y(last[1]), r: 4 }));
   const at = (i) => {
     const r = svg.getBoundingClientRect();
@@ -198,16 +200,38 @@ function renderMd(md, base = 3) {
   if (title) title.textContent = title.textContent.replace(/\d{4}-\d{2}-\d{2}/g, (d) => dayOf(d, { weekday: "short", day: "numeric", month: "short" }));
   return box;
 }
-// A <details> whose body is a brief, fetched the first time it opens.
+// A <details> whose body is a brief: fetched once, at the first sign of interest (a hover, focus or touch on the summary) so
+// it is usually in hand when the card opens and the body can rise with the card; else fetched when it opens.
 function lazyBrief(d, path, base) {
+  let md;
+  const fetchIt = () => (md ??= getText(path));
+  const sum = d.querySelector("summary");
+  for (const ev of ["pointerenter", "focusin", "touchstart"]) sum.addEventListener(ev, fetchIt, { once: true, passive: true });
   d.addEventListener("toggle", async () => {
     if (!d.open || d.dataset.loaded) return;
     d.dataset.loaded = "1";
-    const md = await getText(path);
-    const brief = md ? renderMd(md, base) : el("p", { class: "empty", text: "Brief not found." });
-    if (md && /^H[2-6]$/.test(brief.firstChild?.tagName || "")) brief.firstChild.remove();   // the card already names the city, dates and score
+    const text = await fetchIt();
+    const brief = text ? renderMd(text, base) : el("p", { class: "empty", text: "Brief not found." });
+    if (text && /^H[2-6]$/.test(brief.firstChild?.tagName || "")) brief.firstChild.remove();   // the card already names the city, dates and score
     d.append(el("div", { class: "body" }, brief));
   });
+}
+// Trays, drawers and hit cards fade up the first time they come into view, the ones arriving together 60 ms apart (at most
+// 300). The classes are added here, so without JS, or with reduced motion, nothing is ever hidden; once a card has shown, the
+// classes come off again so no transform lingers under its floating breakdown slip.
+const revealer = MOTION && "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+  let i = 0;
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    revealer.unobserve(e.target);
+    e.target.style.setProperty("--d", `${Math.min(i++, 5) * 60}ms`);
+    e.target.classList.add("in");
+    e.target.addEventListener("transitionend", () => { e.target.classList.remove("reveal", "in"); e.target.style.removeProperty("--d"); }, { once: true });
+  }
+}, { rootMargin: "0px 0px -8% 0px" }) : null;
+function reveal(nodes) {
+  if (!revealer) return;
+  for (const n of nodes) { n.classList.add("reveal"); revealer.observe(n); }
 }
 function groupHead(cls, n) {
   return el("h3", { class: `grp grp-${cls}` }, classPill(cls), el("span", { class: "n", text: n === 1 ? "1 trip" : `${n} trips` }));
@@ -235,8 +259,7 @@ function bdFill(panel, rows, score) {
 }
 function bdClose() {
   if (!bdOpen) return;
-  bdOpen.panel.hidden = true;
-  bdOpen.panel.style.cssText = "";
+  bdOpen.panel.hidden = true;   // its position stays while it fades out; bdPlace sets it afresh on the next open
   bdOpen.btn.setAttribute("aria-expanded", "false");
   bdOpen = null;
 }
@@ -296,7 +319,7 @@ function hitCard(r) {
       el("span", { class: "main" }, el("span", { class: "name", text: r.city_name }), el("span", { class: "sub", text: `${w.text} · ${w.pattern}` })),
       el("span", { class: "num" }, num)),
     el("span", { class: "fig" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: "complete trip for two" })),
-    el("span", { class: "meta" }, classPill(r.trip_class), el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder), icon("i-chev", "ic chev")),
+    el("span", { class: "meta" }, el("span", { class: "ml" }, el("span", { text: `Flights ${money(r.price_pp)} pp` }), ladderPill(r.ladder)), classPill(r.trip_class), icon("i-chev", "ic chev")),
     ...panel));
   lazyBrief(d, r.path_md, 2);
   return el("article", { class: `city hit c-${r.trip_class}` }, d);
@@ -326,7 +349,11 @@ function renderVerdict(latest, index, stale) {
     frameLead(hits.length === 1 ? "The hit" : "The top hit", top.city_name, `${windowLabel(top.window_id)} · ${money(top.total_cad)} for two · final ${top.final_score}`, "#verdict");
     lead.textContent = `${hits.length === 1 ? "It" : "Each"} cleared all three passes: a fare at or under the route's good, a complete trip well under what it normally costs, and enough on for those dates to reach a final ${hitLine(latest)}.`
       + (note || " Open the brief for the lodging, what's on and the links.");
-    for (const [cls, rows] of byClass(hits)) box.append(groupHead(cls, rows.length), el("div", { class: "cards" }, ...rows.map(hitCard)));
+    for (const [cls, rows] of byClass(hits)) {
+      const cards = rows.map(hitCard);
+      box.append(groupHead(cls, rows.length), el("div", { class: "cards" }, ...cards));
+      reveal(cards);
+    }
   } else {
     h1.textContent = "Nothing worth booking today.";
     const best = (latest.best_by_city || [])[0];
@@ -357,12 +384,12 @@ function stage(r, good, idx) {
 function passedRow({ r, st }) {
   const w = windowDays(r.window_id);
   const [num, ...panel] = scoreUI(st.score ?? r.score, st.c ? st.c.breakdown : r.breakdown, "Score", true);   // the candidate's latest pass, else pass 1
-  const head = [num,
-    el("span", { class: "prow-main" },
-      el("span", { class: "prow-top" }, el("b", { class: "city", text: r.city_name }), el("span", { class: "small", text: `${w.text} · ${w.pattern}` })),
-      el("span", { class: "prow-meta" }, classPill(r.trip_class), el("span", { text: `${money(r.price_pp)} pp` }), ladderPill(r.ladder),
-        el("span", { class: `stage${st.hit ? " hit" : ""}`, text: `Pass ${st.step}` })),
-      el("span", { class: "prow-stage", text: st.text })),
+  const head = [num,   // the grid areas in .prow-sum place these: numeral and city on one line, then dates, class, fare line, stage
+    el("b", { class: "city", text: r.city_name }),
+    el("span", { class: "small", text: `${w.text} · ${w.pattern}` }),
+    classPill(r.trip_class),
+    el("span", { class: "prow-meta" }, el("span", { text: `${money(r.price_pp)} pp` }), ladderPill(r.ladder), el("span", { class: `stage${st.hit ? " hit" : ""}`, text: `Pass ${st.step}` })),
+    el("span", { class: "prow-stage", text: st.text }),
     ...panel];
   const cls = `prow c-${r.trip_class}`;
   if (!st.c) return el("li", { class: cls }, el("div", { class: "prow-sum" }, ...head));
@@ -390,7 +417,11 @@ function renderPassed(latest, index) {
   }
   $("passed-hint").textContent = "How far each one got: fares (pass 1), then real lodging near the centre (pass 2), then what is on for those dates (pass 3).";
   const box = el("div", {});
-  for (const [cls, rs] of byClass(items, (x) => x.r.trip_class)) box.append(groupHead(cls, rs.length), el("ul", { class: "plist" }, ...rs.map(passedRow)));
+  for (const [cls, rs] of byClass(items, (x) => x.r.trip_class)) {
+    const rows = rs.map(passedRow);
+    box.append(groupHead(cls, rs.length), el("ul", { class: "plist" }, ...rows));
+    reveal(rows);
+  }
   $("passed").replaceChildren(box);
 }
 
@@ -404,7 +435,8 @@ function cityCard(r, c, ctx) {
     Object.assign(card.dataset, { score: -999, price: 1e9, name: c.name });
     return card;
   }
-  // A tray: the city in serif with its score numeral beside it, the figures in mono underneath.
+  // A tray: the city in serif with its score numeral beside it, the figures in mono underneath, the class and ladder lines
+  // at the bottom. Every line is one line in every tray, so the trays in a row are the same height.
   const [num, ...panel] = scoreUI(r.score, r.breakdown, "Score", true);
   const d = el("details", {});
   d.append(el("summary", {},
@@ -414,14 +446,22 @@ function cityCard(r, c, ctx) {
         el("span", { class: "sub", text: `${r.airport} · ${r.airlines} · ${stopsText(r.stops)}` })),
       el("span", { class: "num" }, num)),
     el("span", { class: "fig" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: `for two · flights ${money(r.price_pp)} pp` })),
-    el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) }), classPill(r.trip_class)),
+    el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) })),
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
-    el("span", { class: "meta" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null, icon("i-chev", "ic chev")),
+    el("span", { class: "meta" }, el("span", { class: "ml" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null), classPill(r.trip_class), icon("i-chev", "ic chev")),
     ...panel));   // the route's ladder moves into the opened body: the word and the share already say it
+  // The body is built at the first sign of interest (a hover, focus or touch on the summary; building all twenty at once
+  // costs 100 ms), so it is in place before the tray opens and the height eases to its full size in one movement. When it
+  // opens, the price line draws itself and its end dot lands.
+  let built = false;
+  const ensure = () => { if (!built) { built = true; d.append(cityBody(r, c, ctx)); } };
+  for (const ev of ["pointerenter", "focusin", "touchstart"]) d.firstChild.addEventListener(ev, ensure, { once: true, passive: true });
   d.addEventListener("toggle", () => {
-    if (!d.open || d.dataset.loaded) return;
-    d.dataset.loaded = "1";
-    d.append(cityBody(r, c, ctx));
+    ensure();
+    if (!d.open || !MOTION) return;
+    const line = d.querySelector(".spark .line"), dot = d.querySelector(".spark .dot");
+    if (line) line.animate([{ strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDasharray: 1, strokeDashoffset: 0 }], { duration: 800, easing: EASE });
+    if (dot) dot.animate([{ opacity: 0 }, { opacity: 0, offset: 0.8 }, { opacity: 1 }], { duration: 1000, easing: "linear" });
   });
   const card = el("article", { class: `city c-${r.trip_class}`, id: `city-${c.key}` }, d);
   Object.assign(card.dataset, { score: r.score, price: r.total_cad, name: c.name });
@@ -455,15 +495,22 @@ function cityBody(r, c, { series, windows }) {
   return body;
 }
 
-function sortCards(by) {
-  const box = $("cities");
+// Re-sorting slides each tray from where it was to where it lands (400 ms, transform only); the first sort, at render, just places them.
+function sortCards(by, animate = false) {
+  const box = $("cities"), kids = [...box.children];
   const cmp = {
     score: (a, b) => b.dataset.score - a.dataset.score || a.dataset.price - b.dataset.price,
     price: (a, b) => a.dataset.price - b.dataset.price,
     city: (a, b) => a.dataset.name.localeCompare(b.dataset.name),
     mine: (a, b) => a.dataset.order - b.dataset.order,
   }[by];
-  box.append(...[...box.children].sort(cmp));
+  const before = animate && MOTION ? kids.map((k) => k.getBoundingClientRect()) : null;
+  box.append(...kids.slice().sort(cmp));
+  if (!before) return;
+  kids.forEach((k, i) => {
+    const a = before[i], b = k.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+    if (dx || dy) k.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 400, easing: EASE });
+  });
 }
 
 function renderCities(latest, series) {
@@ -480,8 +527,11 @@ function renderCities(latest, series) {
     return;
   }
   const ctx = { series, windows: latest.windows || [] };
-  $("cities").replaceChildren(...cities.map((c, i) => { const card = cityCard(best[c.key], c, ctx); card.dataset.order = i; return card; }));   // cities.yaml order = "Mine"
+  const cards = cities.map((c, i) => { const card = cityCard(best[c.key], c, ctx); card.dataset.order = i; return card; });   // cities.yaml order = "Mine"
+  $("cities").replaceChildren(...cards);
+  $("cities").removeAttribute("aria-busy");
   sortCards(document.querySelector("#sort input:checked").value);
+  reveal(cards);
 }
 
 async function renderNotes(digests) {
@@ -565,19 +615,30 @@ async function main() {
   wireDialog($("health"), $("health-btn"), $("health-close"));
   const savedSort = document.querySelector(`#sort input[value="${store.get("radar.sort")}"]`);
   if (savedSort) savedSort.checked = true;
-  $("sort").addEventListener("change", (e) => { store.set("radar.sort", e.target.value); sortCards(e.target.value); });
+  $("sort").addEventListener("change", (e) => { store.set("radar.sort", e.target.value); sortCards(e.target.value, true); });
+  // The frame sticks under the paper. A one-pixel sentinel at the paper's top edge tells the bar when to turn to paper (64 px
+  // from the top), the frame when its words give way (the fallback where CSS cannot read the scroll) and when it is covered.
+  const bar = $("bar"), frame = $("frame"), edge = document.querySelector(".frame-end");
+  if ("IntersectionObserver" in window) {
+    const watch = (rootMargin, node, cls) => new IntersectionObserver(([e]) => {
+      node.classList.toggle(cls, !e.isIntersecting && e.boundingClientRect.top < (e.rootBounds ? e.rootBounds.top : 0));
+    }, { rootMargin }).observe(edge);
+    watch("-64px 0px 0px 0px", bar, "on-paper");
+    watch("-50% 0px 0px 0px", frame, "past");
+    watch("0px", frame, "gone");
+  } else {
+    const paper = () => bar.classList.toggle("on-paper", window.scrollY > frame.offsetHeight - 64);
+    window.addEventListener("scroll", paper, { passive: true });
+    paper();
+  }
   const [latest, series, index, digests] = await Promise.all([
     getJSON("data/latest.json"), getJSON("data/series.json"), getJSON("hits/index.json"), getJSON("data/digests/index.json"),
   ]);
-  // The bar sits over the night frame, then turns to paper once the page has scrolled past it.
-  const bar = $("bar"), frame = $("frame");
-  const paper = () => bar.classList.toggle("on-paper", window.scrollY > frame.offsetHeight - 64);
-  window.addEventListener("scroll", paper, { passive: true });
-  paper();
   if (!latest) {
     $("scan-age").textContent = "No scan yet";
     $("verdict-h").textContent = "No scan published yet.";
     $("lead").textContent = "The collector runs every morning at 04:17 Calgary and publishes its results here.";
+    $("cities-sec").hidden = true;   // the skeleton has nothing to become
     $("health-body").replaceChildren(el("p", { class: "sheet-foot", text: "No scan has been published yet." }));
     renderNotes(digests || []);
     return;
