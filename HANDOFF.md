@@ -1,6 +1,6 @@
-# Handoff: Spontaneous Travel Radar (state as of 2026-11-10, 16:30 Calgary)
+# Handoff: Spontaneous Travel Radar (state as of 2026-11-11, 17:00 Calgary)
 
-Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-78, one entry per
+Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-80, one entry per
 judgment call), `docs/ASK.md` (how to answer William's questions from the data), and `SESSION-LOG.md`
 (what happened, in order). `BUILD-PLAN-v2.md` and `docs/research/2026-11-09-fare-references.md` are the
 design record for v2; `BUILD-PLAN.md` and the design doc in `docs/superpowers/specs/` are v1 background.
@@ -15,7 +15,17 @@ at most one tuning change. William wants alerts only for deals so exceptional he
 dashboard is the system working. Month one (to about 2026-12-08) is a learning run: nothing alerts,
 everything is logged and shown.
 
-## Everything on `main` is live (nothing pending on branches)
+## Pending on a branch: the archive-of-looking redesign (D-80)
+
+Branch `archive-look` (worktree `.claude/worktrees/archive-look`) holds the dashboard redesign in William's
+archive-of-looking system: the night-limb first frame, paper, serif numerals, cream slips. `DESIGN.md` has the tokens,
+`PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance. Verified in Playwright on real and
+fixture data at phone and desktop widths, both colour schemes; 106 tests pass; reviewed by a design critic and a code
+reviewer in fresh context, their findings fixed (D-80 lists them). Merge with `git merge archive-look` in
+the main checkout, push, then check the live page on a phone (fonts come from Google Fonts there; the PC uses the
+installed Perpetua, Franklin Gothic and Consolas).
+
+## Everything else on `main` is live
 
 Merged and deployed on 2026-11-09/10, newest last: dashboard v2 (D-36), settings panel (D-43 to D-48),
 softened departure rule and time curve (D-50/51), two trip classes (D-52 to D-55), price below the bad
@@ -99,7 +109,8 @@ and real lodging in hand = a hit: `hits/dry-run/` this month, `hits/` live; othe
 
 ## Dashboard and panel
 
-Order: Hits (with brief: flights link to Google Flights for the dates, Google Hotels link, one link per
+Look: archive-of-looking (D-80, `DESIGN.md`); the first frame is the verdict over the Earth's limb, the rest is
+paper. Order: Hits (with brief: flights link to Google Flights for the dates, Google Hotels link, one link per
 lodging option, Airbnb link when found, what's on with reasons), Passed (every 70+ trip and the pass it
 reached), Every city (best deal by score, the route's typical and exceptional, every weekend on tap,
 price history per class), daily note; health behind the pulse button (coverage, requests of 900,
