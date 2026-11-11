@@ -1,4 +1,4 @@
-# Handoff: Spontaneous Travel Radar (state as of 2026-11-11, 19:00 Calgary)
+# Handoff: Spontaneous Travel Radar (state as of 2026-11-11, 17:00 Calgary, after the D-81 deploy)
 
 Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-81, one entry per
 judgment call), `docs/ASK.md` (how to answer William's questions from the data), and `SESSION-LOG.md`
@@ -15,32 +15,7 @@ at most one tuning change. William wants alerts only for deals so exceptional he
 dashboard is the system working. Month one (to about 2026-12-08) is a learning run: nothing alerts,
 everything is logged and shown.
 
-## Pending: branch `ux-motion` (worktree `.claude/worktrees/ux-motion`), ready to merge on William's word
-
-D-81, built unattended on 2026-11-11 evening from main `9ff662f` (William: "make all the tabs the same size, and
-make the ux smoother, use scroll craft and oil motion as well ... huge UX/UI improvements"). Touches only
-`index.html`, `site/style.css`, `site/app.js` and the docs (`DESIGN.md` Motion, `docs/notes/decisions.md` D-81,
-`BUILD-PLAN.md` tail, `SESSION-LOG.md`, this file); nothing in Python, `data/`, `hits/` or `config/`. What it does:
-trays, drawers and hit cards fill their row with a pinned anatomy and wrap the same way (20 trays at 243 px each at
-390 and 1440, drawers 208, sort words one width); the first frame sticks under the paper and the paper slides over
-the limb, with the headline and deal line fading on scroll and the bar turning to paper from an observer; every
-`<details>` opens with an eased height and a fade, the breakdown slip fades, the price line draws itself, cards fade
-up on first view, the sort slides trays, a skeleton holds the paper's shape while the JSON loads; reduced motion cuts
-straight. Verified in this run with Playwright at 390x844 and 1440x900, light and dark, reduced motion both ways, on
-the real 11 Nov data and the four fixture states (empty, passed, hits, live), the health sheet, the settings panel and
-the scoring table; 0 console errors, no horizontal scroll at 390 on either page, no long task on load, 106 tests
-(unchanged). Screenshots: `Documents/.playwright-mcp/ux-motion/` (`base-*` before, `r1`/`r2`/`r3-*` after). Not
-verified: a real phone (iOS Safari's support for `::details-content`, `interpolate-size` and scroll-driven animations
-decides whether it eases or cuts there; both are designed to degrade to a cut), and the live Pages deploy. Reviews:
-a design critic and Codex, both fresh context; their confirmed findings are fixed (the SESSION-LOG line of
-2026-11-12 02:20 UTC lists each, and what was declined). Commits on the branch, oldest first: `e9c963e` (the build),
-`598f2e0` (records), `732b4d3` (review fixes), then the final records commit.
-
-To merge, from the main checkout: `git merge ux-motion` (`SESSION-LOG.md`, `HANDOFF.md` and `decisions.md` are
-append-only; union-merge if another branch touched them), `pytest -q`, push, then check the live page on the phone:
-the handover, a tray opening, the breakdown on tap. Undo: revert the merge; the data is untouched.
-
-## Everything else on `main` is live
+## Everything on `main` is live (nothing pending on branches)
 
 Merged and deployed on 2026-11-09/10, newest last: dashboard v2 (D-36), settings panel (D-43 to D-48),
 softened departure rule and time curve (D-50/51), two trip classes (D-52 to D-55), price below the bad
@@ -48,14 +23,17 @@ line (D-56), the v2 deal model and three passes (D-57 to D-73), schedule hardeni
 breakdown panel (D-75), components and inputs on every history row (D-76), scoring table and sky words
 (D-77), one objective time scale and convenience evidence (D-78), hourly backup scan slots (D-79), the dashboard in
 William's archive-of-looking system (D-80, merged and deployed 2026-11-11 16:10 Calgary as `bac6a89`: `DESIGN.md`
-holds the tokens, `PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance). `pytest -q`:
+holds the tokens, `PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance), equal cards and
+the motion layer (D-81, built unattended on branch `ux-motion`, merged and deployed 16:57 Calgary as `ce8af85`;
+`DESIGN.md` Motion describes it). `pytest -q`:
 106 tests, no network. The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
-`v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` was
-removed after its merge.
+`v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` and
+`ux-motion` were removed after their merges.
 
 Live: https://williamebong.github.io/spontaneous-travel-radar/ and `table.html` (scoring table).
-Verified on the live site at 16:12 Calgary on 2026-11-11 after the redesign deploy: the first frame with the
-best deal under the horizon, 20 trays, the breakdown slip on tap, no console errors; the web fonts only download
+Verified on the live site at 16:58 Calgary on 2026-11-11 after the D-81 deploy: the sticky frame, the best deal
+under the horizon, 20 trays of one height (243 px at 390 and 1440), the breakdown slip on tap, the bar turning to
+paper, no console errors, no horizontal scroll; the web fonts only download
 where Perpetua, Franklin Gothic and Consolas are not installed (William's phone), so check it there once.
 
 ## What runs, and when (Calgary time; the repo and logs use UTC)
