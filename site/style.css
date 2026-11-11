@@ -145,13 +145,14 @@ h3 { font-size: 1.375rem; }
   text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7); animation: rise 0.6s var(--ease) 0.15s both;
 }
 .frame-lead[hidden] { display: none; }
-/* the handover, scrubbed by the scroll itself: the headline and the deal line lift and fade over the first 70% of a
-   viewport, the plate pushes in 4% and darkens over the first full viewport. Linear by scroll: the hand is the easing. */
+/* the handover, scrubbed by the scroll itself: the headline and the deal line lift and fade over the first 36% of a
+   viewport (the paper reaches the horizon at 36.7%, so the words leave with the limb), the plate pushes in 4% and
+   darkens over the first full viewport. Linear by scroll: the hand is the easing. */
 @keyframes frame-out { to { opacity: 0; transform: translateY(-20px); } }
 @keyframes frame-near { to { transform: scale(1.04); } }
-@keyframes frame-dim { to { opacity: 0.65; } }
+@keyframes frame-dim { to { opacity: 0.5; } }
 @supports (animation-timeline: scroll()) {
-  .frame-title, .frame-under { animation: frame-out linear both; animation-timeline: scroll(root); animation-range: 0px 70svh; }
+  .frame-title, .frame-under { animation: frame-out linear both; animation-timeline: scroll(root); animation-range: 0px 36svh; }
   .frame-art { animation: frame-near linear both; animation-timeline: scroll(root); animation-range: 0px 100svh; }
   .frame-art::after { animation: frame-dim linear both; animation-timeline: scroll(root); animation-range: 0px 100svh; }
 }
@@ -161,7 +162,7 @@ h3 { font-size: 1.375rem; }
 }
 /* the paper: everything after the frame, opaque, above the plate; at least a viewport tall so the plate is always covered at the end */
 .paper { position: relative; z-index: 2; background: var(--ground); min-height: 100svh; }
-.frame-end { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }   /* the sentinel the observers watch */
+.frame-end { position: absolute; top: calc(-1 * max(100svh, 560px)); left: 0; width: 1px; height: max(100svh, 560px); }   /* the sentinel the observers watch: the frame's own span, ending at the paper's edge */
 .frame-lead:hover { color: #F3EFE4; }
 .frame-lead .k { font: 0.75rem/1.4 var(--mono); color: rgba(243, 239, 228, 0.72); }
 .frame-lead .c { font-family: var(--serif); font-weight: 500; font-size: 1.75rem; line-height: 1.05; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 5px; text-decoration-thickness: 1px; transition: text-decoration-color 0.15s; }
@@ -366,18 +367,18 @@ summary.prow-sum:active { background: var(--wash); }
   .prow .bd { grid-column: 1 / -1; }
 }
 
-/* ---- the sort: plain mono words of one width, the chosen one underlined in rust ---- */
-.seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0 4px; margin: 0; padding: 0; border: 0; }
+/* ---- the sort: plain mono words in cells of one width, flush left, the chosen one underlined in rust under the word itself ---- */
+.seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0 16px; margin: 0; padding: 0; border: 0; }
 .seg label { position: relative; }
 .seg input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
-.seg span { display: block; padding: 6px 8px; text-align: center; font: 0.8125rem/1.4 var(--mono); color: var(--caption); border-bottom: 1px solid transparent; transition: color 0.15s, border-color 0.15s; }
+.seg span { display: inline-block; padding: 6px 0; font: 0.8125rem/1.4 var(--mono); color: var(--caption); border-bottom: 1px solid transparent; transition: color 0.15s, border-color 0.15s; }
 @media (hover: hover) { .seg input:hover + span { color: var(--ink); } }
 .seg input:active + span { color: var(--ink); background: var(--wash); }
 .seg input:checked + span { color: var(--ink); border-bottom-color: var(--rust); }
 .seg input:focus-visible + span { outline: 2px solid var(--rust); outline-offset: 2px; }
 .seg.wide { display: flex; gap: 0; border: 1px solid var(--control-line); }
 .seg.wide label { flex: 1; }
-.seg.wide span { text-align: center; padding: 9px 8px; border-bottom: 0; }
+.seg.wide span { display: block; text-align: center; padding: 9px 8px; border-bottom: 0; }
 .seg.wide input:checked + span { background: var(--ink); color: var(--ground); }
 
 /* ---- the price line: one series in Prussian blue on paper, baseline rule, crosshair, mono figures ---- */
@@ -403,10 +404,12 @@ tbody th { font: 0.9375rem/1.4 var(--sans); color: var(--ink); }
 tr:last-child td, tr:last-child th { border-bottom: 0; }
 td:last-child, th:last-child { padding-right: 0; }
 .num { text-align: right; font-family: var(--mono); font-size: 0.9375rem; }
+th.num { font-size: 0.75rem; }   /* a column head stays a caption */
 .wins th { white-space: nowrap; }
 .wins > tbody > tr > th { white-space: normal; }
 .wins .sub { display: block; color: var(--caption); font: 0.8125rem/1.45 var(--mono); margin-top: 2px; }
 .wins th .cls { margin-left: 8px; }
+.wins .win { white-space: nowrap; }   /* the window phrase stays whole; the class word wraps under it */
 .wins > tbody > .is-best > th { font-family: var(--sans-m); font-weight: 500; }
 details.tbl { margin-top: 10px; font-size: 0.9375rem; }
 details.tbl summary { cursor: pointer; font: 0.8125rem/1.4 var(--mono); color: var(--rust-ink); padding: 6px 0; }
@@ -420,18 +423,11 @@ details[open] > .body, details[open] > .brief { animation: fade-in 0.45s var(--e
 @keyframes fade-in { from { opacity: 0; } }
 /* the first time a card scrolls into view it fades up 10 px; the classes come from JS, so nothing hides without it */
 .reveal { opacity: 0; transform: translateY(10px); }
-.reveal.in { opacity: 1; transform: none; transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); transition-delay: var(--d, 0ms); }
-/* the skeleton: six trays of cream bars while the JSON loads, pulsing, in the markup itself so the paper has its shape */
-.skel-tray { min-height: 244px; border: 1px solid var(--hairline); border-top: 3px solid var(--hairline); padding: 18px 18px 16px; display: grid; align-content: start; gap: 12px; }
-.skel-tray i, .skel { display: block; height: 14px; background: var(--card); animation: pulse 1.4s var(--ease) infinite alternate; }
-.skel { background: var(--hairline); margin: 14px 0; }
-.skel-tray i:nth-child(1) { height: 30px; width: 56%; }
-.skel-tray i:nth-child(2) { width: 72%; }
-.skel-tray i:nth-child(3) { height: 24px; width: 64%; margin-top: 10px; }
-.skel-tray i:nth-child(4) { width: 80%; }
-.skel-tray i:nth-child(5) { width: 70%; }
-.skel-tray i:nth-child(6) { width: 48%; margin-top: 18px; }
-@keyframes pulse { from { opacity: 0.55; } to { opacity: 1; } }
+.reveal.in, .reveal:focus-within { opacity: 1; transform: none; transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); transition-delay: var(--d, 0ms); }
+/* the skeleton: six empty keyline trays in the markup itself, so the paper has its shape while the JSON loads; one caption
+   line says what is happening. Nothing loops. (.skel: the settings panel's loading bars, static.) */
+.skel-tray { min-height: 244px; border: 1px solid var(--hairline); border-top: 3px solid var(--hairline); }
+.skel { display: block; height: 14px; background: var(--hairline); margin: 14px 0; }
 
 /* ---- briefs and the daily note (a page specimen) ---- */
 details.item { padding: 12px 18px; border-bottom: 1px solid var(--hairline); }
@@ -517,7 +513,7 @@ footer a { color: var(--graphite); }
 }
 @media (max-width: 479px) {
   .chip-long, .brand-x { display: none; }     /* "Scanned 7 h ago" -> "7 h ago", "Travel Radar · Calgary" -> "Travel Radar" */
-  .seg span { padding: 6px 6px; }
+  .seg { gap: 0 14px; }
   .city .name { font-size: 1.625rem; }
 }
 
@@ -698,7 +694,7 @@ footer code { font-size: 0.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {   /* straight cuts: no transition, no animation, no scroll-driven change */
-  *, ::backdrop, ::details-content, .frame-art::after, .frame-art img, .frame-title h1 { transition: none !important; animation: none !important; }
+  *, *::before, *::after, ::backdrop, ::details-content, .frame-art img, .frame-title h1 { transition: none !important; animation: none !important; }
   .reveal { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }

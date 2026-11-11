@@ -4,12 +4,14 @@
 
 const TZ = "America/Edmonton";
 const STALE_HOURS = 30;
-const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Thu stat, 4 days", "stat-tue-4d": "Tue stat, 4 days", weekend: "Fri to Sun" };
+const PATTERN = { "fri-off": "Fri off", "mon-off": "Mon off", "stat-thu-4d": "Thu stat, 4 days", "stat-tue-4d": "Tue stat, 4 days", weekend: "Fri to Sun" };   // no break inside "Mon off"
 const CLASS = { weekend: "No day off needed", dayoff: "Needs a day off" };
 const CLASS_ORDER = ["weekend", "dayoff"];
 const LADDER = { exceptional: "exceptional", good: "good", typical: "typical", above: "above typical" };
 const EASE = "cubic-bezier(0.3, 0, 0.7, 1)";   // the page's one easing (DESIGN.md, Motion)
-const MOTION = !matchMedia("(prefers-reduced-motion: reduce)").matches;   // false = straight cuts everywhere
+const RM = matchMedia("(prefers-reduced-motion: reduce)");
+const motion = () => !RM.matches;   // false = straight cuts everywhere; read at each use, so a change mid-visit counts
+RM.addEventListener("change", () => { if (RM.matches) document.getAnimations().forEach((a) => a.cancel()); });
 
 const $ = (id) => document.getElementById(id);
 function el(tag, props = {}, ...kids) {
@@ -219,18 +221,25 @@ function lazyBrief(d, path, base) {
 // Trays, drawers and hit cards fade up the first time they come into view, the ones arriving together 60 ms apart (at most
 // 300). The classes are added here, so without JS, or with reduced motion, nothing is ever hidden; once a card has shown, the
 // classes come off again so no transform lingers under its floating breakdown slip.
-const revealer = MOTION && "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+function unreveal(n) { n.classList.remove("reveal", "in"); n.style.removeProperty("--d"); }
+const revealer = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
   let i = 0;
   for (const e of entries) {
     if (!e.isIntersecting) continue;
-    revealer.unobserve(e.target);
-    e.target.style.setProperty("--d", `${Math.min(i++, 5) * 60}ms`);
-    e.target.classList.add("in");
-    e.target.addEventListener("transitionend", () => { e.target.classList.remove("reveal", "in"); e.target.style.removeProperty("--d"); }, { once: true });
+    const n = e.target;
+    revealer.unobserve(n);
+    n.style.setProperty("--d", `${Math.min(i++, 5) * 60}ms`);
+    n.classList.add("in");
+    const done = (ev) => {   // the card's own transition, not a child's hover; a cancelled one cleans up too
+      if (ev.target !== n) return;
+      for (const t of ["transitionend", "transitioncancel"]) n.removeEventListener(t, done);
+      unreveal(n);
+    };
+    for (const t of ["transitionend", "transitioncancel"]) n.addEventListener(t, done);
   }
 }, { rootMargin: "0px 0px -8% 0px" }) : null;
 function reveal(nodes) {
-  if (!revealer) return;
+  if (!revealer || !motion()) return;
   for (const n of nodes) { n.classList.add("reveal"); revealer.observe(n); }
 }
 function groupHead(cls, n) {
@@ -276,6 +285,8 @@ function bdShow(btn, panel, by) {
   clearTimeout(bdTimer);
   if (bdOpen && bdOpen.btn !== btn) bdClose();
   if (bdOpen) { bdOpen.by = by; return; }
+  const card = btn.closest("article, li");   // a card still sliding or fading up carries a transform, which would pin a fixed panel to the card: finish it first
+  if (card) { unreveal(card); card.getAnimations().forEach((a) => a.finish()); }
   panel.hidden = false;
   btn.setAttribute("aria-expanded", "true");
   bdOpen = { btn, panel, by };
@@ -458,7 +469,7 @@ function cityCard(r, c, ctx) {
   for (const ev of ["pointerenter", "focusin", "touchstart"]) d.firstChild.addEventListener(ev, ensure, { once: true, passive: true });
   d.addEventListener("toggle", () => {
     ensure();
-    if (!d.open || !MOTION) return;
+    if (!d.open || !motion()) return;
     const line = d.querySelector(".spark .line"), dot = d.querySelector(".spark .dot");
     if (line) line.animate([{ strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDasharray: 1, strokeDashoffset: 0 }], { duration: 800, easing: EASE });
     if (dot) dot.animate([{ opacity: 0 }, { opacity: 0, offset: 0.8 }, { opacity: 1 }], { duration: 1000, easing: "linear" });
@@ -481,7 +492,7 @@ function cityBody(r, c, { series, windows }) {
   const tbody = el("tbody");
   for (const w of ws) {
     tbody.append(el("tr", { class: `c-${w.trip_class}${w.window_id === r.window_id ? " is-best" : ""}` },
-      el("th", { scope: "row" }, el("span", { text: windowLabel(w.window_id) }), classPill(w.trip_class),
+      el("th", { scope: "row" }, el("span", { class: "win", text: windowLabel(w.window_id) }), classPill(w.trip_class),
         el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)} · ${money(w.price_pp)} pp` })),
       el("td", {}, ladderPill(w.ladder)),
       el("td", { class: "num", text: money(w.total_cad) }),
@@ -498,18 +509,20 @@ function cityBody(r, c, { series, windows }) {
 // Re-sorting slides each tray from where it was to where it lands (400 ms, transform only); the first sort, at render, just places them.
 function sortCards(by, animate = false) {
   const box = $("cities"), kids = [...box.children];
+  if (box.hasAttribute("aria-busy")) return;   // still the skeleton: nothing to sort yet
   const cmp = {
     score: (a, b) => b.dataset.score - a.dataset.score || a.dataset.price - b.dataset.price,
     price: (a, b) => a.dataset.price - b.dataset.price,
     city: (a, b) => a.dataset.name.localeCompare(b.dataset.name),
     mine: (a, b) => a.dataset.order - b.dataset.order,
   }[by];
-  const before = animate && MOTION ? kids.map((k) => k.getBoundingClientRect()) : null;
+  const before = animate && motion() ? kids.map((k) => k.getBoundingClientRect()) : null;
   box.append(...kids.slice().sort(cmp));
   if (!before) return;
   kids.forEach((k, i) => {
     const a = before[i], b = k.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
-    if (dx || dy) k.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 400, easing: EASE });
+    if (Math.abs(dy) > innerHeight) k.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: EASE });   // from off screen: a fade, not a flight
+    else if (dx || dy) k.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 400, easing: EASE });
   });
 }
 
@@ -522,6 +535,7 @@ function renderCities(latest, series) {
     el("p", { text: "Fares are for two adults with a carry-on each, basic fares included. The score adds price (45 points: the complete trip against what the route normally costs), time there (20), convenience (10), city (15) and weather (10). 70 or more passes; a fare at or under the route's good gets a real lodging check; a final 80 with lodging in hand is a hit." }));
   const best = Object.fromEntries((latest.best_by_city || []).map((r) => [r.city, r]));
   const cities = latest.cities || [];
+  $("cities").removeAttribute("aria-busy");   // the skeleton goes either way
   if (!cities.length) {
     $("cities").replaceChildren(emptyCard("i-radar", "No cities in this scan.", "Every city is switched off in Settings."));
     return;
@@ -529,7 +543,6 @@ function renderCities(latest, series) {
   const ctx = { series, windows: latest.windows || [] };
   const cards = cities.map((c, i) => { const card = cityCard(best[c.key], c, ctx); card.dataset.order = i; return card; });   // cities.yaml order = "Mine"
   $("cities").replaceChildren(...cards);
-  $("cities").removeAttribute("aria-busy");
   sortCards(document.querySelector("#sort input:checked").value);
   reveal(cards);
 }
@@ -616,16 +629,30 @@ async function main() {
   const savedSort = document.querySelector(`#sort input[value="${store.get("radar.sort")}"]`);
   if (savedSort) savedSort.checked = true;
   $("sort").addEventListener("change", (e) => { store.set("radar.sort", e.target.value); sortCards(e.target.value, true); });
-  // The frame sticks under the paper. A one-pixel sentinel at the paper's top edge tells the bar when to turn to paper (64 px
-  // from the top), the frame when its words give way (the fallback where CSS cannot read the scroll) and when it is covered.
+  // The frame sticks under the paper. A sentinel the height of the frame, ending at the paper's top edge, tells the bar when
+  // to turn to paper (its end 64 px from the top), the frame when its words give way (half way; the fallback where CSS cannot
+  // read the scroll) and when it is covered. It spans the frame rather than marking one pixel, so a jump straight past it
+  // (an anchor with reduced motion) still changes its state. Pixel margins, rebuilt when the viewport changes.
   const bar = $("bar"), frame = $("frame"), edge = document.querySelector(".frame-end");
   if ("IntersectionObserver" in window) {
-    const watch = (rootMargin, node, cls) => new IntersectionObserver(([e]) => {
-      node.classList.toggle(cls, !e.isIntersecting && e.boundingClientRect.top < (e.rootBounds ? e.rootBounds.top : 0));
-    }, { rootMargin }).observe(edge);
-    watch("-64px 0px 0px 0px", bar, "on-paper");
-    watch("-50% 0px 0px 0px", frame, "past");
-    watch("0px", frame, "gone");
+    const watchers = [];
+    const watchFrame = () => {
+      for (const o of watchers) o.disconnect();
+      watchers.length = 0;
+      const watch = (rootMargin, node, cls) => {
+        const o = new IntersectionObserver(([e]) => {
+          node.classList.toggle(cls, !e.isIntersecting && e.boundingClientRect.top < (e.rootBounds ? e.rootBounds.top : 0));
+        }, { rootMargin });
+        o.observe(edge);
+        watchers.push(o);
+      };
+      watch("-64px 0px 0px 0px", bar, "on-paper");
+      watch(`-${Math.round(innerHeight / 2)}px 0px 0px 0px`, frame, "past");
+      watch("0px", frame, "gone");
+    };
+    watchFrame();
+    let resizeTimer = 0;
+    window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(watchFrame, 150); });
   } else {
     const paper = () => bar.classList.toggle("on-paper", window.scrollY > frame.offsetHeight - 64);
     window.addEventListener("scroll", paper, { passive: true });
