@@ -920,3 +920,37 @@ Nothing rejected.
 - **Type consistency:** `Leg`, `Trip`, `Scored`, `Window`, `City`, `Scoring`, `HotelCheck` names and fields are used identically across Tasks 3–10.
 - **Review Focus:** 1 and 2 → Task 5 tests; 3 → Tasks 4 (FetchError) and 10 (atomic write, error recorded); 4 → Task 9 cap test; 5 → Task 3 stat tests.
 - **Proportion:** signatures and tests, not bodies; the one algorithm spelled out (score components) is the spec's own.
+
+## ux-motion (2026-11-11, branch `ux-motion`, unattended build)
+
+**Goal.** William: "make all the tabs the same size, and make the ux smoother, use scroll craft and oil motion as well
+... I want huge UX/UI improvements, something very visually impressive and shows good artistic taste." Tabs = the
+cards (trays, drawers, hit cards). The archive-of-looking system wins every clash.
+
+**Deepened brief (what a top professional adds, kept only where it decides whether the task works).**
+1. Equal cards need equal line counts, not just grid stretch: the route line gets the full card width, the class
+   word moves to a fixed bottom line, the ladder line is the other bottom line. Otherwise the rag comes back on
+   the next city name.
+2. The first frame hands over by sticking under the paper (position: sticky), so the handover is layout, not a
+   per-frame scroll handler; CSS scroll-driven animations fade the words and darken the plate, an
+   IntersectionObserver on a one-pixel sentinel turns the bar to paper and hides the frame once covered.
+3. Open and close of every `<details>` through `::details-content` with `interpolate-size` (the one layout
+   animation, 350 ms, one card at a time); everything else is transform, opacity, clip and dash offset.
+4. A skeleton in the HTML itself (six trays, one lead line) so the paper has its shape before the JSON lands.
+5. Nothing hides content when JS fails: reveal classes are added by JS only, scroll fades have a fallback.
+6. Spec Kit skipped: a motion and layout pass on existing surfaces, no new data or feature (logged).
+
+**Rawest material.** The real `data/latest.json` (20 cities, 11 Nov scan), the four fixture states from
+`scripts/dashboard_fixtures.py`, the skills' own rules, MDN for `::details-content`, `interpolate-size` and
+`animation-timeline` (context7 / web).
+
+**Acceptance checks (definition of done).**
+- [x] A1 Tray heights equal within every row at 390 and 1440 (real data); drawer and hit card heights equal within rows (fixture `hits`, `passed`); sort words one width; group heads aligned.
+- [x] A2 First frame: sticky handover, words fade with scroll, bar turns to paper, frame hidden once covered; reduced motion = straight cuts; screenshots at 0, mid-scroll, past.
+- [x] A3 Trays open with an eased height and fade; breakdown slip fades; sparkline draws on open; staggered first reveal; FLIP on sort; skeleton before data.
+- [x] A4 No console errors, no horizontal scroll at 390; both colour schemes; keyboard focus visible.
+- [x] A5 `pytest -q` 106 pass; impeccable detector run and mechanical findings fixed.
+- [x] A6 Fresh-context reviews: web-design-reviewer and Codex; confirmed findings fixed.
+- [x] A7 D-81, DESIGN.md motion section, SESSION-LOG, HANDOFF updated; committed on `ux-motion`.
+
+**Later (not built).** View Transitions for the sort; self-hosted fonts; an animated horizon rule drawn across the paper.
