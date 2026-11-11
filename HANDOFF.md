@@ -31,7 +31,7 @@ the new time and convenience lines; `data/history/latest.csv` (296 trips, 135 KB
 
 ## What runs, and when (Calgary time; the repo and logs use UTC)
 
-- **04:17 daily**: the scan (`.github/workflows/scan.yml`, cron 10:17 UTC; backup slot 13:17 UTC that
+- **04:17 daily**: the scan (`.github/workflows/scan.yml`, cron 10:17 UTC plus hourly backup slots to 16:17 UTC (D-79) that
   skips itself when today's scan exists, D-74; manual `gh workflow run scan.yml` always runs). About
   60 to 80 minutes, 572 to 688 Google Flights fetches, cap 900. Commits `data/` and `hits/`, redeploys
   Pages. GitHub's scheduler has been late (10 h on 11-09) and absent (11-10): hence the backup slot.

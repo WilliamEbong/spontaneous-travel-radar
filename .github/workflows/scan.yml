@@ -2,8 +2,7 @@ name: scan
 # Daily collector + Pages deploy. A push that touches the dashboard or the digests only redeploys Pages (no scan).
 on:
   schedule:
-    - cron: "17 10 * * *"   # 04:17 Calgary; a full scan takes about an hour
-    - cron: "17 13 * * *"   # backup slot: GitHub ran the first one 10 h late on 2026-11-09 and not at all by 16:00 on 11-10; skipped when today's scan already exists
+    - cron: "17 10-16 * * *"   # 04:17 Calgary, then an hourly backup slot until 10:17; the first slot GitHub actually runs scans, the rest exit in 30 s ("Already scanned today?"). GitHub's scheduler ran this 10 h late on 11-09, 7.5 h late on 11-11 (D-74, D-79).
   workflow_dispatch:
     inputs:
       cities:
