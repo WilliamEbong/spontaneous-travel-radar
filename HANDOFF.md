@@ -1,6 +1,6 @@
-# Handoff: Spontaneous Travel Radar (state as of 2026-11-11, 17:00 Calgary)
+# Handoff: Spontaneous Travel Radar (state as of 2026-11-11, 19:00 Calgary)
 
-Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-80, one entry per
+Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-81, one entry per
 judgment call), `docs/ASK.md` (how to answer William's questions from the data), and `SESSION-LOG.md`
 (what happened, in order). `BUILD-PLAN-v2.md` and `docs/research/2026-11-09-fare-references.md` are the
 design record for v2; `BUILD-PLAN.md` and the design doc in `docs/superpowers/specs/` are v1 background.
@@ -15,7 +15,30 @@ at most one tuning change. William wants alerts only for deals so exceptional he
 dashboard is the system working. Month one (to about 2026-12-08) is a learning run: nothing alerts,
 everything is logged and shown.
 
-## Everything on `main` is live (nothing pending on branches)
+## Pending: branch `ux-motion` (worktree `.claude/worktrees/ux-motion`), ready to merge on William's word
+
+D-81, built unattended on 2026-11-11 evening from main `9ff662f` (William: "make all the tabs the same size, and
+make the ux smoother, use scroll craft and oil motion as well ... huge UX/UI improvements"). Touches only
+`index.html`, `site/style.css`, `site/app.js` and the docs (`DESIGN.md` Motion, `docs/notes/decisions.md` D-81,
+`BUILD-PLAN.md` tail, `SESSION-LOG.md`, this file); nothing in Python, `data/`, `hits/` or `config/`. What it does:
+trays, drawers and hit cards fill their row with a pinned anatomy and wrap the same way (20 trays at 243 px each at
+390 and 1440, drawers 208, sort words one width); the first frame sticks under the paper and the paper slides over
+the limb, with the headline and deal line fading on scroll and the bar turning to paper from an observer; every
+`<details>` opens with an eased height and a fade, the breakdown slip fades, the price line draws itself, cards fade
+up on first view, the sort slides trays, a skeleton holds the paper's shape while the JSON loads; reduced motion cuts
+straight. Verified in this run with Playwright at 390x844 and 1440x900, light and dark, reduced motion both ways, on
+the real 11 Nov data and the four fixture states (empty, passed, hits, live), the health sheet, the settings panel and
+the scoring table; 0 console errors, no horizontal scroll at 390 on either page, no long task on load, 106 tests
+(unchanged). Screenshots: `Documents/.playwright-mcp/ux-motion/` (`base-*` before, `r1`/`r2`/`r3-*` after). Not
+verified: a real phone (iOS Safari's support for `::details-content`, `interpolate-size` and scroll-driven animations
+decides whether it eases or cuts there; both are designed to degrade to a cut), and the live Pages deploy. Reviews:
+see the SESSION-LOG lines of 2026-11-12 for the design critic's and Codex's findings and what was fixed.
+
+To merge, from the main checkout: `git merge ux-motion` (`SESSION-LOG.md`, `HANDOFF.md` and `decisions.md` are
+append-only; union-merge if another branch touched them), `pytest -q`, push, then check the live page on the phone:
+the handover, a tray opening, the breakdown on tap. Undo: revert the merge; the data is untouched.
+
+## Everything else on `main` is live
 
 Merged and deployed on 2026-11-09/10, newest last: dashboard v2 (D-36), settings panel (D-43 to D-48),
 softened departure rule and time curve (D-50/51), two trip classes (D-52 to D-55), price below the bad
@@ -104,7 +127,7 @@ and real lodging in hand = a hit: `hits/dry-run/` this month, `hits/` live; othe
 ## Dashboard and panel
 
 Look: archive-of-looking (D-80, `DESIGN.md`); the first frame is the verdict over the Earth's limb, the rest is
-paper. Order: Hits (with brief: flights link to Google Flights for the dates, Google Hotels link, one link per
+paper; motion as in `DESIGN.md` Motion (D-81, on the `ux-motion` branch until merged). Order: Hits (with brief: flights link to Google Flights for the dates, Google Hotels link, one link per
 lodging option, Airbnb link when found, what's on with reasons), Passed (every 70+ trip and the pass it
 reached), Every city (best deal by score, the route's typical and exceptional, every weekend on tap,
 price history per class), daily note; health behind the pulse button (coverage, requests of 900,

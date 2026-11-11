@@ -61,10 +61,35 @@ status is printed as a word beside it.
 - Grain: one fixed SVG `feTurbulence` layer over the page at 8% multiply (7% screen in dark), `body::after`.
 - Corners square everywhere except the health dot, the chart's end dot and status dots.
 
-## Motion
+## Motion (D-81)
 
-The hero headline rises 10 px over 0.6 s; the photograph pushes in 4.5% over 28 s; both `cubic-bezier(0.3, 0, 0.7, 1)`.
-Transitions 150 to 300 ms. `prefers-reduced-motion` removes all of it. No parallax, bounce or springs.
+Motion is state and reveal, never decoration. One easing everywhere, `--ease: cubic-bezier(0.3, 0, 0.7, 1)`, near-linear;
+only transform, opacity, clip and a dash offset move, with one exception named below. William reads this page for ten
+seconds a day, so nothing loops, bounces or springs, and nothing waits for a choreography.
+
+- **The one authored moment: the handover.** The first frame is `position: sticky` under the paper (`.paper`, opaque, at
+  least a viewport tall), so the paper slides up over the Earth's limb as the visitor scrolls. Scrubbed by the scroll
+  itself (`animation-timeline: scroll(root)`): the headline and the deal line lift 20 px and fade over the first 70% of
+  a viewport, the plate pushes in 4% and a night overlay darkens it to 65% over the first viewport. The bar turns to
+  paper 64 px before the paper reaches it, and the frame stops painting once covered (`.gone`), both from
+  IntersectionObservers on a one-pixel sentinel at the paper's top edge. Engines that cannot read the scroll get
+  `.frame.past`, a 0.4 s fade once the paper is half way up.
+- **Arrival.** The headline rises 10 px over 0.6 s, the deal line 0.15 s later; the photograph pushes in 4.5% over 28 s.
+  Six skeleton trays and one lead line sit in the markup (cream bars pulsing 0.55 to 1 over 1.4 s) until the JSON lands.
+  Trays, drawers and hit cards fade up 10 px over 0.5 s the first time they come into view, the ones arriving together
+  60 ms apart (300 at most); the classes come from JS and come off again after the transition.
+- **Open and close.** Every `<details>` opens through `::details-content` with `interpolate-size: allow-keywords`: the
+  height eases over 0.35 s and the body fades in over 0.45 s; closing runs the same in reverse. This is the one layout
+  animation on the page, one card at a time; engines without it cut. The chevron turns over 0.25 s. The breakdown slip
+  fades and settles 6 px over 0.3 s and fades out before it goes (`@starting-style`, `display` with `allow-discrete`).
+  When a tray opens its price line draws itself over 0.8 s (a dash offset on a path with `pathLength="1"`) and the end
+  dot lands at the end. Tray bodies and briefs are built or fetched at the first sign of interest (hover, focus, touch)
+  so the height eases in one movement.
+- **Feedback.** Hover washes and keyline darkening on devices with a pointer; a press (`:active`) washes every summary,
+  sort word and calendar day; buttons settle 1 px; links turn ink; 150 ms. Sorting slides each tray from where it was to
+  where it lands over 0.4 s (FLIP, transform only). Dialogs rise 12 px (the panel 24) and fade over 0.3 to 0.35 s.
+- **Reduced motion.** `prefers-reduced-motion: reduce` turns off every transition and animation, the scroll-driven ones
+  and `::details-content` included; the reveal classes are never added; the page cuts straight.
 
 ## Not here
 
