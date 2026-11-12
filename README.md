@@ -4,12 +4,13 @@ A free tracker that watches fares for two from Calgary (YYC) to 20 North America
 trips that fit a one-vacation-day weekend (leave after 7:30pm the evening before, home by 4pm on the
 last day off), judges each complete trip for two against what its route normally costs, takes a
 closer look at the few exceptional ones (real lodging, then what is on), logs every quote, and shows
-the best of them on a static dashboard. Month one (to about 2026-12-09) is a dry-run learning period:
-no alerts. See `docs/LEARNING-RUN.md`.
+the best of them on a static dashboard. It is in a dry-run learning period with no end date (no
+alerts) and tunes its own price judgment every night (D-82). See `docs/LEARNING-RUN.md` and
+`docs/TUNING-PLAN.md`.
 
 - **Dashboard:** https://williamebong.github.io/spontaneous-travel-radar/
 - **Daily scan:** GitHub Actions `scan` workflow, 10:17 UTC (03:17 MST / 04:17 MDT), about 80 minutes
-- **Claude routines:** `radar-daily` (pass 3, the daily note, at most one change a day):
+- **Claude routines:** `radar-daily` (pass 3, the nightly self-tuning, the daily note, at most one change a day):
   https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw · hit reviewer (disabled until go-live):
   https://claude.ai/code/routines/trig_01TvveuLCRL8QwbwuF52yd9Y · see `routine/CAPABILITIES.md`
 - Design: `docs/superpowers/specs/2026-11-09-spontaneous-travel-radar-design.md`

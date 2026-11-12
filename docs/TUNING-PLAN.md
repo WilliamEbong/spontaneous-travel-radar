@@ -1,129 +1,157 @@
-# Tuning plan for 2026-12-09 (end of month one)
+# Self-tuning: the permanent loop (D-82)
 
-Executed by the one-shot routine `radar-tune` (instructions: `routine/PROMPT-tune.md`). Written so a
-fresh run with no other context can carry it out. Goal: stop hand-tuning route ladders. Make each route's
-flight ladder follow its own prices, then test the price anchors and the few other knobs against a fixed,
-offline metric. (Rewritten for the v2 deal model, D-57 to D-72; the v1 band version is in git history.)
+William, 2026-11-12: the radar must never stop, and it should keep improving itself the way Karpathy's
+autoresearch does: a fixed harness, one editable surface, one number to improve, a fixed budget per experiment,
+keep the change if the number improves and revert it if not, forever, with the human editing only the
+instructions. He will not look at travel until February, so the loop runs unattended. This replaces the one-time
+2026-12-09 retune (`radar-tune`, whose prompt is now a stub that stops) and the 2026-12-08 stop of `radar-daily`.
+The one-time plan is in git history (this file before D-82).
 
-## What exists on 2026-12-09
+## Where it runs, and why
 
-- `data/history/*.jsonl`: one file per scan day since 2026-11-09. Each row is one logged quote: the
-  cheapest per airport per city-window plus each city-window's top scorer (`winner`, D-12). Fields include
-  `city`, `airport`, `window_id`, `trip_class`, `out_dep`, `out_arr`, `back_dep`, `back_arr`, `stops_out`,
-  `stops_back`, `flights_cad_2pax`, `price_pp`, `score`, `candidate`, `price_pts`, `history_pct`. From the
-  first scan of the v2 branch they also carry `ladder`, `share`, `total_cad` (pass-1 complete trip),
-  `nights`, `pass`, `final_score` (always null in history) and `candidate_id`. Older rows have `band`
-  instead of `ladder` and no `share`: use them for fare percentiles only.
-- `hits/candidates/*.json` (pass 2), `hits/near-miss/*.json` and `hits/dry-run/*.json` (pass 3): the
-  month's candidates with their real lodging, what's-on points and final scores. `hits/index.json` lists
-  them with their stage.
-- `radar/score.py`: `price_points`, `price_component`, `typical_trip_cad`, `ladder_label`, `score_trip`,
-  `is_candidate`, `rescore`. `radar/store.py: route_percentile`. `radar/hits.py: finalize`.
-- `config/references.yaml` (route ladders), `config/scoring.yaml` (weights, `price_curve`, per-class
-  `candidate_threshold` and `hit_threshold`, `cap_cad`). `docs/iteration-log.md` and
-  `docs/notes/decisions.md` say what the daily loop changed during the month.
+Inside the daily routine `radar-daily` (section T of `routine/PROMPT-daily.md`), as one deterministic command:
+`python scripts/tune_loop.py --date <date>`. Not as a step after the scan in Actions, because:
+- the scan stays isolated: a tuning bug can never cost a day's scan, and `.github/workflows/` stays untouched;
+- the routine already pushes to `main`, opens pull requests and writes the note that reports the loop;
+- the routine can propose up to three trials of its own (`--try key=value`), autoresearch's agent step, while the
+  arithmetic, the keep-or-revert rule and the file edits stay in code (constitution II);
+- GitHub's scheduler starts the scan 7 to 10 hours late (D-74, D-79), so the routine often runs before today's scan.
+  That does not matter: the loop replays whatever history is on `main` and never assumes today's scan exists.
+The harness is plain Python with no network, so moving it into Actions later is one workflow step.
 
-## Order of work
+## What it learns from
 
-1. Count scan days: `ls data/history/*.jsonl | wc -l`. If under 21 (scans were missed), run anyway,
-   say so in the PR and the note, and open the PR as a draft.
-2. Build the backtest harness (a). Commit.
-3. Implement rolling ladders (d), with tests. Commit.
-4. Measure the baseline metric (b), then run the trial loop (c).
-5. Open the PR and write the note (e).
+`data/history/<day>.jsonl`, one file per scan day: the cheapest trip per airport per city-weekend plus each
+city-weekend's top scorer (`winner`), with `components` and `inputs` since D-76 and `share`, `total_cad` since v2.
+The 2026-11-09 rows are v1 (no `share`): they feed the ladders and the lows, not the judgements.
+Day-off weekends are priced every third day while they are 112 to 42 days out (secondary airports every ninth);
+weekend-only trips every day while they are 42 to 3 days out. So a weekend's "eventual low" is the lowest fare the
+radar saw while it was scanning that weekend, not the fare on the day of departure.
 
-## (a) Backtest harness: `scripts/backtest.py`
+## (a) The harness: `scripts/backtest.py`
 
-`python scripts/backtest.py [--config path/to/scoring.yaml] [--references path/to/references.yaml]
-[--holdout-days 7] [--json]`. It reads every `data/history/*.jsonl` plus `config/cities.yaml`, no network,
-under 10 seconds. It prints one line,
-`metric=<float> mode=<labels|calibration> train=<float> holdout=<float> rows=<n> days=<n>`; with
-`--json` the full breakdown per route.
+`python scripts/backtest.py [--config config/scoring.yaml] [--references config/references.yaml]
+[--until YYYY-MM-DD] [--holdout-days 7] [--json]`. Offline, deterministic, no network. For every logged winner it
+re-derives what the given config would have said that day, reusing `radar/score.py` and `radar/store.py`:
+- the route's flights ladder: `rolling_flights` over the rows before that row's scan day (never its own day or
+  later), or the static ladder in `config/references.yaml`;
+- the typical trip from that ladder, the row's nights and the season of its check-in (`typical_trip_cad`), then the
+  price component of the logged complete trip (`price_component`); the other four components are the logged ones
+  (scaled if a weight changed), so the replayed score is `price + the rest`;
+- called good: flights per person at or under the ladder's `good`; sent for a closer look: `is_candidate` with the
+  class's `candidate_threshold`.
+Under the live config it reproduces every logged winner's score (262 of 262 on 2026-11-12). It prints one line,
+`score=<train> mode=<hindsight|blend> train=… holdout=… rows=… days=…`, and one line per set with the parts;
+`--json` prints everything. `--until` replays the history as it stood on that day. Under a second on 3 days of data.
 
-For every v2 history row (it has `share` and `total_cad`), re-derive what the variant would have said that day:
-- the ladder label from `price_pp` and the variant's flights ladder for that route (rolling ladders, (d),
-  are computed from rows strictly before that row's `scan_date`, never from the future);
-- the typical trip T from the variant's ladders and the row's `nights` (`typical_trip_cad` needs a
-  check-in date for the season: use `out_arr`'s date);
-- the new price points with `price_component(total_cad, T, s)`; `new_score = score - price_pts + new`;
-- `candidate` = `is_candidate(price_pp, new_score, good, candidate_threshold[class])`.
-Reuse the functions in `radar/score.py`; do not copy their logic. Holdout: the last `--holdout-days` scan
-days are scored separately. `metric` is the train value, and the loop optimizes only that.
+## (b) The number: the hindsight price score
 
-## (b) The metric (chosen at run time)
+One judgement = one logged winner (the trip the radar shows for a city-weekend on a scan day), judged again as above.
 
-- **Labels mode**, if `data/labels.jsonl` exists with 30 or more rows
-  (`{ts, city, window_id, price_pp, label: "book"|"skip"}`, a future dashboard tap): join each label to the
-  history row with the same `city` and `window_id` from the latest scan day on or before `ts`. Metric =
-  F0.5 on `book` (precision weighted twice recall), where a positive prediction is `candidate`. Higher is
-  better.
-- **Calibration mode** otherwise. Per route over all v2 rows, lower is better:
-  - exceptional rate: penalty = distance outside [1%, 5%] of rows labelled `exceptional`;
-  - good-or-better rate: penalty = distance outside [10%, 25%];
-  - candidate rate: penalty = distance outside [0.5%, 3%] of winners (a few closer looks a week across
-    all routes, never none and never a flood);
-  - one-stop exceptional: share of `exceptional` rows with `stops_out + stops_back > 0`, weight 1.0;
-  - flip rate: for each (city, window_id), consecutive scan days where the cheapest row's label changes
-    while its `price_pp` moved under 5%, weight 0.5.
-  Metric = mean over routes. Report each term with `--json`.
-- Also report, not optimized: how the month's pass-3 results (hits and near misses) would score under the
-  variant, so William sees whether a change would have turned a near miss into a hit or the reverse.
+- **Near the eventual low**: the winner's flights per person are at most 1.10 x the lowest winner fare that weekend
+  showed on any scan day in the data being scored.
+- **Unfinished weekends**: a weekend still being scanned counts with its low so far, once it has been priced on 3 or
+  more scan days; with fewer it is left out. Every night scores from scratch, so a later, lower fare turns an earlier
+  "right" call into a "wrong" one for every config alike: configs are only ever compared on the same data the same
+  night, never across nights.
+- **Two terms, each F0.5** = 1.25 TP / (1.25 TP + 0.25 FN + FP), where TP = flagged and near the low, FP = flagged
+  but not near it, FN = near the low but not flagged:
+  - *deal*: the flag is "sent for a closer look" (the trips that can become hits);
+  - *ladder*: the flag is "called good or better".
+  F0.5 leans on precision: a flag that proved wrong costs four times a low that was missed, because William wants
+  rare calls he can trust.
+- **Score** = 50 x (deal + ladder), 0 to 100, higher is better.
+- **Holdout**: the most recent 7 scan days. **Train**: every earlier scan day, scored as if the history ended on the
+  last train day (its lows and its 3-day rule use train rows only). Nothing from the holdout days, neither their
+  judgements nor their fares, reaches the train score. The holdout score judges the last 7 days against the lows of
+  all data. Trials are kept or reverted on the train score alone; the holdout can only veto a whole night (c).
+- **Guardrails** (train): the share of judged trips called good or better must stay within 5% to 30%, the share sent
+  for a closer look within 0.5% to 3% (a few a week across all routes). A trial may not move either share further
+  outside its band than the current config has it, so it cannot win by flagging everything or nothing; a config
+  already outside a band may only move toward it.
+- **Noise margin**: a trial is kept only when it beats the current train score by 1.0 point or more. Smaller moves
+  are a few judgements flipping, which the data cannot tell from noise.
+- **Labels** (once `data/labels.jsonl`, `{ts, city, window_id, price_pp, label: "book"|"skip"}` from a future
+  dashboard tap, has 30 or more rows): a labels term, F0.5 on "book" with "sent for a closer look" as the
+  prediction, each tap joined to the winner judged for its city and window on the latest scan day on or before the
+  tap; it falls in train or holdout by that day. The score becomes the mean of the hindsight score and the labels
+  term, and the taste weights unlock (c).
+- **Stored with its inputs and parts**: `data/tuning/runs.jsonl`, one line a night: the data span (scan days, first
+  and last day, train and holdout spans, rows, labels), the rules (1.10, 3 days, F0.5, 7 days), the start and final
+  settings with their score and every part for train and holdout (TP, FP, FN, precision, recall, F, the two shares,
+  judgements, lows), and every trial's move, the value it replaced, the parts before and after, kept or not and why.
+  The history is append-only, so `scripts/backtest.py --until <span end>` with a config holding those settings
+  reproduces any stored score without fetching anything.
 
-## (c) The trial loop (keep or revert)
+## (c) The nightly trial loop: `scripts/tune_loop.py`
 
-A fixed harness, one editable surface, one scalar metric, a fixed budget per trial, keep or revert.
-- Editable surface: `config/scoring.yaml` and the flights ladders in `config/references.yaml` (through the
-  rolling settings of (d), not by hand). Harness, code and data are frozen once step 3 is committed.
-- One parameter change per trial. 2-minute cap per trial; at most 60 trials; stop after 10 in a row
-  without improvement. Keep a change only when the train metric improves (by 0.001 in calibration mode,
-  0.01 in labels mode); otherwise revert the files (`git checkout -- config/`).
-- Log every trial to `docs/tuning-log.md`: `| # | change | train | holdout | kept |`.
-- Candidates, in rough order: the rolling percentiles for exceptional/good/typical, the rolling window
-  (30 to 90 days), the price anchors in `price_curve.points` (each share moved by at most 0.05, points
-  order kept; William's 60/75/100 are the start and must stay within 0.50-0.70, 0.65-0.85 and 0.95-1.05),
-  `candidate_threshold` (65 to 80), the `price` weight (40 to 50, others rescaled to keep 100).
-- Guardrails: never edit `config/cities.yaml`, `days_off.yaml`, `interests.yaml`, the room ladders, the
-  trip classes' date ranges and hard rules, `enabled`, `hit_threshold` (William's line), `cap_cad`,
-  `time_rule` (D-78), request volume, or anything outside `config/` during the loop. If the final
-  holdout metric is worse than the baseline holdout, ship only (d) with the static ladders' best
-  percentiles and say why.
+- **Start guard**: fewer than 14 scan days in `data/history/` (about 2026-11-22 if every scan lands): it prints
+  `collecting, N of 14 days` and writes nothing. Expect the score to sit at 0 for about a week after that: the rolling
+  ladders need 14 days before a judgement's own day and the train set excludes the last 7, so train judgements use the
+  static ladders, which call nothing good today, until about 22 scan days (around 2026-11-30). Every trial is
+  reverted until then; that is correct.
+- **The editable surface** (`python scripts/tune_loop.py --surface` prints it with the current values), one key one
+  step per trial, within William's bounds:
 
-## (d) Rolling ladders (collector change, with tests)
+  | key | bounds | step |
+  |---|---|---|
+  | `rolling_ladder.good` (percentile) | 15 to 35 | 5 |
+  | `rolling_ladder.typical` (percentile) | 40 to 60 | 5 |
+  | `rolling_window_days` | 30 to 90 | 15 |
+  | `price_curve.share_0` (full points at or under) | 0.50 to 0.70 | 0.05 |
+  | `price_curve.share_1` (the middle step) | 0.65 to 0.85 | 0.05 |
+  | `price_curve.share_2` (no points) | 0.95 to 1.05 | 0.05 |
+  | `dayoff.candidate_threshold`, `weekend.candidate_threshold` | 65 to 80 | 2 |
+  | the five `weights`, only once 30 labels exist: two traded by 2 points, the total stays 100 | price 40-50, time 15-25, convenience 5-15, city 10-20, weather 5-15 | 2 |
 
-- New `config/scoring.yaml` keys: `ladder_mode: rolling` (or `static`), `rolling_ladder: {exceptional: 10,
-  good: 25, typical: 50}` (percentiles of `price_pp`), `rolling_window_days: 60`, `rolling_min_days: 14`,
-  `ladder_exclude_ranges: [[2026-12-18, 2027-01-04]]`. Add them to `Scoring` with defaults that reproduce
-  today's behaviour (`static`).
-- Percentiles are per route over both trip classes (both allow basic fares since v2), from history
-  before today, excluding rows whose window starts inside an excluded range. Until a route has
-  `rolling_min_days` scan days, use its static ladder from `config/references.yaml`. Enforce
-  exceptional < good < typical with at least 1 CAD between them.
-- Compute once per scan in `radar/main.py` and pass a `Reference` with the rolled flights ladder into
-  `score_trip`; the room ladders stay static. Same code path in the backtest.
-- Tests: fallback below 14 days; percentiles from known rows; never uses today's or future rows; ordering
-  enforced; `static` mode unchanged (existing tests stay green).
-- Stay out of `radar/windows.py`, `radar/flights.py`, `config/days_off.yaml`, `index.html` and `site/`.
+  The price-curve shares stay in rising order and the ladder percentiles above `exceptional`. A key William set
+  outside its bounds by hand is left alone, as is any key listed under `frozen` in `config/tuning.yaml`. Never on the
+  surface: `hit_threshold` (William's line), `cap_cad`, `mode`, `time_rule`, the price curve's points, fourth pair
+  and `floor`, `rolling_ladder.exceptional` (a label on the page; it changes no closer look), `rolling_min_days`,
+  `ladder_exclude_ranges`, `ladder_mode` (William's undo), the trip classes' ranges and rules,
+  `config/references.yaml`, `cities.yaml`, `interests.yaml`, `days_off.yaml`, code.
+- **A night**: `trials_per_night` (16 in `config/tuning.yaml`, 10 to 20) trials. The routine's `--try` proposals go
+  first (refused if off the surface or out of bounds); then one-step moves from the current config, the least-tried
+  key first, rotated by the date. Each trial replays the whole history and is kept when the train score is at least
+  1.0 above the current one with both guardrails holding and the replay under 2 minutes; otherwise it is reverted.
+  The next trial starts from the current config (hill climbing). A trial over 2 minutes ends the night.
+- **Holdout veto**: if the night's final holdout score is more than 1.0 below its starting one, the whole night is
+  undone and nothing changes. This is the only use of the holdout.
+- **Writes**: one row per trial and one per night in `docs/tuning-log.md` (change, score before and after, holdout
+  before and after, the parts, kept or reverted and why); one line in `data/tuning/runs.jsonl`; and, when something
+  was kept, only the changed lines of `config/scoring.yaml`, comments kept, read back before it counts (restored if
+  it does not read back as the kept config). `--date` makes a second run the same day a no-op (`already ran`).
+- **Going live** (`auto_apply` in `config/tuning.yaml`): `true` (William's choice) makes the routine commit
+  `config/scoring.yaml` alone on `main` as `tune: <date>: <changes> (score a → b)`; one `git revert` undoes the
+  night. A night's kept changes share one commit because two can touch the same line, and one commit is what one
+  revert can always undo. `false` puts the same commit on `radar/tune-<date>` and opens a PR for William; the routine
+  skips the loop while one is open.
+- **Undo and stop**: revert the `tune:` commit, then add its key to `frozen` so the loop does not learn it again.
+  Freezing every key stops the loop without touching anything else; `ladder_mode: static` drops the rolling ladders.
+- **Monday note**: `python scripts/tune_loop.py --summary --date <date>` prints the week in plain words (what was
+  kept, the score at the start and end of the week, on train and on the holdout); the routine copies it in.
 
-The round-trip reprice of the v1 plan (d2) is dropped: fast-flights 3.1.0 cannot price an exact leg pair
-(D-61).
+## (d) Rolling ladders (built, D-82)
 
-## (e) Deliverable
-
-- One branch and PR, `radar/tune-2026-12-09`, into `main`. Body: data span (scan days, rows), metric mode,
-  baseline and final metric (train and holdout), the kept trials (table from `docs/tuning-log.md`), the
-  config diff, how the month's hits and near misses would change, and how to undo (`ladder_mode: static`).
-  Draft if under 21 scan days (step 1).
-- Codex should review on PR open. In the same run, also start a fresh-context reviewer subagent on the
-  full diff, fix what it confirms, and post its summary as a PR comment. William merges; no routine runs
-  after it.
-- Note `data/digests/2026-12-09.md` (`# Tuning run 2026-12-09`, at most 15 lines), the
-  `data/digests/index.json` refresh, and one line in `docs/iteration-log.md`. Push those straight to
-  `main`; if pushing fails, email the note to williamebong@gmail.com instead.
+- `config/scoring.yaml`: `ladder_mode: rolling`, `rolling_ladder: {exceptional: 10, good: 25, typical: 50}`
+  (percentiles of `price_pp`), `rolling_window_days: 60`, `rolling_min_days: 14`,
+  `ladder_exclude_ranges: [[2026-12-18, 2027-01-04]]`. The `Scoring` defaults reproduce `static`.
+- Per route, both trip classes, every logged row in the window before the scan day, excluding rows whose weekend
+  starts inside an excluded range; nearest-rank percentiles (the weekly summary's); exceptional < good < typical with
+  at least 1 CAD between them. Until a route has 14 scan days in the window, its static ladder is used.
+- `radar/store.py: rolling_flights` is the one function: the scan rolls the refs once per scan in `radar/main.py`
+  (pass 1, pass 2, the page's ladder), the backtest per row's scan day. Rooms stay static. Every trip's `inputs`
+  carry the `flights_ladder` it was judged by, since that ladder now moves daily.
+- Tests: `tests/test_rolling_ladders.py` (static mode, the 14-day fallback, known percentiles, never today or later,
+  the window bound, excluded windows, rung order, config validation).
 
 ## Known bias: holiday fares
 
-The month-one history covers trip windows from 3 days to 16 weeks ahead, so it includes Christmas and New
-Year windows (2026-12-18 to 2027-01-04), when fares are inflated. Left in, they push ladder percentiles up,
-so January fares look better than they are. Exclude them through `ladder_exclude_ranges`, and also report
-the metric with them included, so the effect is visible. The 60-day rolling window works the remaining
-bias out by mid-February.
+The history includes Christmas and New Year windows, when fares are inflated; left in, they would push the ladders
+up so that January fares look better than they are. `ladder_exclude_ranges` keeps 2026-12-18 to 2027-01-04 out of
+the ladders; add next year's range each December. Those weekends are still judged and scored like any other.
+
+## Not built
+
+- The variant does not re-pick each weekend's winner: the logged winner is fixed and only its judgement moves.
+- The one-time plan's report of how the month's hits and near misses would score under a variant.
