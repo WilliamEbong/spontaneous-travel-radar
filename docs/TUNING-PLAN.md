@@ -40,7 +40,9 @@ re-derives what the given config would have said that day, reusing `radar/score.
   (scaled if a weight changed), so the replayed score is `price + the rest`;
 - called good: flights per person at or under the ladder's `good`; sent for a closer look: `is_candidate` with the
   class's `candidate_threshold`.
-Under the live config it reproduces every logged winner's score (262 of 262 on 2026-11-12). It prints one line,
+Under the live config it reproduces the logged winners' scores: 412 of 414 exactly on the four scan days to
+2026-11-12, the other two one point off at a .5 rounding edge (components are stored to two decimals), and every
+logged candidate decision. It prints one line,
 `score=<train> mode=<hindsight|blend> train=… holdout=… rows=… days=…`, and one line per set with the parts;
 `--json` prints everything. `--until` replays the history as it stood on that day. Under a second on 3 days of data.
 
