@@ -176,7 +176,7 @@ def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: 
     is judged on the train days only; the holdout can only veto the whole night at the end."""
     ev = lambda s: evaluate(rows, s, refs, cities, labels=labels)  # noqa: E731
     cur, cur_ev = s0, ev(s0)
-    start, seen, trials, pending = cur_ev, {key_of(s0)}, [], list(proposals)
+    start, seen, trials, pending, tries = cur_ev, {key_of(s0)}, [], list(proposals), {}
     while len(trials) < budget:
         if pending:
             move, source = pending.pop(0), "routine"
@@ -186,7 +186,10 @@ def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: 
             fresh = [m for m in neighbours(cur, keys) if key_of(with_values(cur, m)) not in seen]
             if not fresh:
                 break
+            least = min(tries.get(tuple(sorted(m)), 0) for m in fresh)   # spread the night over the keys
+            fresh = [m for m in fresh if tries.get(tuple(sorted(m)), 0) == least]
             move, source = fresh[day.toordinal() % len(fresh)], "menu"
+        tries[tuple(sorted(move))] = tries.get(tuple(sorted(move)), 0) + 1
         cand = with_values(cur, move)
         seen.add(key_of(cand))
         t0 = time.time()
@@ -354,13 +357,14 @@ def summary(days: int = 7, end: date | None = None) -> str:
     if not week:
         return f"Self-tuning: did not run between {_day(first.isoformat())} and {_day(end.isoformat())}."
     kept = [(r["date"], k) for r in week for k in r["kept"]]
-    lines = [f"Self-tuning, {_day(week[0]['date'])} to {_day(week[-1]['date'])}: {len(week)} nights, "
+    lines = [f"Self-tuning, {_day(week[0]['date'])} to {_day(week[-1]['date'])}: {len(week)} night{'s' * (len(week) > 1)}, "
              f"{sum(len(r['trials']) for r in week)} changes tried, {len(kept)} kept."]
     was = lambda v: f"{v:.0%}" if isinstance(v, float) else str(v)  # noqa: E731
     for d, k in kept:
         lines.append(f"- {_day(d)}: " + "; ".join(f"{plain(key, v)} (was {was(k['was'][key])})" for key, v in k["move"].items()) + ".")
     a, b = week[0]["start"], week[-1]["final"]
-    lines.append(f"How often its good-fare calls landed near each weekend's lowest price (0 to 100): {a['score']:.0f} "
+    lines.append(f"Hindsight score (did its good-fare and closer-look calls land near each weekend's lowest price; "
+                 f"0 to 100, higher is better): {a['score']:.0f} "
                  f"on {_day(week[0]['date'])}, {b['score']:.0f} on {_day(week[-1]['date'])}; on the most recent week, "
                  f"which it never learns from: {a['holdout']['score']:.0f} then {b['holdout']['score']:.0f}.")
     if any(r["vetoed"] for r in week):
@@ -388,6 +392,7 @@ def main(argv=None) -> int:
     ap.add_argument("--days", type=int, default=7)
     ap.add_argument("--surface", action="store_true", help="the keys, bounds and what may move tonight")
     a = ap.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8")   # the arrows and dashes in the output, also on a Windows console
     day = date.fromisoformat(a.date) if a.date else None
     if a.summary:
         print(summary(a.days, day))

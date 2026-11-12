@@ -35,7 +35,8 @@ NEEDED = ("winner", "share", "total_cad", "nights", "components", "inputs", "out
 
 
 def load_rows(root="data/history", until: str | None = None) -> list[dict]:
-    """Every logged row, oldest day first; --until stops at that scan day."""
+    """Every logged row, oldest day first; --until stops at that scan day.
+    ponytail: the whole history every trial; keep only the last ~180 days if a trial nears the 2-minute budget."""
     rows = read_history(36500, root=root, today=date.fromisoformat(until) if until else date.today())
     return [r for r in rows if until is None or r["scan_date"] <= until]
 
