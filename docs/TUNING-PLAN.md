@@ -14,7 +14,9 @@ Inside the daily routine `radar-daily` (section T of `routine/PROMPT-daily.md`),
 - the scan stays isolated: a tuning bug can never cost a day's scan, and `.github/workflows/` stays untouched;
 - the routine already pushes to `main`, opens pull requests and writes the note that reports the loop;
 - the routine can propose up to three trials of its own (`--try key=value`), autoresearch's agent step, while the
-  arithmetic, the keep-or-revert rule and the file edits stay in code (constitution II);
+  arithmetic, the keep-or-revert rule and the file edits stay in code (constitution II). Its proposals may draw only
+  on the train columns of `docs/tuning-log.md`, never on the last 7 scan days it reads for its analysis, since those
+  are the holdout;
 - GitHub's scheduler starts the scan 7 to 10 hours late (D-74, D-79), so the routine often runs before today's scan.
   That does not matter: the loop replays whatever history is on `main` and never assumes today's scan exists.
 The harness is plain Python with no network, so moving it into Actions later is one workflow step.
@@ -82,8 +84,10 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
   and last day, train and holdout spans, rows, labels), the rules (1.10, 3 days, F0.5, 7 days), the start and final
   settings with their score and every part for train and holdout (TP, FP, FN, precision, recall, F, the two shares,
   judgements, lows), and every trial's move, the value it replaced, the parts before and after, kept or not and why.
-  The history is append-only, so `scripts/backtest.py --until <span end>` with a config holding those settings
-  reproduces any stored score without fetching anything.
+  A re-run scan replaces its day's file, so each line also stores fingerprints: the code's git commit and hashes of
+  `config/references.yaml` (static ladders, rooms), `config/cities.yaml` and the history files read. When they match,
+  `scripts/backtest.py --until <span end>` with a config holding those settings reproduces the stored score without
+  fetching anything.
 
 ## (c) The nightly trial loop: `scripts/tune_loop.py`
 
@@ -121,8 +125,10 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
   undone and nothing changes. This is the only use of the holdout.
 - **Writes**: one row per trial and one per night in `docs/tuning-log.md` (change, score before and after, holdout
   before and after, the parts, kept or reverted and why); one line in `data/tuning/runs.jsonl`; and, when something
-  was kept, only the changed lines of `config/scoring.yaml`, comments kept, read back before it counts (restored if
-  it does not read back as the kept config). `--date` makes a second run the same day a no-op (`already ran`).
+  was kept, only the changed lines of `config/scoring.yaml`, comments kept, written through a temp file and read
+  back before it counts; on any failure (for example a line rewritten by hand into a shape it cannot edit) the old
+  bytes go back, the night is still logged with the error, and nothing changes. `--date` makes a second run the
+  same day a no-op (`already ran`).
 - **Going live** (`auto_apply` in `config/tuning.yaml`): `true` (William's choice) makes the routine commit
   `config/scoring.yaml` alone on `main` as `tune: <date>: <changes> (score a → b)`; one `git revert` undoes the
   night. A night's kept changes share one commit because two can touch the same line, and one commit is what one

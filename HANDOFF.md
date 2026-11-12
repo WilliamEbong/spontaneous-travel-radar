@@ -31,7 +31,8 @@ the motion layer (D-81, built unattended on branch `ux-motion`, merged and deplo
 
 **On branch `tune-loop`, waiting for William's merge (D-82)**: the permanent self-tuning loop. Rolling route
 ladders, the replay harness `scripts/backtest.py`, the nightly trial loop `scripts/tune_loop.py` with its switch
-file `config/tuning.yaml`, `radar-daily` without an end date, `PROMPT-tune.md` superseded; 127 tests. Merging it
+file `config/tuning.yaml`, `radar-daily` without an end date, `PROMPT-tune.md` superseded; 129 tests, which read a
+frozen copy of the scoring config (`tests/fixtures/scoring.yaml`) because the loop edits the live one. Merging it
 changes the live routine (it reads `routine/PROMPT-daily.md` from `main`). The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
 `v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` and
 `ux-motion` were removed after their merges.
@@ -51,7 +52,7 @@ where Perpetua, Franklin Gothic and Consolas are not installed (William's phone)
   `gh workflow run scan.yml` always runs. About 60 to 80 minutes, 572 to 688 Google Flights fetches,
   cap 900. Commits `data/` and `hits/`, redeploys Pages. GitHub's own scheduler ran the cron 7.5 to
   10 h late every day from 11-09 to 11-12: hence the routine.
-- **07:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
+- **08:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
   every day with no end date once `tune-loop` is merged (D-82; until then its prompt stops after
   2026-12-08), instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and pass 3 research on
   today's candidates, the self-tuning step (section T: `python scripts/tune_loop.py --date <date>`; a kept
@@ -169,7 +170,7 @@ tap. `table.html`: any day's scoring table, sort, filter, download.
 ## How to verify
 
 ```
-.venv\Scripts\python -m pytest -q                                   # 127 with tune-loop, no network
+.venv\Scripts\python -m pytest -q                                   # 129 with tune-loop, no network
 python scripts\backtest.py                                          # the hindsight score now, offline
 python scripts\tune_loop.py --surface                               # what the loop may change
 gh run list -R WilliamEbong/spontaneous-travel-radar --limit 3       # scan ran? how long? failed?
@@ -181,7 +182,7 @@ score panel on tap, the scoring table for today.
 
 ## Dates ahead
 
-- Daily: 04:17 scan, 07:30 routine note. Mondays the note carries the week's summary.
+- Daily: 04:17 scan, 08:30 routine note (Calgary is UTC-6 all year). Mondays the note carries the week's summary.
 - About 2026-11-22: 14 scan days; the self-tuning starts and the routes' ladders start rolling.
 - About 2026-11-30: 22 scan days; the rolling ladders reach the train days and the loop can first keep a change.
 - 2026-12-08: one-time month-one summary in the note; nothing stops. Live mode stays William's call (panel).

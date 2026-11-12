@@ -104,20 +104,26 @@ editable surface, one number, keep or revert (`docs/TUNING-PLAN.md`, D-82). The 
 rule and the file edits all live in `scripts/tune_loop.py`; you run it and report what it printed.
 - If an open PR's head branch starts with `radar/tune-`, skip T (a change is waiting for William) and say so in
   the note.
-- Optional, autoresearch's agent step: from what B showed, you may propose up to three trials of your own,
-  `--try "key=value"` (two weight keys in one trial, comma-separated, once weights unlock), keys and bounds from
-  `python scripts/tune_loop.py --surface`. The script still keeps one only if the score says so, and refuses
-  anything off the surface. Most days propose none.
+- Optional, autoresearch's agent step: you may propose up to three trials of your own, `--try "key=value"` (two
+  weight keys in one trial, comma-separated, once weights unlock), keys and bounds from
+  `python scripts/tune_loop.py --surface`. Base them only on the score and parts columns of `docs/tuning-log.md`
+  (for example a key whose trials keep landing just under the margin), never on its holdout column or on what B
+  showed you: B reads the last 7 scan days, which are the holdout, and nothing that saw the holdout may pick a
+  trial. The script still keeps one only if the score says so and refuses anything off the surface. Most days
+  propose none.
 - Run `python scripts/tune_loop.py --date <date>` (plus any `--try`). It reads only the history on `main`, so a
   late or missing scan today is fine. It prints `collecting, N of 14 days`, `already ran <date>`, or the night's
   trials followed by `CONFIG_CHANGED=`, `AUTO_APPLY=` and, when something was kept, `COMMIT_MESSAGE=`.
-- `CONFIG_CHANGED=yes`, `AUTO_APPLY=true`: on `main`, commit `config/scoring.yaml` alone, so one revert undoes it:
-  `git add config/scoring.yaml && git commit -m "<COMMIT_MESSAGE>" -m "Kept by the nightly self-tuning loop
-  (D-82); every trial is in docs/tuning-log.md. Undo: git revert this commit."`
+- `CONFIG_CHANGED=yes`, `AUTO_APPLY=true`: on `main`, commit `config/scoring.yaml` alone, so one revert undoes it
+  (the path at the end keeps anything else out of the commit): `git commit -m "<COMMIT_MESSAGE>" -m "Kept by the
+  nightly self-tuning loop (D-82); every trial is in docs/tuning-log.md. Undo: git revert this commit."
+  -- config/scoring.yaml`. Delivery pushes it with the note.
 - `CONFIG_CHANGED=yes`, `AUTO_APPLY=false`: `git checkout -b radar/tune-<date>`, the same one-file commit, push
   the branch, open a PR into `main` titled `<COMMIT_MESSAGE>` with the night's rows from `docs/tuning-log.md` and
   how to undo, then `git checkout main`. William merges it or not; never merge it yourself.
-- If the script fails, change nothing by hand: put its last error line in the note and carry on.
+- `CONFIG_WRITE_FAILED=` (the file could not be edited, for example after a hand rewrite): the script has already
+  put the file back and logged the night; say so in the note. If the script itself fails, change nothing by hand:
+  put its last error line in the note and carry on.
 - Never edit the surface yourself (here or in C), the harness or `config/tuning.yaml` (William's switches).
 
 ## C. At most one change
@@ -145,8 +151,9 @@ the self-tuning loop owns them (below).
   (`scripts/backtest.py`, `scripts/tune_loop.py`: the score, margin, guardrails, bounds; a crash fix that
   changes no rule may be C's code fix), secrets or `.env`, `.github/workflows/`, `routine/` (your own
   instructions), `index.html`, `site/`.
-- Work on a new branch `radar/iter-<date>`. `python -m pytest -q` must pass. Commit with a
-  conventional message, push the branch, and open a PR into `main` titled `iter <date>: <what>`.
+- Work on a new branch from `origin/main`, `git checkout -b radar/iter-<date> origin/main`, so tonight's
+  `tune:` commit and the logs stay out of it. `python -m pytest -q` must pass. Commit only the files of your
+  change, with a conventional message, push the branch, and open a PR into `main` titled `iter <date>: <what>`.
   Body: what changed, the evidence (numbers from the data), how to undo. Then `git checkout main`.
 - If opening the PR fails, start a fresh-context reviewer subagent on the diff, fix what it confirms,
   run the tests, and commit to `main` directly. Say in the note that Codex review was skipped.

@@ -16,7 +16,7 @@ nothing is emailed. Expect most days to have no candidate at all: quiet is corre
 
 - The `scan` workflow runs at 10:17 UTC (03:17 MST), commits `data/` and `hits/dry-run/`, and
   redeploys the dashboard: https://williamebong.github.io/spontaneous-travel-radar/
-- The `radar-daily` routine (Opus 5.5) runs at 14:30 UTC (07:30 Calgary) every day, with no end
+- The `radar-daily` routine (Opus 5.5) runs at 14:30 UTC (08:30 Calgary) every day, with no end
   date. It merges or drops yesterday's change after reading Codex's review, runs pass 3 on today's
   candidates, checks the data, runs the nightly self-tuning step, makes at
   most one change as a pull request, writes a short note to `data/digests/<date>.md` (shown on the
