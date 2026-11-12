@@ -2,6 +2,7 @@ import json
 import shutil
 from pathlib import Path
 
+import radar.config
 from radar import main as radar_main
 from radar.flights import FetchError
 
@@ -13,6 +14,8 @@ def setup(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     shutil.copytree(ROOT / "tests/fixtures/offline", tmp_path / "tests/fixtures/offline")
     shutil.copytree(ROOT / "config", tmp_path / "config")
+    shutil.copy(ROOT / "tests/fixtures/scoring.yaml", tmp_path / "config/scoring.yaml")   # frozen copy (D-82)
+    monkeypatch.setattr(radar.config, "SCORING", "config/scoring.yaml")                  # read the temp folder's
 
 
 def test_offline_scan_writes_latest_and_history(tmp_path, monkeypatch):

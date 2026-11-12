@@ -7,6 +7,11 @@ import pytest
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
+import radar.config  # noqa: E402
+# Every test reads a frozen copy of the scoring config: the nightly self-tuning loop changes config/scoring.yaml on
+# main (D-82), and a kept change must never turn the suite red. Tests that run in a temp folder copy the same file.
+radar.config.SCORING = str(FIXTURES / "scoring.yaml")
+
 
 def load_fixture(name):
     return json.loads((FIXTURES / name).read_text(encoding="utf-8"))

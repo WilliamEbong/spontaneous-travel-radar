@@ -191,14 +191,14 @@ def report(ev: dict) -> str:
     return "\n".join([head, _line("train", ev["train"], d["train_days"]), _line("holdout", ev["holdout"], d["holdout_days"])])
 
 
-def load_world(config="config/scoring.yaml", references="config/references.yaml"):
+def load_world(config=None, references="config/references.yaml"):
     cities = {c.key: c for c in load_cities()}
     return load_scoring(config), load_references(references, keys=list(cities)), cities
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="backtest", description=__doc__.split("\n\n")[0])
-    ap.add_argument("--config", default="config/scoring.yaml")
+    ap.add_argument("--config", help="default config/scoring.yaml")
     ap.add_argument("--references", default="config/references.yaml")
     ap.add_argument("--until", help="replay the history as it stood on this scan day (YYYY-MM-DD)")
     ap.add_argument("--holdout-days", type=int, default=HOLDOUT_DAYS)

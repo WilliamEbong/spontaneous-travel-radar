@@ -166,7 +166,11 @@ def _day(v) -> date:
     return v.date() if isinstance(v, datetime) else v if isinstance(v, date) else date.fromisoformat(str(v))
 
 
-def load_scoring(path="config/scoring.yaml") -> Scoring:
+SCORING = "config/scoring.yaml"   # the tests point this at a frozen copy: the self-tuning loop edits the live file (D-82)
+
+
+def load_scoring(path=None) -> Scoring:
+    path = path or SCORING
     raw = _read(path)
     v = {f.name: raw[f.name] for f in fields(Scoring) if f.name in raw}
     v["ladder_exclude_ranges"] = tuple(tuple(_day(d) for d in pair) for pair in v.get("ladder_exclude_ranges") or ())

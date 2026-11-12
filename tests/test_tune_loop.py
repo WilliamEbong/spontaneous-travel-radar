@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+import radar.config
+
 from scripts import tune_loop as tl
 from scripts.backtest import load_world
 from tests.conftest import synthetic_history
@@ -73,6 +75,8 @@ def test_proposals_held_to_the_surface(world):
 def setup(tmp_path, monkeypatch, days: int):
     monkeypatch.chdir(tmp_path)
     shutil.copytree(ROOT / "config", tmp_path / "config")
+    shutil.copy(ROOT / "tests/fixtures/scoring.yaml", tmp_path / "config/scoring.yaml")
+    monkeypatch.setattr(radar.config, "SCORING", "config/scoring.yaml")
     hist = tmp_path / "data/history"
     hist.mkdir(parents=True)
     rows = synthetic_history(days=days)
@@ -105,3 +109,19 @@ def test_dry_run_writes_log_runs_and_config(tmp_path, monkeypatch, capsys):
     assert run[0]["start"]["settings"]["candidate_threshold"]["dayoff"] == 70 and run[0]["data"]["scan_days"] == 21
     assert tl.main(["--date", "2026-11-30"]) == 0 and capsys.readouterr().out.strip() == "already ran 2026-11-30"
     assert "a day-off trip needs 72 points for a closer look (was 70)" in tl.summary(7)
+
+
+def test_a_failed_config_write_is_undone_and_logged(tmp_path, monkeypatch, capsys):
+    setup(tmp_path, monkeypatch, days=21)
+    before = (tmp_path / "config/scoring.yaml").read_bytes()
+
+    def broken(path=None):
+        raise ValueError("read-back broke")
+    monkeypatch.setattr(tl, "load_scoring", broken)   # the read-back fails after the file was replaced
+    assert tl.main(["--date", "2026-11-30"]) == 0
+    out = capsys.readouterr().out
+    assert "CONFIG_WRITE_FAILED=ValueError: read-back broke" in out and "CONFIG_CHANGED=no" in out and "COMMIT_MESSAGE" not in out
+    assert (tmp_path / "config/scoring.yaml").read_bytes() == before and not list((tmp_path / "config").glob("*.tmp"))
+    assert "the config write failed (ValueError: read-back broke), nothing changed" in (tmp_path / "docs/tuning-log.md").read_text(encoding="utf-8")
+    run = json.loads((tmp_path / "data/tuning/runs.jsonl").read_text(encoding="utf-8"))
+    assert run["config_error"] and run["kept"] == [] and set(run["fingerprints"]) == {"code", "references", "cities", "history"}

@@ -61,7 +61,7 @@ def test_rungs_kept_in_order(rolling):
 
 
 def test_config_rejects_bad_percentiles(tmp_path):
-    text = open("config/scoring.yaml", encoding="utf-8").read()
+    text = open("tests/fixtures/scoring.yaml", encoding="utf-8").read()
     bad = tmp_path / "scoring.yaml"
     bad.write_text(text.replace("rolling_ladder: {exceptional: 10, good: 25,", "rolling_ladder: {exceptional: 30, good: 25,"),
                    encoding="utf-8")
