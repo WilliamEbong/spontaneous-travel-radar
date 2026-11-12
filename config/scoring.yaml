@@ -8,6 +8,11 @@ weights: {price: 45, time: 20, convenience: 10, city: 15, weather: 10}
 price_curve:             # price points vs share = complete trip for two / the route's typical trip (v2, D-57)
   points: [[0.60, 45], [0.75, 25], [1.00, 0], [1.30, -10]]   # straight lines between; full points at or under 0.60
   floor: -100            # past 1.30 the line keeps its slope down to this (share 4.0), so the cheaper of two dear trips wins (D-59)
+ladder_mode: rolling     # D-82: each route's flights ladder from its own fares (static = config/references.yaml only, the undo)
+rolling_ladder: {exceptional: 10, good: 25, typical: 50}   # percentiles of the route's price_pp; the self-tuning loop moves good and typical
+rolling_window_days: 60  # the days of fares before the scan day that feed the ladder (the loop moves it, 30 to 90)
+rolling_min_days: 14     # until a route has this many scan days of fares, its static ladder from references.yaml is used
+ladder_exclude_ranges: [[2026-12-18, 2027-01-04]]   # holiday windows (inflated fares) never feed a ladder; add next year's in December
 time_rule:               # one objective scale for every trip class and window (D-next, William 2026-11-10); off-limits to the routines
   sleep_hours_per_night: 10    # hours awake there = landing to take-off, minus overhead_hours, minus this per night
   overhead_hours: 4.5          # per trip: 1 h after landing, 2.5 h at the airport before the return flight, 1 h of other airport time
