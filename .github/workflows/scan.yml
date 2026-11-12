@@ -2,7 +2,7 @@ name: scan
 # Daily collector + Pages deploy. A push that touches the dashboard or the digests only redeploys Pages (no scan).
 on:
   schedule:
-    - cron: "17 10-16 * * *"   # 04:17 Calgary, then an hourly backup slot until 10:17; the first slot GitHub actually runs scans, the rest exit in 30 s ("Already scanned today?"). GitHub's scheduler ran this 10 h late on 11-09, 7.5 h late on 11-11 (D-74, D-79).
+    - cron: "17 10-16 * * *"   # backup only since D-83: scan-kick.yml starts the scan at 04:17 Calgary. GitHub's scheduler ran these slots 7.5 to 10 h late every day from 11-09 to 11-12 (D-74, D-79); whichever start arrives after the scan exits in 30 s ("Already scanned today?").
   workflow_dispatch:
     inputs:
       cities:
@@ -13,6 +13,10 @@ on:
         description: "Max Google Flights fetch attempts"
         required: false
         default: "900"
+      skip_if_done:
+        description: "Skip when today's scan already exists (scan-kick.yml sets this; a manual run leaves it false and always scans)"
+        required: false
+        default: "false"
   push:
     branches: [main]
     paths: ["index.html", "site/**", "data/digests/**"]   # the daily routine's note shows up the same morning
@@ -42,7 +46,7 @@ jobs:
         run: pip install -e .
       - name: Already scanned today?
         id: done
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || inputs.skip_if_done == 'true'
         run: |
           d=$(python -c "import json; print(json.load(open('data/latest.json')).get('scan_date', ''))")
           echo "today=$([ "$d" = "$(date -u +%F)" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"

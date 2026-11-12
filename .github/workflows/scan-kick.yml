@@ -1,0 +1,19 @@
+name: scan-kick
+# Starts the daily scan on time (D-83). GitHub's own scheduler ran scan.yml's cron 7.5 to 10 hours late every day,
+# so the Claude routine radar-scan-kick pushes data/scan-request.txt at 04:17 Calgary (10:17 UTC) and this
+# workflow dispatches the scan. skip_if_done makes a second start on the same day exit in 30 s.
+on:
+  push:
+    branches: [main]
+    paths: ["data/scan-request.txt"]
+
+permissions:
+  actions: write
+
+jobs:
+  kick:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run scan.yml --repo "$GITHUB_REPOSITORY" --ref main -f skip_if_done=true
+        env:
+          GH_TOKEN: ${{ github.token }}
