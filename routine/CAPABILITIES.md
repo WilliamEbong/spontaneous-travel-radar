@@ -80,3 +80,12 @@ Consequences:
 2. Retry `create_webhook_trigger` with the shape above and a path filter. If the API cannot filter
    on paths, keep the hit routine disabled and run it by hand from claude.ai when the dashboard shows
    a live hit: one run per hit, no polling.
+
+## Scan starter (D-83, 2026-11-12)
+
+Routine `radar-scan-kick` (`trig_01UQCVfkznWADLkwMBqe77hs`, Haiku 5.5, cron `17 10 * * *`, Bash only, Gmail
+connector attached but unused). Its prompt is inline, not a repo file: four git commands that write the UTC
+time to `data/scan-request.txt`, commit `chore: scan request <date>` and push to `main`. The push starts
+`.github/workflows/scan-kick.yml`, which dispatches `scan.yml` with `skip_if_done=true` using the workflow
+`GITHUB_TOKEN` (`actions: write`). A dispatch made with that token does start a run; this was confirmed in the
+test fire of 2026-11-12 19:23 UTC.

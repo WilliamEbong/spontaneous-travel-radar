@@ -38,10 +38,13 @@ where Perpetua, Franklin Gothic and Consolas are not installed (William's phone)
 
 ## What runs, and when (Calgary time; the repo and logs use UTC)
 
-- **04:17 daily**: the scan (`.github/workflows/scan.yml`, cron 10:17 UTC plus hourly backup slots to 16:17 UTC (D-79) that
-  skips itself when today's scan exists, D-74; manual `gh workflow run scan.yml` always runs). About
-  60 to 80 minutes, 572 to 688 Google Flights fetches, cap 900. Commits `data/` and `hits/`, redeploys
-  Pages. GitHub's scheduler has been late (10 h on 11-09) and absent (11-10): hence the backup slot.
+- **04:17 daily**: the scan (`.github/workflows/scan.yml`). The routine `radar-scan-kick`
+  (`trig_01UQCVfkznWADLkwMBqe77hs`, Haiku 5.5, cron 10:17 UTC) pushes `data/scan-request.txt`, and
+  `.github/workflows/scan-kick.yml` dispatches the scan on that push (D-83). The cron slots from 10:17 to
+  16:17 UTC stay as a backup (D-79); a second start on the same day skips itself (D-74); manual
+  `gh workflow run scan.yml` always runs. About 60 to 80 minutes, 572 to 688 Google Flights fetches,
+  cap 900. Commits `data/` and `hits/`, redeploys Pages. GitHub's own scheduler ran the cron 7.5 to
+  10 h late every day from 11-09 to 11-12: hence the routine.
 - **07:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
   window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and
   pass 3 research on today's candidates, a note to `data/digests/<date>.md` (shown on the page), at most
