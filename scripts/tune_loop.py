@@ -12,8 +12,11 @@ docs/tuning-log.md (every trial), data/tuning/runs.jsonl (every score with its i
 was kept, config/scoring.yaml; the routine commits them (auto_apply in config/tuning.yaml).
 """
 import argparse
+import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
 import time
 from dataclasses import replace
@@ -252,12 +255,18 @@ def edit_yaml(text: str, changes: dict, s: Scoring) -> str:
 
 
 def write_config(path: str, s: Scoring, changes: dict) -> None:
+    """Write through a temp file, then read back: anything but exactly the kept config puts the old bytes back."""
     p = Path(path)
-    before = p.read_text(encoding="utf-8")
-    p.write_text(edit_yaml(before, changes, s), encoding="utf-8", newline="")
-    if load_scoring(path) != s:   # the file must read back as exactly the kept config, or it stays as it was
-        p.write_text(before, encoding="utf-8", newline="")
-        raise ValueError(f"{path} did not read back as the kept config, so nothing was changed")
+    before, tmp = p.read_bytes(), p.with_name(p.name + ".tmp")
+    try:
+        tmp.write_text(edit_yaml(before.decode("utf-8"), changes, s), encoding="utf-8", newline="")
+        os.replace(tmp, p)
+        if load_scoring(path) != s:
+            raise ValueError(f"{path} did not read back as the kept config")
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        p.write_bytes(before)
+        raise
 
 
 # ---- logs ----
@@ -280,7 +289,7 @@ def _parts(p: dict) -> str:
             f"closer look {p['candidate_rate']:.1%}, n {p['judgements']}")
 
 
-def append_log(day: date, res: dict, *, changed: bool, auto_apply: bool, path: str = LOG) -> None:
+def append_log(day: date, res: dict, *, changed: bool, auto_apply: bool, error: str = "", path: str = LOG) -> None:
     p = Path(path)
     out = [] if p.exists() else [LOG_HEAD]
     for t in res["trials"]:
@@ -291,6 +300,7 @@ def append_log(day: date, res: dict, *, changed: bool, auto_apply: bool, path: s
     s, f, d = res["start"], res["final"], res["start"]["data"]
     kept = sum(t["kept"] for t in res["trials"])
     outcome = ("vetoed: worse on the holdout, nothing changed" if res["vetoed"] else
+               f"the config write failed ({error}), nothing changed" if error else
                ("live on main" if auto_apply else "pull request") if changed else "no change")
     out.append(f"| {day} | night | {len(res['trials'])} trials, {kept} kept: {outcome} | {s['score']:.2f} → {f['score']:.2f} | "
                f"{s['holdout']['score']:.2f} → {f['holdout']['score']:.2f} | {s['mode']}, {d['scan_days']} scan days "
@@ -304,13 +314,33 @@ def _view(ev: dict) -> dict:
     return {"settings": ev["settings"], "score": ev["score"], "train": ev["train"], "holdout": ev["holdout"]}
 
 
-def append_run(day: date, res: dict, *, changed: bool, auto_apply: bool, path: str = RUNS) -> dict:
-    """One line per night: every score with its inputs (settings, data span, rules) and its parts, so any result can be
-    explained and re-scored later with `scripts/backtest.py --until <span end>` and the settings."""
-    kept = [] if res["vetoed"] else [{"change": t["change"], "move": t["move"], "was": t["was"]} for t in res["trials"] if t["kept"]]
+def _sha(paths) -> str:
+    h = hashlib.sha256()
+    for p in paths:
+        h.update(Path(p).read_bytes())
+    return h.hexdigest()[:16]
+
+
+def fingerprints(span_end: str | None) -> dict:
+    """What else a score depends on: the code, the static ladders and rooms, the cities, and the history files read (a
+    re-run scan replaces its day's file). When they match, the stored settings re-score to the stored numbers."""
+    try:
+        code = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip() or None
+    except OSError:
+        code = None
+    days = [p for p in sorted(Path(HISTORY).glob("*.jsonl")) if span_end is None or p.stem <= span_end]
+    return {"code": code, "references": _sha(["config/references.yaml"]), "cities": _sha(["config/cities.yaml"]),
+            "history": _sha(days)}
+
+
+def append_run(day: date, res: dict, *, changed: bool, auto_apply: bool, error: str = "", path: str = RUNS) -> dict:
+    """One line per night: every score with its inputs (settings, data span, rules, fingerprints) and its parts, so any
+    result can be explained and re-scored later with `scripts/backtest.py --until <span end>` and the settings."""
+    kept = [{"change": t["change"], "move": t["move"], "was": t["was"]} for t in res["trials"] if t["kept"]] if changed else []
     rec = {"date": day.isoformat(), "mode": res["start"]["mode"], "data": res["start"]["data"], "rules": res["start"]["rules"],
+           "fingerprints": fingerprints(res["start"]["data"]["span"][1] if res["start"]["data"]["span"] else None),
            "start": _view(res["start"]), "trials": res["trials"], "final": _view(res["final"]), "kept": kept,
-           "vetoed": res["vetoed"], "config_changed": changed, "auto_apply": auto_apply}
+           "vetoed": res["vetoed"], "config_changed": changed, "config_error": error or None, "auto_apply": auto_apply}
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("a", encoding="utf-8", newline="") as fh:
@@ -420,10 +450,14 @@ def main(argv=None) -> int:
     res = run_night(load_rows(), s0, refs, cities, day=day, budget=cfg["trials_per_night"], keys=keys, labels=labels,
                     proposals=proposals)
     changes = {k: get(res["config"], k) for k in list(SURFACE) + list(WEIGHTS) if get(res["config"], k) != get(s0, k)}
+    error = ""
     if changes:
-        write_config(CONFIG, res["config"], changes)
-    append_log(day, res, changed=bool(changes), auto_apply=cfg["auto_apply"])
-    rec = append_run(day, res, changed=bool(changes), auto_apply=cfg["auto_apply"])
+        try:
+            write_config(CONFIG, res["config"], changes)
+        except Exception as e:   # the night's record must survive a config that cannot be edited (e.g. rewritten by hand)
+            error, changes = f"{type(e).__name__}: {e}", {}
+    append_log(day, res, changed=bool(changes), auto_apply=cfg["auto_apply"], error=error)
+    rec = append_run(day, res, changed=bool(changes), auto_apply=cfg["auto_apply"], error=error)
     d = rec["data"]
     print(f"self-tuning {day}: {d['scan_days']} scan days ({d['span'][0]} to {d['span'][1]}), mode {rec['mode']}, "
           f"{len(res['trials'])} trials, {sum(t['kept'] for t in res['trials'])} kept{', night vetoed by the holdout' if res['vetoed'] else ''}")
@@ -431,6 +465,8 @@ def main(argv=None) -> int:
     for t in res["trials"]:
         print(f"  #{t['n']} {t['change']}: {t['after']['score']:.2f}, {'kept' if t['kept'] else 'reverted'} ({t['why']})")
     print(f"  final {res['final']['score']:.2f} (holdout {res['final']['holdout']['score']:.2f})")
+    if error:
+        print(f"CONFIG_WRITE_FAILED={error}")
     print(f"CONFIG_CHANGED={'yes' if changes else 'no'}")
     print(f"AUTO_APPLY={'true' if cfg['auto_apply'] else 'false'}")
     if changes:
