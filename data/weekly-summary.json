@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-12T19:15:18+00:00",
+ "generated": "2026-11-13T18:49:56+00:00",
  "period": [
-  "2026-11-05",
-  "2026-11-12"
+  "2026-11-06",
+  "2026-11-13"
  ],
- "scan_days": 4,
- "history_days_total": 4,
+ "scan_days": 5,
+ "history_days_total": 5,
  "passes": {
   "candidates": 0,
   "awaiting_pass3": 0,
@@ -18,92 +18,92 @@
  "ladder_distribution": {
   "austin": {
    "bad": 6,
-   "above": 11,
-   "typical": 7
+   "above": 14,
+   "typical": 8
   },
   "boston": {
    "bad": 6,
-   "above": 15
+   "above": 20
   },
   "chicago": {
    "bad": 7,
-   "above": 19,
+   "above": 22,
    "typical": 2
   },
   "denver": {
    "bad": 12,
-   "above": 33
+   "above": 41
   },
   "las_vegas": {
    "bad": 14,
-   "above": 33
+   "above": 40
   },
   "los_angeles": {
    "bad": 10,
-   "above": 20
+   "above": 27
   },
   "mexico_city": {
    "bad": 8,
-   "above": 18
+   "above": 22
   },
   "montreal": {
    "bad": 6,
-   "above": 18,
+   "above": 23,
    "typical": 2
   },
   "nashville": {
    "bad": 6,
-   "above": 8,
-   "typical": 6
+   "above": 12,
+   "typical": 7
   },
   "new_orleans": {
    "bad": 5,
-   "above": 18
+   "above": 25
   },
   "new_york": {
    "bad": 10,
-   "above": 28
+   "above": 38
   },
   "palm_springs": {
    "bad": 6,
-   "above": 18
+   "above": 24
   },
   "portland": {
    "bad": 7,
-   "above": 18
+   "above": 24
   },
   "quebec_city": {
    "bad": 6,
-   "above": 13,
+   "above": 16,
    "typical": 5
   },
   "san_diego": {
    "bad": 6,
-   "above": 8,
-   "typical": 9
+   "above": 14,
+   "typical": 10
   },
   "san_francisco": {
    "bad": 9,
-   "above": 16,
-   "typical": 8
+   "above": 21,
+   "typical": 10
   },
   "seattle": {
    "bad": 11,
-   "above": 15
+   "above": 20
   },
   "toronto": {
    "bad": 5,
-   "above": 9,
+   "above": 14,
    "typical": 6
   },
   "vancouver": {
    "bad": 10,
-   "above": 32
+   "above": 41
   },
   "washington_dc": {
    "bad": 8,
-   "above": 13,
-   "typical": 6
+   "above": 17,
+   "typical": 7
   }
  },
  "share_of_typical": {
@@ -114,18 +114,18 @@
   },
   "boston": {
    "min": 0.955,
-   "p25": 0.9566,
+   "p25": 1.0057,
    "p50": 1.0073
   },
   "chicago": {
    "min": 0.9169,
    "p25": 1.0058,
-   "p50": 1.3505
+   "p50": 1.1768
   },
   "denver": {
    "min": 1.338,
-   "p25": 1.3951,
-   "p50": 1.4558
+   "p25": 1.3976,
+   "p50": 1.4566
   },
   "las_vegas": {
    "min": 1.1155,
@@ -135,67 +135,67 @@
   "los_angeles": {
    "min": 0.8979,
    "p25": 0.9544,
-   "p50": 1.0024
+   "p50": 1.0551
   },
   "mexico_city": {
    "min": 1.0316,
-   "p25": 1.1201,
-   "p50": 1.296
+   "p25": 1.1429,
+   "p50": 1.2801
   },
   "montreal": {
    "min": 0.8997,
-   "p25": 0.9922,
+   "p25": 1.0014,
    "p50": 1.0461
   },
   "nashville": {
-   "min": 0.853,
+   "min": 0.8338,
    "p25": 0.9034,
-   "p50": 0.9391
+   "p50": 0.9566
   },
   "new_orleans": {
    "min": 0.9411,
-   "p25": 1.0053,
-   "p50": 1.0722
+   "p25": 1.0174,
+   "p50": 1.09
   },
   "new_york": {
    "min": 0.9589,
-   "p25": 1.0273,
-   "p50": 1.1475
+   "p25": 1.0288,
+   "p50": 1.1535
   },
   "palm_springs": {
    "min": 0.9129,
-   "p25": 1.0864,
+   "p25": 1.1148,
    "p50": 1.1284
   },
   "portland": {
    "min": 1.0912,
-   "p25": 1.1982,
-   "p50": 1.2315
+   "p25": 1.2005,
+   "p50": 1.2788
   },
   "quebec_city": {
    "min": 0.9216,
-   "p25": 0.9457,
+   "p25": 0.9932,
    "p50": 1.0812
   },
   "san_diego": {
    "min": 0.8168,
-   "p25": 0.8925,
-   "p50": 0.9245
+   "p25": 0.901,
+   "p50": 0.9787
   },
   "san_francisco": {
    "min": 0.8,
-   "p25": 0.888,
-   "p50": 1.0773
+   "p25": 0.8831,
+   "p50": 1.0621
   },
   "seattle": {
    "min": 1.6427,
    "p25": 1.6457,
-   "p50": 1.7258
+   "p50": 1.7614
   },
   "toronto": {
    "min": 0.9181,
-   "p25": 0.9332,
-   "p50": 0.9634
+   "p25": 0.9464,
+   "p50": 0.9974
   },
   "vancouver": {
    "min": 0.9139,
@@ -205,7 +205,7 @@
   "washington_dc": {
    "min": 0.859,
    "p25": 0.9411,
-   "p50": 1.1617
+   "p50": 1.1679
   }
  },
  "price_pp": {
@@ -213,33 +213,33 @@
    "min": 549,
    "p10": 550,
    "p25": 605,
-   "p50": 675,
-   "p90": 1215
+   "p50": 677,
+   "p90": 1342
   },
   "boston": {
    "min": 722,
-   "p10": 722,
+   "p10": 723,
    "p25": 770,
-   "p50": 845,
-   "p90": 1376
+   "p50": 816,
+   "p90": 1257
   },
   "chicago": {
    "min": 500,
-   "p10": 552,
-   "p25": 602,
-   "p50": 773,
-   "p90": 1528
+   "p10": 556,
+   "p25": 594,
+   "p50": 730,
+   "p90": 1475
   },
   "denver": {
    "min": 660,
    "p10": 723,
    "p25": 825,
-   "p50": 874,
+   "p50": 873,
    "p90": 1136
   },
   "las_vegas": {
    "min": 443,
-   "p10": 497,
+   "p10": 496,
    "p25": 562,
    "p50": 636,
    "p90": 1730
@@ -249,133 +249,133 @@
    "p10": 503,
    "p25": 564,
    "p50": 622,
-   "p90": 812
+   "p90": 866
   },
   "mexico_city": {
    "min": 874,
    "p10": 902,
    "p25": 948,
-   "p50": 1057,
+   "p50": 1073,
    "p90": 2295
   },
   "montreal": {
    "min": 492,
-   "p10": 522,
-   "p25": 540,
-   "p50": 600,
-   "p90": 947
+   "p10": 528,
+   "p25": 556,
+   "p50": 592,
+   "p90": 939
   },
   "nashville": {
-   "min": 547,
+   "min": 530,
    "p10": 590,
-   "p25": 613,
-   "p50": 672,
-   "p90": 1016
+   "p25": 622,
+   "p50": 674,
+   "p90": 1072
   },
   "new_orleans": {
    "min": 878,
-   "p10": 930,
-   "p25": 974,
+   "p10": 940,
+   "p25": 984,
    "p50": 1061,
-   "p90": 1360
+   "p90": 1368
   },
   "new_york": {
    "min": 675,
-   "p10": 714,
-   "p25": 742,
+   "p10": 728,
+   "p25": 743,
    "p50": 862,
-   "p90": 1602
+   "p90": 1507
   },
   "palm_springs": {
    "min": 473,
-   "p10": 520,
-   "p25": 578,
-   "p50": 613,
+   "p10": 534,
+   "p25": 584,
+   "p50": 622,
    "p90": 942
   },
   "portland": {
    "min": 556,
    "p10": 558,
-   "p25": 602,
+   "p25": 603,
    "p50": 678,
-   "p90": 894
+   "p90": 904
   },
   "quebec_city": {
    "min": 688,
    "p10": 688,
    "p25": 756,
-   "p50": 820,
-   "p90": 1138
+   "p50": 826,
+   "p90": 1422
   },
   "san_diego": {
    "min": 498,
-   "p10": 534,
+   "p10": 552,
    "p25": 588,
-   "p50": 668,
-   "p90": 1066
+   "p50": 661,
+   "p90": 1067
   },
   "san_francisco": {
    "min": 398,
-   "p10": 408,
-   "p25": 496,
-   "p50": 624,
-   "p90": 1218
+   "p10": 435,
+   "p25": 495,
+   "p50": 612,
+   "p90": 1098
   },
   "seattle": {
    "min": 541,
    "p10": 576,
-   "p25": 613,
+   "p25": 604,
    "p50": 651,
-   "p90": 950
+   "p90": 858
   },
   "toronto": {
    "min": 382,
    "p10": 390,
-   "p25": 406,
-   "p50": 532,
+   "p25": 452,
+   "p50": 536,
    "p90": 720
   },
   "vancouver": {
    "min": 234,
    "p10": 248,
    "p25": 252,
-   "p50": 282,
-   "p90": 466
+   "p50": 301,
+   "p90": 463
   },
   "washington_dc": {
    "min": 582,
    "p10": 632,
    "p25": 708,
-   "p50": 850,
+   "p50": 847,
    "p90": 1149
   }
  },
  "nonstop_share": {
   "austin": 0.0,
   "boston": 0.0,
-  "chicago": 0.15,
+  "chicago": 0.13,
   "denver": 0.64,
-  "las_vegas": 0.62,
-  "los_angeles": 0.27,
+  "las_vegas": 0.6,
+  "los_angeles": 0.29,
   "mexico_city": 0.0,
-  "montreal": 0.42,
+  "montreal": 0.43,
   "nashville": 0.0,
   "new_orleans": 0.0,
-  "new_york": 0.01,
+  "new_york": 0.05,
   "palm_springs": 0.37,
   "portland": 0.0,
   "quebec_city": 0.0,
-  "san_diego": 0.15,
-  "san_francisco": 0.23,
-  "seattle": 0.59,
-  "toronto": 0.49,
-  "vancouver": 0.93,
+  "san_diego": 0.19,
+  "san_francisco": 0.24,
+  "seattle": 0.57,
+  "toronto": 0.45,
+  "vancouver": 0.94,
   "washington_dc": 0.0
  },
  "request_health": {
-  "queries_planned": 578,
-  "queries_answered": 578,
-  "queries_attempted": 578,
+  "queries_planned": 662,
+  "queries_answered": 662,
+  "queries_attempted": 662,
   "budget_max": 900,
   "coverage_pct": 100.0,
   "cache_hits": 0,
@@ -392,15 +392,15 @@
    "boston",
    "washington_dc"
   ],
-  "windows": 25,
-  "city_windows_with_trips": 152,
-  "history_rows": 257,
+  "windows": 27,
+  "city_windows_with_trips": 118,
+  "history_rows": 192,
   "candidates": 0,
   "pass2_checks": 0,
   "serpapi_lookups": 0,
   "serpapi_used_this_month": 45,
   "serpapi_cap": 200,
   "host": "github-actions",
-  "duration_s": 3108
+  "duration_s": 3598
  }
 }
