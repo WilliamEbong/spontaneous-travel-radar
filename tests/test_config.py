@@ -74,6 +74,10 @@ def test_holidays_selected_calendar():
     assert date(2027, 2, 15) in hs      # Family Day (alberta default)
 
 
+def test_live_scoring_config_loads():
+    load_scoring("config/scoring.yaml")   # the live file the loop edits: its values move, its validation must hold
+
+
 def test_scoring_v2_shape():
     s = load_scoring()
     assert s.mode == "dry-run" and sum(s.weights.values()) == 100 and "events" not in s.weights
@@ -85,7 +89,7 @@ def test_scoring_v2_shape():
 
 def test_bad_class_setting_fails_loudly(tmp_path):
     p = tmp_path / "s.yaml"
-    p.write_text(Path("config/scoring.yaml").read_text(encoding="utf-8").replace("    hit_threshold: 80    # Settings panel: final", "    hit_threshold: high  # final", 1), encoding="utf-8")
+    p.write_text(Path("tests/fixtures/scoring.yaml").read_text(encoding="utf-8").replace("    hit_threshold: 80    # Settings panel: final", "    hit_threshold: high  # final", 1), encoding="utf-8")
     with pytest.raises(ValueError, match="dayoff.hit_threshold"):
         load_scoring(p)
 

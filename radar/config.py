@@ -1,5 +1,5 @@
 """Load and validate the YAML config (config/*.yaml) into dataclasses."""
-from dataclasses import MISSING, dataclass, fields
+from dataclasses import MISSING, dataclass, field, fields
 from datetime import date, datetime
 
 import yaml
@@ -51,6 +51,12 @@ class Scoring:
     serpapi_monthly_cap: int
     time_rule: dict[str, float]        # {sleep_hours_per_night, overhead_hours, time_max_hours, time_floor_share}: one scale for every trip
     trip_classes: dict[str, dict]      # {"dayoff": {...}, "weekend": {...}}, see config/scoring.yaml
+    # route flight ladders from each route's own fares (D-82); the defaults reproduce the static ladders
+    ladder_mode: str = "static"        # static | rolling
+    rolling_ladder: dict[str, int] = field(default_factory=lambda: {"exceptional": 10, "good": 25, "typical": 50})
+    rolling_window_days: int = 60
+    rolling_min_days: int = 14
+    ladder_exclude_ranges: tuple = ()  # ((first, last), ...): windows starting inside one never feed a ladder
 
 
 def _read(path):
@@ -156,9 +162,30 @@ def load_days_off(path="config/days_off.yaml") -> tuple[set[date], set[date]]:
     return out[0], out[1]
 
 
-def load_scoring(path="config/scoring.yaml") -> Scoring:
+def _day(v) -> date:
+    return v.date() if isinstance(v, datetime) else v if isinstance(v, date) else date.fromisoformat(str(v))
+
+
+SCORING = "config/scoring.yaml"   # the tests point this at a frozen copy: the self-tuning loop edits the live file (D-82)
+
+
+def load_scoring(path=None) -> Scoring:
+    path = path or SCORING
     raw = _read(path)
-    s = Scoring(**{f.name: raw[f.name] for f in fields(Scoring)})
+    v = {f.name: raw[f.name] for f in fields(Scoring) if f.name in raw}
+    v["ladder_exclude_ranges"] = tuple(tuple(_day(d) for d in pair) for pair in v.get("ladder_exclude_ranges") or ())
+    s = Scoring(**v)
+    if s.ladder_mode not in ("static", "rolling"):
+        raise ValueError(f"{path}: ladder_mode must be static or rolling")
+    rl = s.rolling_ladder
+    if not isinstance(rl, dict) or not all(isinstance(rl.get(k), int) and 0 < rl[k] < 100 for k in LADDER) \
+            or not rl["exceptional"] < rl["good"] < rl["typical"]:
+        raise ValueError(f"{path}: rolling_ladder needs whole percentiles exceptional < good < typical, each 1 to 99")
+    if not (isinstance(s.rolling_window_days, int) and isinstance(s.rolling_min_days, int)
+            and 1 <= s.rolling_min_days <= s.rolling_window_days <= 365):
+        raise ValueError(f"{path}: rolling_min_days and rolling_window_days must be whole days, 1 <= min <= window <= 365")
+    if any(len(p) != 2 or p[0] > p[1] for p in s.ladder_exclude_ranges):
+        raise ValueError(f"{path}: ladder_exclude_ranges must be [first, last] date pairs")
     # the Settings-panel values, so a bad hand edit fails here instead of mid-scan
     if not isinstance(s.dayoff_min_weeks, int) or not 2 <= s.dayoff_min_weeks <= 12:
         raise ValueError(f"{path}: dayoff_min_weeks must be a whole number from 2 to 12")

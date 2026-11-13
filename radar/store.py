@@ -3,6 +3,8 @@ import json
 from datetime import date, timedelta
 from pathlib import Path
 
+from radar.config import Scoring
+from radar.export import _pct
 from radar.score import Scored, components_dict
 
 
@@ -45,6 +47,24 @@ def read_history(days: int = 90, root="data/history", today: date | None = None)
         if date.fromisoformat(p.stem) >= since:
             rows += [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
     return rows
+
+
+def rolling_flights(city_rows: list[dict], today: date, s: Scoring, static: dict) -> dict:
+    """The route's flights ladder from its own logged fares (D-82, docs/TUNING-PLAN.md (d)): the rolling_ladder
+    percentiles of price_pp over the rolling_window_days before today (never today or later), both trip classes,
+    leaving out windows that start inside a ladder_exclude_ranges pair. The static ladder until the route has
+    rolling_min_days scan days, and always in static mode. city_rows: that route's history rows."""
+    if s.ladder_mode != "rolling":
+        return static
+    since, until = (today - timedelta(days=s.rolling_window_days)).isoformat(), today.isoformat()
+    rows = [r for r in city_rows if since <= r["scan_date"] < until
+            and not any(a <= date.fromisoformat(r["window_id"][:10]) <= b for a, b in s.ladder_exclude_ranges)]
+    if len({r["scan_date"] for r in rows}) < s.rolling_min_days:
+        return static
+    prices, out, floor = sorted(r["price_pp"] for r in rows), {}, 0
+    for name in ("exceptional", "good", "typical"):   # at least 1 CAD between the rungs
+        floor = out[name] = max(round(_pct(prices, s.rolling_ladder[name] / 100)), floor + 1)
+    return out
 
 
 def route_percentile(price_pp: int, city_key: str, history: list[dict], *, min_days: int = 14) -> float | None:

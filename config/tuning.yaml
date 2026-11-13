@@ -1,0 +1,7 @@
+# The nightly self-tuning loop (scripts/tune_loop.py, docs/TUNING-PLAN.md, D-82). William's switches: the loop
+# reads this file and never edits it.
+auto_apply: true       # true: a kept change goes live on its own, one `tune:` commit on main that one revert undoes;
+                       # false: the routine opens a pull request with it instead, for William to merge
+trials_per_night: 16   # 10 to 20 trials a night; each replays the logged history offline (about a second today, capped at 2 minutes)
+frozen: []             # keys the loop must leave alone, e.g. [dayoff.candidate_threshold] after undoing one of its changes;
+                       # `python scripts/tune_loop.py --surface` lists the keys

@@ -7,6 +7,11 @@ import pytest
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
+import radar.config  # noqa: E402
+# Every test reads a frozen copy of the scoring config: the nightly self-tuning loop changes config/scoring.yaml on
+# main (D-82), and a kept change must never turn the suite red. Tests that run in a temp folder copy the same file.
+radar.config.SCORING = str(FIXTURES / "scoring.yaml")
+
 
 def load_fixture(name):
     return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
@@ -49,3 +54,38 @@ def scored_vancouver(vancouver_trip_fixture):
     from radar.config import load_scoring
     from radar.score import score_trip
     return score_trip(vancouver_trip_fixture, city("vancouver"), ref("vancouver"), load_scoring(), weather_score=8, history_pct=None)
+
+
+def history_row(day: str, window: str, price_pp: int, score: int, *, city="vancouver", trip_class="dayoff") -> dict:
+    """A logged winner for the backtest (D-82). Its complete trip is far under any typical trip, so the price
+    component stays at the full 45 under every variant and its replayed score is exactly `score`."""
+    from datetime import timedelta
+    from radar.config import load_scoring
+    back = (date.fromisoformat(window[:10]) + timedelta(days=2)).isoformat()
+    return {"scan_date": day, "city": city, "window_id": window, "trip_class": trip_class, "winner": True,
+            "price_pp": price_pp, "share": 0.1, "total_cad": 100.0, "nights": 2, "score": score, "candidate": False,
+            "out_arr": f"{window[:10]}T08:45:00-08:00", "back_dep": f"{back}T13:00:00-08:00",
+            "components": {"price": 45.0, "time": score - 45.0, "convenience": 0.0, "city": 0.0, "weather": 0.0},
+            "inputs": {"weights": dict(load_scoring().weights)}}
+
+
+CYCLE = (120, 130, 145, 150, 190)   # one weekend's fares over five days: the low is 120, near the low is 132 or less
+
+
+def cycle_score(price: int) -> int:
+    """Near-low fares 73, good fares that are not near the low 71, the rest 50: at 70 every good fare is sent for a
+    closer look (half of them wrongly); at 72 only the near-low ones are."""
+    return 73 if price <= 130 else 71 if price <= 150 else 50
+
+
+def synthetic_history(days: int = 21, windows: int = 4) -> list[dict]:
+    """Vancouver day-off weekends priced every day from 2026-11-09, each going round CYCLE."""
+    from datetime import timedelta
+    out = []
+    for d in range(days):
+        day = (date(2026, 11, 9) + timedelta(days=d)).isoformat()
+        for w in range(windows):
+            window = (date(2027, 1, 15) + timedelta(days=7 * w)).isoformat() + "_fri-off"
+            price = CYCLE[(d + w) % len(CYCLE)]
+            out.append(history_row(day, window, price, cycle_score(price)))
+    return out

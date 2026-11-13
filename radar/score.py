@@ -162,6 +162,7 @@ def score_trip(trip: Trip, city: City, ref: Reference, s: Scoring, *, weather_sc
         "airport_to_core_min": city.airport_to_core_min, "car_needed": city.car_needed, "night_arrival": trip.out.arr.hour < 5,
         "convenience_parts": conv_parts,
         "city_name": city.name, "rank": city.rank, "nights": trip.nights, "weather": wx._asdict(),
+        "flights_ladder": dict(ref.flights),   # the ladder this trip was judged by: rolling ladders move daily (D-82)
     }
     return Scored(
         trip=trip, ladder=ladder_label(price_pp, ref.flights), price_pp=price_pp, lodging_cad=round(lodging, 2),

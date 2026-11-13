@@ -9,6 +9,7 @@ import argparse
 import os
 import sys
 import time
+from dataclasses import replace
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -19,7 +20,7 @@ from radar.hits import candidate_id, fare_dropped, finalize, pass2, previous_can
 from radar.hotels import check_lodging, used_this_month
 from radar.itineraries import assemble
 from radar.score import score_trip, worth_flying
-from radar.store import append_quotes, quote_row, read_history, route_percentile
+from radar.store import append_quotes, quote_row, read_history, rolling_flights, route_percentile
 from radar.weather import weather_score
 from radar.windows import CALGARY, class_windows
 
@@ -86,10 +87,15 @@ def scan(args) -> int:
             no_nonstop.append(c.key)
 
     serp_key = None if args.offline else os.environ.get("SERPAPI_KEY")
-    history = [r for r in read_history(90, today=today) if r["scan_date"] != today.isoformat()]  # a re-run must not see itself
+    history = [r for r in read_history(max(90, s.rolling_window_days), today=today)
+               if r["scan_date"] != today.isoformat()]  # a re-run must not see itself
     by_city_hist: dict[tuple, list] = {}
+    by_route: dict[str, list] = {}
     for r in history:   # a quote is compared only with earlier quotes of its own class (D-52)
         by_city_hist.setdefault((r["city"], r.get("trip_class", "dayoff")), []).append(r)
+        by_route.setdefault(r["city"], []).append(r)
+    # rolling mode: each route's flights ladder from its own fares before today; rooms stay static (D-82)
+    refs = {k: replace(r, flights=rolling_flights(by_route.get(k, []), today, s, r.flights)) for k, r in refs.items()}
     pct_memo: dict[tuple, float | None] = {}
 
     def pct(city_key, trip_class, price_pp):

@@ -1,6 +1,6 @@
-# Handoff: Spontaneous Travel Radar (state as of 2026-11-11, 17:00 Calgary, after the D-81 deploy)
+# Handoff: Spontaneous Travel Radar (state as of 2026-11-12, after the self-tuning loop was built on `tune-loop`, D-82)
 
-Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-81, one entry per
+Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-83, one entry per
 judgment call), `docs/ASK.md` (how to answer William's questions from the data), and `SESSION-LOG.md`
 (what happened, in order). `BUILD-PLAN-v2.md` and `docs/research/2026-11-09-fare-references.md` are the
 design record for v2; `BUILD-PLAN.md` and the design doc in `docs/superpowers/specs/` are v1 background.
@@ -10,10 +10,12 @@ design record for v2; `BUILD-PLAN.md` and the design doc in `docs/superpowers/sp
 A $0-to-run deal radar for spontaneous weekend trips from Calgary (YYC) for two adults. A Python
 collector on GitHub Actions scans Google Flights daily, scores every trip, checks real lodging for
 candidates, and publishes JSON to this public repo; GitHub Pages serves a static dashboard William
-checks on his phone; a Claude routine runs once a day to research candidates, write a note and propose
-at most one tuning change. William wants alerts only for deals so exceptional he books on sight; a quiet
-dashboard is the system working. Month one (to about 2026-12-08) is a learning run: nothing alerts,
-everything is logged and shown.
+checks on his phone; a Claude routine runs once a day to research candidates, write a note, run the
+nightly self-tuning step and propose at most one other change. William wants alerts only for deals so
+exceptional he books on sight; a quiet dashboard is the system working. It never stops (D-82): the
+learning run (`mode: dry-run`, nothing alerts, everything is logged and shown) has no end date, and the
+radar tunes its own price judgment every night, autoresearch-style (`docs/TUNING-PLAN.md`). Going live
+with email stays William's decision.
 
 ## Everything on `main` is live (nothing pending on branches)
 
@@ -25,8 +27,13 @@ breakdown panel (D-75), components and inputs on every history row (D-76), scori
 William's archive-of-looking system (D-80, merged and deployed 2026-11-11 16:10 Calgary as `bac6a89`: `DESIGN.md`
 holds the tokens, `PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance), equal cards and
 the motion layer (D-81, built unattended on branch `ux-motion`, merged and deployed 16:57 Calgary as `ce8af85`;
-`DESIGN.md` Motion describes it). `pytest -q`:
-106 tests, no network. The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
+`DESIGN.md` Motion describes it), the on-time scan start (D-83). `pytest -q`: 106 tests on `main`, no network.
+
+**On branch `tune-loop`, waiting for William's merge (D-82)**: the permanent self-tuning loop. Rolling route
+ladders, the replay harness `scripts/backtest.py`, the nightly trial loop `scripts/tune_loop.py` with its switch
+file `config/tuning.yaml`, `radar-daily` without an end date, `PROMPT-tune.md` superseded; 129 tests, which read a
+frozen copy of the scoring config (`tests/fixtures/scoring.yaml`) because the loop edits the live one. Merging it
+changes the live routine (it reads `routine/PROMPT-daily.md` from `main`). The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
 `v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` and
 `ux-motion` were removed after their merges.
 
@@ -45,15 +52,22 @@ where Perpetua, Franklin Gothic and Consolas are not installed (William's phone)
   `gh workflow run scan.yml` always runs. About 60 to 80 minutes, 572 to 688 Google Flights fetches,
   cap 900. Commits `data/` and `hits/`, redeploys Pages. GitHub's own scheduler ran the cron 7.5 to
   10 h late every day from 11-09 to 11-12: hence the routine.
-- **07:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
-  window 2026-11-10 to 2026-12-08, instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and
-  pass 3 research on today's candidates, a note to `data/digests/<date>.md` (shown on the page), at most
-  one tuning PR a day on a `radar/iter-*` branch (Codex reviews on open; a reviewer subagent if Codex
-  stays silent), merges yesterday's PR after reading its review. Its 12-08 run writes the month-one
-  summary.
-- **2026-12-09 06:00**: `radar-tune` (Opus, one-shot `trig_01E542toF6zwmddqDsjRGXeX`, 13:00 UTC,
-  `routine/PROMPT-tune.md` + `docs/TUNING-PLAN.md`): backtest harness over the month's history, refit of
-  the route ladders, keep-or-revert loop over `config/scoring.yaml`, one PR for William to merge.
+- **08:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
+  every day with no end date once `tune-loop` is merged (D-82; until then its prompt stops after
+  2026-12-08), instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and pass 3 research on
+  today's candidates, the self-tuning step (section T: `python scripts/tune_loop.py --date <date>`; a kept
+  change goes live as one `tune:` commit), a note to `data/digests/<date>.md` (shown on the page), at most
+  one other change a day as a PR on a `radar/iter-*` branch (Codex reviews on open; a reviewer subagent if
+  Codex stays silent), merges yesterday's PR after reading its review. Its 12-08 run writes a one-time
+  month-one summary that ends nothing.
+- **Self-tuning, every night** (D-82, `docs/TUNING-PLAN.md`): starts once 14 scan days exist (about
+  2026-11-22; "collecting, N of 14 days" until then). 16 offline trials over the price-judgment settings,
+  kept only when the hindsight price score wins by 1 point within the guardrails; every trial in
+  `docs/tuning-log.md`, every score with its inputs in `data/tuning/runs.jsonl`. Expect it to keep nothing
+  until about 22 scan days, when the rolling ladders reach the train days.
+- **2026-12-09 06:00**: `radar-tune` (one-shot `trig_01E542toF6zwmddqDsjRGXeX`) is now redundant: once
+  `tune-loop` is merged its prompt (`routine/PROMPT-tune.md`) only replies "superseded" and stops. William
+  can disable it at https://claude.ai/code/routines.
 - Disabled: hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y` (live mode only), weekly digest
   `trig_01V9gJ6rL1sDuSsqDkE11oxo` (folded into the daily note). Manage all at https://claude.ai/code/routines.
 - GitHub Apps installed by William on all his repos: Claude (routine push, PRs, webhooks) and the
@@ -156,7 +170,9 @@ tap. `table.html`: any day's scoring table, sort, filter, download.
 ## How to verify
 
 ```
-.venv\Scripts\python -m pytest -q                                   # 106, no network
+.venv\Scripts\python -m pytest -q                                   # 129 with tune-loop, no network
+python scripts\backtest.py                                          # the hindsight score now, offline
+python scripts\tune_loop.py --surface                               # what the loop may change
 gh run list -R WilliamEbong/spontaneous-travel-radar --limit 3       # scan ran? how long? failed?
 python scripts\dashboard_fixtures.py <scratch>                       # four data states for the page
 python -m http.server 8766 --directory <scratch>                     # then open localhost:8766
@@ -166,7 +182,8 @@ score panel on tap, the scoring table for today.
 
 ## Dates ahead
 
-- Daily: 04:17 scan, 07:30 routine note. Mondays the note carries the week's summary.
-- 2026-11-23 or so: first ladders refit may be proposed by the routine (needs 7+ scan days per city).
-- 2026-12-08: `radar-daily`'s last run, month-one summary. 2026-12-09: `radar-tune` PR.
-- After month one: switch the routine to Sonnet and a weekly cadence; decide live mode in the panel.
+- Daily: 04:17 scan, 08:30 routine note (Calgary is UTC-6 all year). Mondays the note carries the week's summary.
+- About 2026-11-22: 14 scan days; the self-tuning starts and the routes' ladders start rolling.
+- About 2026-11-30: 22 scan days; the rolling ladders reach the train days and the loop can first keep a change.
+- 2026-12-08: one-time month-one summary in the note; nothing stops. Live mode stays William's call (panel).
+- Each December: add that year's holiday range to `ladder_exclude_ranges` in `config/scoring.yaml`.
