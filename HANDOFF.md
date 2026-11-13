@@ -34,9 +34,9 @@ ladders, the replay harness `scripts/backtest.py`, the nightly trial loop `scrip
 file `config/tuning.yaml`, `radar-daily` without an end date, `PROMPT-tune.md` superseded; 129 tests, which read a
 frozen copy of the scoring config (`tests/fixtures/scoring.yaml`) because the loop edits the live one. It is
 live: `radar-daily` reads `routine/PROMPT-daily.md` from `main`, first run under the new rules 2026-11-13 08:30
-Calgary. The `tune-loop` worktree and branch are merged and can be removed. The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
-`v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` and
-`ux-motion` were removed after their merges.
+Calgary. All merged worktrees and their branches were removed on 2026-11-13 (`tune-loop`, `dashboard-v2`,
+`settings-panel`, `v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`, and earlier `archive-look` and
+`ux-motion`); `.claude/worktrees/` is empty and `main` is the only branch, here and on GitHub.
 
 Live: https://williamebong.github.io/spontaneous-travel-radar/ and `table.html` (scoring table).
 Verified on the live site at 16:58 Calgary on 2026-11-11 after the D-81 deploy: the sticky frame, the best deal
