@@ -1,4 +1,4 @@
-# Handoff: Spontaneous Travel Radar (state as of 2026-11-12, after the self-tuning loop was built on `tune-loop`, D-82)
+# Handoff: Spontaneous Travel Radar (state as of 2026-11-12, after the self-tuning loop was merged to `main`, D-82)
 
 Read this first in a fresh session. Then `docs/notes/decisions.md` (D-01 to D-83, one entry per
 judgment call), `docs/ASK.md` (how to answer William's questions from the data), and `SESSION-LOG.md`
@@ -27,13 +27,14 @@ breakdown panel (D-75), components and inputs on every history row (D-76), scori
 William's archive-of-looking system (D-80, merged and deployed 2026-11-11 16:10 Calgary as `bac6a89`: `DESIGN.md`
 holds the tokens, `PRODUCT.md` the product truth, `site/art/README.md` the photograph's provenance), equal cards and
 the motion layer (D-81, built unattended on branch `ux-motion`, merged and deployed 16:57 Calgary as `ce8af85`;
-`DESIGN.md` Motion describes it), the on-time scan start (D-83). `pytest -q`: 106 tests on `main`, no network.
+`DESIGN.md` Motion describes it), the on-time scan start (D-83). `pytest -q`: 129 tests on `main`, no network.
 
-**On branch `tune-loop`, waiting for William's merge (D-82)**: the permanent self-tuning loop. Rolling route
+**Merged to `main` on 2026-11-12 (D-82, pull request 2, merge `8a3927a`; William: "merge it ... loop approved")**: the permanent self-tuning loop. Rolling route
 ladders, the replay harness `scripts/backtest.py`, the nightly trial loop `scripts/tune_loop.py` with its switch
 file `config/tuning.yaml`, `radar-daily` without an end date, `PROMPT-tune.md` superseded; 129 tests, which read a
-frozen copy of the scoring config (`tests/fixtures/scoring.yaml`) because the loop edits the live one. Merging it
-changes the live routine (it reads `routine/PROMPT-daily.md` from `main`). The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
+frozen copy of the scoring config (`tests/fixtures/scoring.yaml`) because the loop edits the live one. It is
+live: `radar-daily` reads `routine/PROMPT-daily.md` from `main`, first run under the new rules 2026-11-13 08:30
+Calgary. The `tune-loop` worktree and branch are merged and can be removed. The worktrees under `.claude/worktrees/` (`dashboard-v2`, `settings-panel`,
 `v2-deal-model`, `score-breakdown`, `scoring-table`, `time-score`) are merged and can be removed; `archive-look` and
 `ux-motion` were removed after their merges.
 
@@ -53,8 +54,7 @@ where Perpetua, Franklin Gothic and Consolas are not installed (William's phone)
   cap 900. Commits `data/` and `hits/`, redeploys Pages. GitHub's own scheduler ran the cron 7.5 to
   10 h late every day from 11-09 to 11-12: hence the routine.
 - **08:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
-  every day with no end date once `tune-loop` is merged (D-82; until then its prompt stops after
-  2026-12-08), instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and pass 3 research on
+  every day with no end date (D-82), instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and pass 3 research on
   today's candidates, the self-tuning step (section T: `python scripts/tune_loop.py --date <date>`; a kept
   change goes live as one `tune:` commit), a note to `data/digests/<date>.md` (shown on the page), at most
   one other change a day as a PR on a `radar/iter-*` branch (Codex reviews on open; a reviewer subagent if
@@ -65,9 +65,9 @@ where Perpetua, Franklin Gothic and Consolas are not installed (William's phone)
   kept only when the hindsight price score wins by 1 point within the guardrails; every trial in
   `docs/tuning-log.md`, every score with its inputs in `data/tuning/runs.jsonl`. Expect it to keep nothing
   until about 22 scan days, when the rolling ladders reach the train days.
-- **2026-12-09 06:00**: `radar-tune` (one-shot `trig_01E542toF6zwmddqDsjRGXeX`) is now redundant: once
-  `tune-loop` is merged its prompt (`routine/PROMPT-tune.md`) only replies "superseded" and stops. William
-  can disable it at https://claude.ai/code/routines.
+- **2026-12-09 06:00**: `radar-tune` (one-shot `trig_01E542toF6zwmddqDsjRGXeX`) was disabled on 2026-11-12 on
+  William's word: the nightly loop replaces it (D-82), and its prompt (`routine/PROMPT-tune.md`) only replies
+  "superseded" and stops. Re-enable at https://claude.ai/code/routines/trig_01E542toF6zwmddqDsjRGXeX.
 - Disabled: hit reviewer `trig_01TvveuLCRL8QwbwuF52yd9Y` (live mode only), weekly digest
   `trig_01V9gJ6rL1sDuSsqDkE11oxo` (folded into the daily note). Manage all at https://claude.ai/code/routines.
 - GitHub Apps installed by William on all his repos: Claude (routine push, PRs, webhooks) and the
@@ -170,7 +170,7 @@ tap. `table.html`: any day's scoring table, sort, filter, download.
 ## How to verify
 
 ```
-.venv\Scripts\python -m pytest -q                                   # 129 with tune-loop, no network
+.venv\Scripts\python -m pytest -q                                   # 129, no network
 python scripts\backtest.py                                          # the hindsight score now, offline
 python scripts\tune_loop.py --surface                               # what the loop may change
 gh run list -R WilliamEbong/spontaneous-travel-radar --limit 3       # scan ran? how long? failed?
