@@ -1,5 +1,10 @@
 [
  {
+  "date": "2026-11-17",
+  "path": "data/history/2026-11-17.csv",
+  "rows": 187
+ },
+ {
   "date": "2026-11-16",
   "path": "data/history/2026-11-16.csv",
   "rows": 259
