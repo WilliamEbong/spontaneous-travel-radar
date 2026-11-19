@@ -12,3 +12,4 @@ The routine appends here; see `routine/PROMPT-daily.md`.
 - 2026-11-16 | pass 3: none | tune: collecting 7/14 | finding: today's scan late (not run by 14:40 UTC); week of Nov 8-15 healthy, 0 candidates, no fares at good or better on any route | action: none | none
 - 2026-11-17 | pass 3: none | tune: collecting 9/14 | finding: scan on time and healthy (99.7%), best score 51 (Los Angeles) | action: none | none
 - 2026-11-18 | pass 3: none | tune: collecting 10/14 | finding: scan on time and healthy (100%), best score 49 (Austin); no fares at good or better all week | action: none | none
+- 2026-11-19 | pass 3: none | tune: collecting 10/14 | finding: today's scan late (requested 14:09 UTC after scan-starter fix D-83); latest data 2026-11-18 healthy | action: none | none
