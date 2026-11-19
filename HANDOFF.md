@@ -52,7 +52,9 @@ where Perpetua, Franklin Gothic and Consolas are not installed (William's phone)
   16:17 UTC stay as a backup (D-79); a second start on the same day skips itself (D-74); manual
   `gh workflow run scan.yml` always runs. About 60 to 80 minutes, 572 to 688 Google Flights fetches,
   cap 900. Commits `data/` and `hits/`, redeploys Pages. GitHub's own scheduler ran the cron 7.5 to
-  10 h late every day from 11-09 to 11-12: hence the routine.
+  10 h late every day from 11-09 to 11-12: hence the routine. The routine pushes `HEAD:main`, not `main`: its
+  sandbox often has a detached HEAD, which made the start fail on 11-15, 11-16 and 11-19 (fixed 11-19, D-83).
+  To check a morning: `gh run list` should show `scan-kick` then a `workflow_dispatch` scan near 10:18 UTC.
 - **08:30 daily**: `radar-daily` (Opus 5.5, routine `trig_01VGioWFbgQxwEh1iZRypsCw`, cron 14:30 UTC,
   every day with no end date (D-82), instructions in `routine/PROMPT-daily.md`): pass 2's Airbnb step and pass 3 research on
   today's candidates, the self-tuning step (section T: `python scripts/tune_loop.py --date <date>`; a kept

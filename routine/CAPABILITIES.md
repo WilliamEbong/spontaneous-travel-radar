@@ -89,3 +89,11 @@ time to `data/scan-request.txt`, commit `chore: scan request <date>` and push to
 `.github/workflows/scan-kick.yml`, which dispatches `scan.yml` with `skip_if_done=true` using the workflow
 `GITHUB_TOKEN` (`actions: write`). A dispatch made with that token does start a run; this was confirmed in the
 test fire of 2026-11-12 19:23 UTC.
+
+Sandbox facts learned in its first week (2026-11-19):
+- The repo is often checked out with a detached HEAD and a local `main` left at an old commit. Commit on HEAD and
+  push `HEAD:main`; `git push origin main` is rejected as non-fast-forward on those days (11-15, 11-16, 11-19).
+- A standalone `sleep N` is blocked by the harness. Waits must sit inside one command, as an `until` loop.
+- A routine run reports "succeeded" when its session ended normally, even if the push failed. Judge a morning by
+  the `chore: scan request <date>` commit and the `scan-kick` workflow run, not by the routine status.
+- The push credential service can return HTTP 503 for some seconds (11-13).
