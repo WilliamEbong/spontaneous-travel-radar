@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-20T11:31:47+00:00",
+ "generated": "2026-11-21T11:27:02+00:00",
  "period": [
-  "2026-11-13",
-  "2026-11-20"
+  "2026-11-14",
+  "2026-11-21"
  ],
  "scan_days": 8,
- "history_days_total": 12,
+ "history_days_total": 13,
  "passes": {
   "candidates": 0,
   "awaiting_pass3": 0,
@@ -17,355 +17,349 @@
  "near_misses": [],
  "ladder_distribution": {
   "austin": {
-   "above": 24,
-   "typical": 12
+   "above": 23,
+   "typical": 15
   },
   "boston": {
-   "above": 32
+   "above": 34
   },
   "chicago": {
-   "above": 44,
+   "above": 49,
    "typical": 2
   },
   "denver": {
-   "above": 66
+   "above": 65
   },
   "las_vegas": {
-   "above": 62
+   "above": 64
   },
   "los_angeles": {
-   "above": 45
+   "above": 42
   },
   "mexico_city": {
-   "above": 40
+   "above": 41
   },
   "montreal": {
-   "above": 35
+   "above": 37
   },
   "nashville": {
    "above": 23,
-   "typical": 10
+   "typical": 12
   },
   "new_orleans": {
    "above": 38
   },
   "new_york": {
-   "above": 67
+   "above": 65
   },
   "palm_springs": {
-   "above": 46
+   "above": 47
   },
   "portland": {
    "above": 42
   },
   "quebec_city": {
-   "above": 32
+   "above": 34
   },
   "san_diego": {
    "above": 36,
-   "typical": 10
+   "typical": 9
   },
   "san_francisco": {
-   "above": 45,
-   "typical": 5
+   "above": 44,
+   "typical": 7
   },
   "seattle": {
-   "above": 40
+   "above": 41
   },
   "toronto": {
-   "above": 39,
+   "above": 37,
    "typical": 2
   },
   "vancouver": {
-   "above": 72
+   "above": 73
   },
   "washington_dc": {
-   "above": 41,
-   "typical": 6
+   "above": 40,
+   "typical": 10
   }
  },
  "share_of_typical": {
   "austin": {
    "min": 0.8055,
-   "p25": 0.9026,
-   "p50": 1.0117
+   "p25": 0.8996,
+   "p50": 1.0053
   },
   "boston": {
-   "min": 0.9576,
-   "p25": 1.1005,
-   "p50": 1.2273
+   "min": 1.0839,
+   "p25": 1.1585,
+   "p50": 1.2283
   },
   "chicago": {
    "min": 0.9108,
    "p25": 1.0145,
-   "p50": 1.2428
+   "p50": 1.2444
   },
   "denver": {
    "min": 1.2723,
    "p25": 1.4816,
-   "p50": 1.5336
+   "p50": 1.5349
   },
   "las_vegas": {
    "min": 1.1025,
-   "p25": 1.2066,
+   "p25": 1.2093,
    "p50": 1.3058
   },
   "los_angeles": {
    "min": 0.9156,
-   "p25": 1.0292,
-   "p50": 1.0893
+   "p25": 1.0297,
+   "p50": 1.1295
   },
   "mexico_city": {
    "min": 1.0544,
-   "p25": 1.1799,
-   "p50": 1.3264
+   "p25": 1.1774,
+   "p50": 1.2559
   },
   "montreal": {
    "min": 1.0133,
-   "p25": 1.0774,
-   "p50": 1.1547
+   "p25": 1.1071,
+   "p50": 1.1665
   },
   "nashville": {
    "min": 0.7879,
-   "p25": 0.9468,
-   "p50": 1.0149
+   "p25": 0.9266,
+   "p50": 1.0027
   },
   "new_orleans": {
    "min": 0.9774,
-   "p25": 1.0653,
-   "p50": 1.127
+   "p25": 1.031,
+   "p50": 1.1203
   },
   "new_york": {
    "min": 0.9918,
-   "p25": 1.2351,
+   "p25": 1.2377,
    "p50": 1.3349
   },
   "palm_springs": {
-   "min": 0.9836,
-   "p25": 1.1168,
-   "p50": 1.293
+   "min": 1.0161,
+   "p25": 1.1084,
+   "p50": 1.2982
   },
   "portland": {
    "min": 1.0943,
-   "p25": 1.2028,
-   "p50": 1.2819
+   "p25": 1.2013,
+   "p50": 1.236
   },
   "quebec_city": {
    "min": 1.0079,
    "p25": 1.0665,
-   "p50": 1.2229
+   "p50": 1.1718
   },
   "san_diego": {
    "min": 0.8663,
-   "p25": 0.9433,
-   "p50": 1.0612
+   "p25": 0.9671,
+   "p50": 1.0686
   },
   "san_francisco": {
-   "min": 0.8654,
-   "p25": 0.9759,
-   "p50": 1.1079
+   "min": 0.8025,
+   "p25": 0.9643,
+   "p50": 1.0645
   },
   "seattle": {
-   "min": 1.5726,
-   "p25": 1.6257,
+   "min": 1.477,
+   "p25": 1.6247,
    "p50": 1.8274
   },
   "toronto": {
    "min": 0.9162,
    "p25": 1.0182,
-   "p50": 1.1164
+   "p50": 1.0786
   },
   "vancouver": {
-   "min": 0.9237,
+   "min": 0.9004,
    "p25": 1.0536,
-   "p50": 1.1508
+   "p50": 1.1445
   },
   "washington_dc": {
-   "min": 0.8613,
-   "p25": 1.0286,
-   "p50": 1.116
+   "min": 0.8629,
+   "p25": 0.9928,
+   "p50": 1.1018
   }
  },
  "price_pp": {
   "austin": {
    "min": 531,
-   "p10": 592,
-   "p25": 620,
-   "p50": 720,
+   "p10": 574,
+   "p25": 593,
+   "p50": 706,
    "p90": 1344
   },
   "boston": {
-   "min": 724,
-   "p10": 812,
+   "min": 785,
+   "p10": 846,
    "p25": 862,
-   "p50": 936,
-   "p90": 1082
+   "p50": 957,
+   "p90": 1241
   },
   "chicago": {
    "min": 488,
    "p10": 584,
-   "p25": 597,
-   "p50": 665,
+   "p25": 598,
+   "p50": 670,
    "p90": 1405
   },
   "denver": {
    "min": 632,
-   "p10": 751,
-   "p25": 812,
+   "p10": 724,
+   "p25": 798,
    "p50": 933,
-   "p90": 1145
+   "p90": 1166
   },
   "las_vegas": {
    "min": 476,
-   "p10": 524,
-   "p25": 560,
+   "p10": 532,
+   "p25": 566,
    "p50": 632,
-   "p90": 1757
+   "p90": 1730
   },
   "los_angeles": {
    "min": 503,
-   "p10": 522,
-   "p25": 570,
+   "p10": 542,
+   "p25": 591,
    "p50": 646,
-   "p90": 1062
+   "p90": 928
   },
   "mexico_city": {
    "min": 906,
    "p10": 928,
-   "p25": 1032,
-   "p50": 1128,
-   "p90": 2412
+   "p25": 995,
+   "p50": 1117,
+   "p90": 1942
   },
   "montreal": {
    "min": 536,
-   "p10": 552,
-   "p25": 590,
-   "p50": 642,
+   "p10": 554,
+   "p25": 612,
+   "p50": 670,
    "p90": 810
   },
   "nashville": {
    "min": 490,
-   "p10": 540,
-   "p25": 608,
-   "p50": 686,
-   "p90": 1206
+   "p10": 572,
+   "p25": 605,
+   "p50": 670,
+   "p90": 1191
   },
   "new_orleans": {
    "min": 936,
-   "p10": 1001,
-   "p25": 1032,
-   "p50": 1078,
-   "p90": 1404
+   "p10": 986,
+   "p25": 1019,
+   "p50": 1065,
+   "p90": 1386
   },
   "new_york": {
    "min": 706,
-   "p10": 768,
-   "p25": 930,
-   "p50": 1019,
-   "p90": 1356
+   "p10": 813,
+   "p25": 932,
+   "p50": 1016,
+   "p90": 1276
   },
   "palm_springs": {
-   "min": 578,
+   "min": 570,
    "p10": 607,
-   "p25": 634,
-   "p50": 744,
-   "p90": 1069
+   "p25": 649,
+   "p50": 754,
+   "p90": 1076
   },
   "portland": {
-   "min": 558,
+   "min": 559,
    "p10": 560,
-   "p25": 618,
+   "p25": 604,
    "p50": 630,
-   "p90": 823
+   "p90": 769
   },
   "quebec_city": {
    "min": 768,
    "p10": 768,
    "p25": 774,
-   "p50": 938,
-   "p90": 1364
+   "p50": 862,
+   "p90": 1153
   },
   "san_diego": {
    "min": 536,
-   "p10": 576,
-   "p25": 615,
-   "p50": 710,
+   "p10": 590,
+   "p25": 644,
+   "p50": 746,
    "p90": 1286
   },
   "san_francisco": {
-   "min": 436,
-   "p10": 476,
-   "p25": 532,
-   "p50": 612,
-   "p90": 1252
+   "min": 384,
+   "p10": 461,
+   "p25": 507,
+   "p50": 590,
+   "p90": 1346
   },
   "seattle": {
-   "min": 565,
+   "min": 599,
    "p10": 604,
-   "p25": 615,
+   "p25": 616,
    "p50": 640,
-   "p90": 782
+   "p90": 800
   },
   "toronto": {
    "min": 382,
-   "p10": 426,
-   "p25": 456,
-   "p50": 528,
+   "p10": 416,
+   "p25": 446,
+   "p50": 516,
    "p90": 781
   },
   "vancouver": {
    "min": 234,
-   "p10": 264,
-   "p25": 298,
-   "p50": 346,
-   "p90": 502
+   "p10": 252,
+   "p25": 289,
+   "p50": 342,
+   "p90": 504
   },
   "washington_dc": {
-   "min": 584,
-   "p10": 651,
-   "p25": 700,
-   "p50": 792,
-   "p90": 1336
+   "min": 585,
+   "p10": 625,
+   "p25": 690,
+   "p50": 770,
+   "p90": 1331
   }
  },
  "nonstop_share": {
   "austin": 0.0,
   "boston": 0.0,
   "chicago": 0.23,
-  "denver": 0.61,
+  "denver": 0.6,
   "las_vegas": 0.48,
   "los_angeles": 0.36,
   "mexico_city": 0.0,
-  "montreal": 0.58,
+  "montreal": 0.6,
   "nashville": 0.0,
   "new_orleans": 0.0,
-  "new_york": 0.04,
-  "palm_springs": 0.15,
+  "new_york": 0.02,
+  "palm_springs": 0.13,
   "portland": 0.0,
   "quebec_city": 0.0,
-  "san_diego": 0.17,
-  "san_francisco": 0.18,
-  "seattle": 0.32,
-  "toronto": 0.5,
+  "san_diego": 0.12,
+  "san_francisco": 0.14,
+  "seattle": 0.26,
+  "toronto": 0.54,
   "vancouver": 1.0,
   "washington_dc": 0.0
  },
  "request_health": {
-  "queries_planned": 666,
-  "queries_answered": 665,
-  "queries_attempted": 692,
+  "queries_planned": 662,
+  "queries_answered": 662,
+  "queries_attempted": 677,
   "budget_max": 900,
-  "coverage_pct": 99.8,
+  "coverage_pct": 100.0,
   "cache_hits": 0,
   "budget_skipped": 0,
-  "fetch_error_count": 1,
-  "fetch_errors": [
-   {
-    "route": "YYC-EWR",
-    "day": "2027-02-12",
-    "error": "FetchError: no data script in page (blocked, consent page or layout change)"
-   }
-  ],
+  "fetch_error_count": 0,
+  "fetch_errors": [],
   "blocked": false,
   "no_nonstop": [
    "portland",
@@ -377,14 +371,14 @@
    "washington_dc"
   ],
   "windows": 27,
-  "city_windows_with_trips": 81,
-  "history_rows": 133,
+  "city_windows_with_trips": 134,
+  "history_rows": 227,
   "candidates": 0,
   "pass2_checks": 0,
   "serpapi_lookups": 0,
   "serpapi_used_this_month": 45,
   "serpapi_cap": 200,
   "host": "github-actions",
-  "duration_s": 4417
+  "duration_s": 4114
  }
 }
