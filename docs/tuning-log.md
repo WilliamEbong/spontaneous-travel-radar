@@ -8,3 +8,20 @@ judged trips called good or better and sent for a closer look. Undo a kept chang
 
 | date | # | change | score | holdout | parts after | result |
 |---|---|---|---|---|---|---|
+| 2026-11-22 | 1 | price_curve.share_0 0.60 → 0.55 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 2 | rolling_ladder.good 25 → 20 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 3 | weekend.candidate_threshold 70 → 68 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 4 | rolling_window_days 60 → 45 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 5 | dayoff.candidate_threshold 70 → 68 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 6 | price_curve.share_2 1.00 → 0.95 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 7 | price_curve.share_1 0.75 → 0.70 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 8 | rolling_ladder.typical 50 → 45 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 9 | dayoff.candidate_threshold 70 → 72 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 10 | rolling_ladder.good 25 → 30 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 11 | price_curve.share_2 1.00 → 1.05 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 12 | price_curve.share_0 0.60 → 0.65 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 13 | price_curve.share_1 0.75 → 0.80 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 14 | rolling_window_days 60 → 75 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 15 | rolling_ladder.typical 50 → 55 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | 16 | weekend.candidate_threshold 70 → 72 | 0.00 → 0.00 | 0.00 → 0.00 | deal 0.00, ladder 0.00, good 0%, closer look 0.0%, n 369 | reverted: not better by 1 |
+| 2026-11-22 | night | 16 trials, 0 kept: no change | 0.00 → 0.00 | 0.00 → 0.00 | hindsight, 14 scan days 2026-11-09 to 2026-11-22 | |
