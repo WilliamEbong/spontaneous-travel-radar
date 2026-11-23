@@ -75,31 +75,41 @@ def km_between(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def parse_options(payload: dict, city: City, kind: str, s: Scoring) -> list[Option]:
-    """Acceptable options from one SerpApi google_hotels response: rated 4.3+, hotels 4-5 star, within MAX_KM."""
+    """Acceptable options from one SerpApi google_hotels response: rated 4.3+, hotels 4-5 star, within MAX_KM.
+    The payload is untrusted: a property with a missing or wrong-typed field is skipped, never fatal to the scan."""
     out = []
-    for p in payload.get("properties", []):
-        g = p.get("gps_coordinates") or {}
-        rating = p.get("overall_rating") or 0
-        if "latitude" not in g or rating < MIN_RATING or (kind == "hotel" and (p.get("extracted_hotel_class") or 0) < 4):
+    for p in (payload.get("properties") if isinstance(payload, dict) else None) or []:
+        try:
+            opt = _option(p, city, kind, s)
+        except (AttributeError, KeyError, TypeError, ValueError):
             continue
-        km = km_between(city.lat, city.lon, g["latitude"], g["longitude"])
-        tr = p.get("total_rate") or {}
-        total = tr.get("extracted_after_taxes_fees") or tr.get("extracted_lowest")
-        estimated = not total and bool(tr.get("extracted_before_taxes_fees"))
-        if estimated:
-            total = tr["extracted_before_taxes_fees"] * city.hotel_tax
-        if km > MAX_KM or not total:
-            continue
-        cad = total * s.usd_cad if city.hotel_currency == "USD" else total
-        out.append(Option(
-            kind=kind, name=p.get("name", ""), link=p.get("link", ""), total=round(float(total), 2), currency=city.hotel_currency,
-            total_cad=round(cad, 2), taxes_estimated=estimated,
-            nightly_pre_tax=(p.get("rate_per_night") or {}).get("extracted_before_taxes_fees"), rating=round(float(rating), 2),
-            stars=p.get("extracted_hotel_class"), km=round(km, 1), fringe=km > CENTRAL_KM,
-            deal=p.get("deal"), deal_label=p.get("deal_description"),
-            detail=", ".join((p.get("essential_info") or [])[:2]) if kind == "rental" else (p.get("check_in_time") or "").replace(" ", " "),
-        ))
+        if opt:
+            out.append(opt)
     return out
+
+
+def _option(p: dict, city: City, kind: str, s: Scoring) -> Option | None:
+    g = p.get("gps_coordinates") or {}
+    rating = p.get("overall_rating") or 0
+    if "latitude" not in g or rating < MIN_RATING or (kind == "hotel" and (p.get("extracted_hotel_class") or 0) < 4):
+        return None
+    km = km_between(city.lat, city.lon, g["latitude"], g["longitude"])
+    tr = p.get("total_rate") or {}
+    total = tr.get("extracted_after_taxes_fees") or tr.get("extracted_lowest")
+    estimated = not total and bool(tr.get("extracted_before_taxes_fees"))
+    if estimated:
+        total = tr["extracted_before_taxes_fees"] * city.hotel_tax
+    if km > MAX_KM or not total or total <= 0:
+        return None
+    cad = total * s.usd_cad if city.hotel_currency == "USD" else total
+    return Option(
+        kind=kind, name=p.get("name", ""), link=p.get("link", ""), total=round(float(total), 2), currency=city.hotel_currency,
+        total_cad=round(cad, 2), taxes_estimated=estimated,
+        nightly_pre_tax=(p.get("rate_per_night") or {}).get("extracted_before_taxes_fees"), rating=round(float(rating), 2),
+        stars=p.get("extracted_hotel_class"), km=round(km, 1), fringe=km > CENTRAL_KM,
+        deal=p.get("deal"), deal_label=p.get("deal_description"),
+        detail=", ".join((p.get("essential_info") or [])[:2]) if kind == "rental" else (p.get("check_in_time") or "").replace(" ", " "),
+    )
 
 
 def search(city: City, check_in: date, check_out: date, kind: str, s: Scoring, *, api_key: str | None, cache_dir,
@@ -125,6 +135,9 @@ def search(city: City, check_in: date, check_out: date, kind: str, s: Scoring, *
         payload = r.json()
     except (httpx.HTTPError, ValueError) as e:
         print(f"serpapi {kind} {city.key}: {type(e).__name__}", file=sys.stderr)   # the URL holds the key: never print it
+        return None, "error", 1
+    if not isinstance(payload, dict):   # untrusted: anything but a JSON object is an error, and is not cached
+        print(f"serpapi {kind} {city.key}: response is not an object", file=sys.stderr)
         return None, "error", 1
     payload.pop("search_parameters", None)
     payload.pop("search_metadata", None)

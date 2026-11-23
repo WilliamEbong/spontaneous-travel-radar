@@ -183,3 +183,28 @@ def test_brief_links_are_https_only():
     assert _link("Hotel", "https://example.com/a?b=1") == "[Hotel](https://example.com/a?b=1)"
     assert _link("Hotel", "https://x.example/a)[Win](https://evil.example") == "Hotel"   # cannot open a second link
     assert _link("Loft", "") == "Loft" and _link("Loft", "http://x.example") == "Loft"
+
+
+def test_malformed_serpapi_payload_is_skipped_not_fatal():
+    """SerpApi's payload is untrusted: a null list, a null coordinate or a negative price skips that property only.
+    Before the fix each of these raised (or let a negative total through) inside the scan, after the payload was
+    cached, so every re-run that day crashed the same way."""
+    c = city("vancouver")
+    good = {"name": "ok", "overall_rating": 4.5, "extracted_hotel_class": 4,
+            "gps_coordinates": {"latitude": c.lat, "longitude": c.lon}, "total_rate": {"extracted_after_taxes_fees": 400}}
+    bad = [
+        {**good, "gps_coordinates": {"latitude": None, "longitude": c.lon}},
+        {**good, "total_rate": {"extracted_after_taxes_fees": -70}},
+        {**good, "overall_rating": "4.5"},
+        "not a property",
+    ]
+    assert parse_options({"properties": None}, c, "hotel", S) == []
+    assert parse_options([], c, "hotel", S) == []
+    assert [o.name for o in parse_options({"properties": [*bad, good]}, c, "hotel", S)] == ["ok"]
+
+
+def test_non_object_serpapi_response_is_an_error(tmp_path, monkeypatch):
+    monkeypatch.setattr("radar.hotels.USAGE_PATH", tmp_path / "usage.json")
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(["unexpected"]))
+    assert search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path) == (None, "error", 1)
+    assert not list(tmp_path.glob("serpapi-*.json"))   # nothing cached, so the next scan can try again
