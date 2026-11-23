@@ -105,8 +105,8 @@ def test_disabled_city_gets_no_queries():
 
 def test_daily_volume_stays_at_or_under_688():
     """Acceptance check 10 (v2): the dry-run query build over six weeks of scan days plans 572 to 688 a day (D-54)."""
-    s = load_scoring()
-    ns = [len(build_queries(load_cities(), class_windows(d, s, set()), d, s.trip_classes))
+    s, cities = load_scoring(), load_cities()
+    ns = [len(build_queries(cities, class_windows(d, s, set()), d, s.trip_classes))
           for d in (date(2026, 11, 10) + timedelta(days=i) for i in range(42))]
     assert 500 <= min(ns) and max(ns) <= 688, (min(ns), max(ns))
 
