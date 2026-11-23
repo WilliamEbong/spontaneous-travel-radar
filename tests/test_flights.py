@@ -178,3 +178,11 @@ def test_one_malformed_item_in_a_live_response_keeps_the_rest(tmp_path, monkeypa
     q = LegQuery("YYC", "YVR", date(2026, 12, 11), origin_tz="America/Edmonton", dest_tz="America/Vancouver")
     legs = fetch_leg(q, Budget(1), cache_dir=tmp_path, sleep_range=(0, 0), retry_wait=0)
     assert len(legs) == 1 and legs[0].price_cad_2pax > 0
+
+
+@pytest.mark.parametrize("price", [True, 1e309, -5, "499"])
+def test_unreadable_price_drops_the_item(price):
+    # Codex review: true read as a $1 fare, and 1e309 (json.loads gives inf) raised OverflowError outside the guard.
+    raw = json.loads(json.dumps(load_fixture("ff_yyc_yvr_oneway.json")[0]))
+    raw[1][0][1] = price
+    assert to_leg(raw, "YYC", "YVR", "America/Edmonton", "America/Vancouver") is None

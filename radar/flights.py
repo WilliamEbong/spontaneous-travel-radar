@@ -5,6 +5,7 @@ fast-flights 3.1.0's parser reads only payload[3][0] ("other flights") and drops
 parse_items reads both lists from the raw page.
 """
 import json
+import math
 import os
 import random
 import sys
@@ -113,7 +114,9 @@ def to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | N
 def _to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | None:
     price = raw[1][0][1]
     segs = raw[0][2]
-    if not price or not segs or len(segs) > 2:
+    if type(price) not in (int, float) or not math.isfinite(price) or price <= 0:   # not true, inf, NaN or text
+        return None
+    if not segs or len(segs) > 2:
         return None
     dep = _dt(segs[0][20], segs[0][8], origin_tz)
     arr = _dt(segs[-1][21], segs[-1][10], dest_tz)
