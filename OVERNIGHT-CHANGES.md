@@ -81,6 +81,8 @@ that were his decision, and to keep improving. Each fix again has a test that fa
 | 34 | `6d296a3` | **The scoring table shows a day trip as 0 nights, not 1.** Who notices: William reading `table.html` (19 real rows). | `test_main_offline.py::test_csv_row_tolerates_rows_from_before_the_components` (new case) |
 | 35 | `63297aa` | **The page's "How trips are judged" uses the live thresholds.** Who notices: William, once the loop moves a candidate threshold (it may, 65 to 80). The copy said "70 or more" and "a final 80". The text is the same while the values are 70 and 80. | node check of the sentence with 68/80 and with no classes |
 | 36 | `9c9f96d` | **README and ASK.md.** The README gave the scan time as 03:17 MST / 04:17 MDT; it is 04:17 Calgary all year (D-24). ASK.md sent an ASK session to `latest.json`'s `hits`, which is always empty since v2, so it would tell William there were no hits; it now points to `hits/index.json`. | Documentation only |
+| 37 | `76c3aea` | Codex review 4 on #32. **A routine proposal now runs only if it is one of the menu's own one-step moves from the config at that moment.** Who notices: the tuning loop. Checking each `--try` key against the night's starting config still let one proposal move both thresholds at once, or two proposals chain 70 to 72 to 68. The check moved from `parse_try` into `run_night`, so the diff is net shorter. | `test_tune_loop.py::test_a_proposal_runs_only_as_one_step_from_the_current_config` |
+| 38 | `90e8d7b` | Codex review 4 on #35. **The judging copy names each class's threshold when they differ.** Who notices: William, once the tuner moves the day-off and weekend thresholds apart. The text is unchanged while they agree; otherwise it reads "70 (72 for a weekend trip) or more passes". | node check of the sentence with equal and with different thresholds |
 
 ## Loop health (the nightly self-tuning, D-82), 2026-11-23
 
@@ -126,11 +128,14 @@ that were his decision, and to keep improving. Each fix again has a test that fa
    - **A failed flight-cache write ends a local scan.** This needs the Windows fallback host.
    - **`mode`, `weights` and the trip rules are not validated.** Only a hand edit can set them wrong.
    - **A non-atomic write under `hits/`.** This needs a crash mid-write.
+   - **A backdated `--today` export in a checkout that has later history files** draws its series with those later days (Codex review 4). Only a manual replay hits this.
+   - **The disabled weekly prompt compares fares with the static ladders**, while routes with 14 days use rolling ones (Codex review 4). This matters only if the routine is turned back on.
 
 ## Codex reviews
 
 - Review 1: 5 findings, all confirmed and fixed (#9 to #13).
 - Review 2: 4 findings, all confirmed and fixed (#14 to #17).
+- Review 4 (round 2's diff): 4 findings. 2 were fixed (#37, #38); the other 2 fail the bar and are listed below.
 - Review 3: 3 findings. 1 was fixed (#18) and 1 in round 2 (#21); the last is open item 2. By then the findings
   were very unlikely edge cases, so I stopped the review loop there.
 
