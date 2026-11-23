@@ -63,7 +63,7 @@ def history_row(day: str, window: str, price_pp: int, score: int, *, city="vanco
     from radar.config import load_scoring
     back = (date.fromisoformat(window[:10]) + timedelta(days=2)).isoformat()
     return {"scan_date": day, "city": city, "window_id": window, "trip_class": trip_class, "winner": True,
-            "price_pp": price_pp, "share": 0.1, "total_cad": 100.0, "nights": 2, "score": score, "candidate": False,
+            "price_pp": price_pp, "share": 0.1, "total_cad": 100.0, "nights": 2, "score": score, "price_pts": 45.0, "candidate": False,
             "out_arr": f"{window[:10]}T08:45:00-08:00", "back_dep": f"{back}T13:00:00-08:00",
             "components": {"price": 45.0, "time": score - 45.0, "convenience": 0.0, "city": 0.0, "weather": 0.0},
             "inputs": {"weights": dict(load_scoring().weights)}}
