@@ -7,3 +7,4 @@ data/cache/
 .claude/scheduled_tasks.lock
 .playwright-mcp/
 *.tmp
+graphify-out/

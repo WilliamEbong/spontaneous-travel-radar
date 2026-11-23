@@ -1,0 +1,13 @@
+# graphify index scope: the radar's code, config, docs, specs and routine prompts.
+# Left out: generated data and hits, test fixtures, the site's photographs, and tooling templates.
+/graphify-out/
+/.graphifyignore
+/.specify/
+/.agents/
+/.claude/
+/.impeccable
+/data/
+/hits/
+/tests/fixtures/
+/site/art/
+/site/icons/
