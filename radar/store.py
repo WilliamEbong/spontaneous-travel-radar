@@ -1,5 +1,6 @@
 """Append-only JSONL quote history (data/history/YYYY-MM-DD.jsonl) and the route percentile."""
 import json
+import os
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -37,6 +38,16 @@ def append_quotes(day: date, rows: list[dict], root="data/history") -> Path:
     p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("a", encoding="utf-8") as f:
         f.writelines(json.dumps(r, separators=(",", ":")) + "\n" for r in rows)
+    return p
+
+
+def write_day(day: date, rows: list[dict], root="data/history") -> Path:
+    """Replace the day's history file in one step (temp file + rename), so a crash mid-write keeps the old file whole."""
+    p = Path(root) / f"{day.isoformat()}.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_name(p.name + ".tmp")
+    tmp.write_text("".join(json.dumps(r, separators=(",", ":")) + "\n" for r in rows), encoding="utf-8")
+    os.replace(tmp, p)
     return p
 
 
