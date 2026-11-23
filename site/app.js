@@ -69,6 +69,12 @@ function windowDays(windowId) {
   return { text: span(first, last.toISOString().slice(0, 10)), pattern: PATTERN[pattern] || pattern };
 }
 const windowLabel = (windowId) => { const w = windowDays(windowId); return `${w.text} · ${w.pattern}`; };
+// A priced trip's own days, leave to home (a 1-night trip in a 3-day window is Fri – Sat, not Fri – Sun).
+function tripLabel(r) {
+  if (!r.dates) return windowLabel(r.window_id);
+  const a = r.dates.out_dep.slice(0, 10), b = r.dates.back_arr.slice(0, 10);
+  return `${a === b ? dayOf(a, { weekday: "short", day: "numeric", month: "short" }) : span(a, b)} · ${windowDays(r.window_id).pattern}`;
+}
 function stopsText([out, back]) {
   if (!out && !back) return "Non-stop";
   if (out && back) return `${out} stop each way`;
@@ -368,7 +374,7 @@ function renderVerdict(latest, index, stale) {
   } else {
     h1.textContent = "Nothing worth booking today.";
     const best = (latest.best_by_city || [])[0];
-    if (best) frameLead("Best deal today", best.city_name, `${windowLabel(best.window_id)} · ${money(best.total_cad)} for two` + (best.share != null ? ` · ${pct(best.share)} of typical` : ""), `#city-${best.city}`);
+    if (best) frameLead("Best deal today", best.city_name, `${tripLabel(best)} · ${money(best.total_cad)} for two` + (best.share != null ? ` · ${pct(best.share)} of typical` : ""), `#city-${best.city}`);
     else $("frame-lead").hidden = true;
     lead.textContent = (best ? "" : "No trip fitted a window in the last scan. ") + `A hit needs a final ${hitLine(latest)}. Most days nothing comes close, and that is the radar working.` + note;
   }
@@ -457,7 +463,7 @@ function cityCard(r, c, ctx) {
         el("span", { class: "sub", text: `${r.airport} · ${r.airlines} · ${stopsText(r.stops)}` })),
       el("span", { class: "num" }, num)),
     el("span", { class: "fig" }, el("span", { class: "for2", text: money(r.total_cad) }), el("span", { class: "pp", text: `for two · flights ${money(r.price_pp)} pp` })),
-    el("span", { class: "dates" }, el("span", { text: windowLabel(r.window_id) })),
+    el("span", { class: "dates" }, el("span", { text: tripLabel(r) })),
     el("span", { class: "sub", text: `Leave ${wall(r.dates.out_dep)} · home ${wall(r.dates.back_arr)}` }),
     el("span", { class: "meta" }, el("span", { class: "ml" }, ladderPill(r.ladder), r.share != null ? el("span", { text: `${pct(r.share)} of typical` }) : null), classPill(r.trip_class), icon("i-chev", "ic chev")),
     ...panel));   // the route's ladder moves into the opened body: the word and the share already say it
@@ -492,7 +498,7 @@ function cityBody(r, c, { series, windows }) {
   const tbody = el("tbody");
   for (const w of ws) {
     tbody.append(el("tr", { class: `c-${w.trip_class}${w.window_id === r.window_id ? " is-best" : ""}` },
-      el("th", { scope: "row" }, el("span", { class: "win", text: windowLabel(w.window_id) }), classPill(w.trip_class),
+      el("th", { scope: "row" }, el("span", { class: "win", text: tripLabel(w) }), classPill(w.trip_class),
         el("span", { class: "sub", text: `${w.airport} · ${w.airlines} · ${stopsText(w.stops)} · leave ${wall(w.dates.out_dep)}, home ${wall(w.dates.back_arr)} · ${money(w.price_pp)} pp` })),
       el("td", {}, ladderPill(w.ladder)),
       el("td", { class: "num", text: money(w.total_cad) }),
@@ -536,7 +542,7 @@ function renderCities(latest, series) {
   $("cities-hint").textContent = "Each city's best trip in this scan, judged against what that route normally costs. Tap a city for every weekend and its price history.";
   $("how").replaceChildren(el("summary", { text: "How trips are judged" }),
     el("p", { text: `Two kinds of trip. Needs a day off: scanned ${weeks} to ${latest.classes?.dayoff?.max_weeks ?? 16} weeks out so the time can be approved; leave from 7:30 pm the evening before, home by 4 pm on the last day off. No day off needed: the next 6 weeks, out Friday after 5:30 pm, home Sunday by 4 pm, non-stop only.` }),
-    el("p", { text: `Fares are for two adults with a carry-on each, basic fares included. The score adds price (45 points: the complete trip against what the route normally costs), time there (20), convenience (10), city (15) and weather (10). ${cut("candidate_threshold", 70)} or more passes; a fare at or under the route's good gets a real lodging check; a final ${cut("hit_threshold", 80)} with lodging in hand is a hit.` }));
+    el("p", { text: `Fares are for two adults with a carry-on each, basic fares included. The score adds price (45 points: the complete trip against what the route normally costs), time there (20), convenience (10), city (15) and weather (10). ${cut("candidate_threshold", 70)} or more passes; a trip that passes with a fare at or under the route's good gets a real lodging check; a final ${cut("hit_threshold", 80)} with lodging in hand is a hit.` }));
   const best = Object.fromEntries((latest.best_by_city || []).map((r) => [r.city, r]));
   const cities = latest.cities || [];
   $("cities").removeAttribute("aria-busy");   // the skeleton goes either way
