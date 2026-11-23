@@ -84,6 +84,10 @@ uv pip install --python .venv -e ".[dev]"
 .venv\Scripts\python -m radar.main scan --cities vancouver,las_vegas --budget 60
 ```
 
+Both scan lines write `data/` and `hits/` in the current folder, over the real scan files. Run the offline one
+in a scratch copy that holds `config/` and `tests/fixtures/offline/`, and never commit its output: a committed
+offline run would publish a fake 2026-10-08 scan as the latest one.
+
 Keys go in `.env` (see `.env.example`); `radar.main` reads it. In Actions they are repo secrets.
 
 ## Switching the collector host
