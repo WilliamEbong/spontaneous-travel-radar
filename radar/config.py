@@ -197,15 +197,6 @@ def load_scoring(path=None) -> Scoring:
         for k in ("candidate_threshold", "hit_threshold"):
             if not isinstance(c.get(k), int) or not 0 <= c[k] <= 110:
                 raise ValueError(f"{path}: trip_classes.{name}.{k} must be a whole number from 0 to 110")
-    # the trip rules: a hand edit only, but rotate_days 0 would end the scan with ZeroDivisionError
-    rules = {"dayoff": {"span_weeks": 1, "rotate_days": 1}, "weekend": {"min_days": 0, "max_days": 1, "max_air_min": 1}}
-    for name, mins in rules.items():
-        c = s.trip_classes.get(name) or {}
-        for k, low in mins.items():
-            if type(c.get(k)) is not int or c[k] < low:
-                raise ValueError(f"{path}: trip_classes.{name}.{k} must be a whole number of at least {low}")
-    if s.trip_classes.get("weekend") and s.trip_classes["weekend"]["max_days"] < s.trip_classes["weekend"]["min_days"]:
-        raise ValueError(f"{path}: trip_classes.weekend.max_days must be at least min_days")
     xs = [x for x, _ in s.price_curve["points"]]
     if xs != sorted(xs) or len(xs) < 2:
         raise ValueError(f"{path}: price_curve.points must be at least two [share, points] pairs in rising share order")
