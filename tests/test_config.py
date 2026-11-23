@@ -94,6 +94,22 @@ def test_bad_class_setting_fails_loudly(tmp_path):
         load_scoring(p)
 
 
+@pytest.mark.parametrize("edit, msg", [
+    (("rotate_days: 3 ", "rotate_days: 0 "), "dayoff.rotate_days"),       # % 0 would raise ZeroDivisionError mid-scan
+    (("span_weeks: 10", "span_weeks: ten"), "dayoff.span_weeks"),
+    (("min_days: 3 ", "min_days: -1 "), "weekend.min_days"),
+    (("max_days: 42", "max_days: 2"), "weekend.max_days"),               # under min_days: no weekend ever qualifies
+    (("max_air_min: 180", "max_air_min: 3h"), "weekend.max_air_min"),
+])
+def test_bad_trip_rule_fails_loudly(tmp_path, edit, msg):
+    p = tmp_path / "s.yaml"
+    src = Path("tests/fixtures/scoring.yaml").read_text(encoding="utf-8")
+    assert edit[0] in src
+    p.write_text(src.replace(*edit, 1), encoding="utf-8")
+    with pytest.raises(ValueError, match=msg):
+        load_scoring(p)
+
+
 def test_missing_field_names_the_city(tmp_path):
     p = tmp_path / "c.yaml"
     p.write_text("cities:\n  - key: atlantis\n    name: Atlantis\n")
