@@ -184,5 +184,5 @@ git push origin claude/overnight-fixes-bdabcb   # then open a PR, or merge to ma
 ```
 
 The branch touches only `radar/`, `scripts/backtest.py`, `scripts/tune_loop.py`, `tests/`, `.gitignore`,
-`.github/workflows/scan.yml`, `routine/PROMPT-weekly.md`, `.graphifyignore`, `README.md`, `HANDOFF.md`, `site/app.js`, `docs/ASK.md`, `docs/TUNING-PLAN.md`, `docs/notes/decisions.md` (D-84 to D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
+`.github/workflows/scan.yml`, `routine/PROMPT-weekly.md`, `.graphifyignore`, `README.md`, `HANDOFF.md`, `site/app.js`, `docs/ASK.md`, `docs/TUNING-PLAN.md`, `docs/notes/decisions.md` (D-84, D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
 guards; no config or data change is needed.
