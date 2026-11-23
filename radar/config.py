@@ -59,9 +59,12 @@ class Scoring:
     ladder_exclude_ranges: tuple = ()  # ((first, last), ...): windows starting inside one never feed a ladder
 
 
+SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)   # libyaml when installed: the same objects, ~5x faster
+
+
 def _read(path):
     with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        return yaml.load(f, Loader=SAFE_LOADER)
 
 
 def load_cities(path="config/cities.yaml") -> list[City]:
