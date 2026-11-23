@@ -343,8 +343,10 @@ def append_run(day: date, res: dict, *, changed: bool, auto_apply: bool, error: 
            "vetoed": res["vetoed"], "config_changed": changed, "config_error": error or None, "auto_apply": auto_apply}
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("a", encoding="utf-8", newline="") as fh:
-        fh.write(json.dumps(rec, separators=(",", ":"), ensure_ascii=False) + "\n")
+    tmp = p.with_name(p.name + ".tmp")   # whole file then rename: a crash never leaves a cut line behind
+    tmp.write_bytes((p.read_bytes() if p.exists() else b"")
+                    + (json.dumps(rec, separators=(",", ":"), ensure_ascii=False) + "\n").encode("utf-8"))
+    os.replace(tmp, p)
     return rec
 
 

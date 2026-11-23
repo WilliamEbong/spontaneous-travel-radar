@@ -125,3 +125,19 @@ def test_a_failed_config_write_is_undone_and_logged(tmp_path, monkeypatch, capsy
     assert "the config write failed (ValueError: read-back broke), nothing changed" in (tmp_path / "docs/tuning-log.md").read_text(encoding="utf-8")
     run = json.loads((tmp_path / "data/tuning/runs.jsonl").read_text(encoding="utf-8"))
     assert run["config_error"] and run["kept"] == [] and set(run["fingerprints"]) == {"code", "references", "cities", "history"}
+
+
+def test_a_failed_runs_append_leaves_the_earlier_lines_whole(world, tmp_path, monkeypatch):
+    """A crash part-way through the append must not leave a cut line that every later night and --summary trip on."""
+    s, refs, cities = world
+    res = tl.run_night(synthetic_history(), s, refs, cities, day=NIGHT, budget=1, keys=keys(s))
+    runs = tmp_path / "runs.jsonl"
+    tl.append_run(NIGHT, res, changed=False, auto_apply=False, path=str(runs))
+    before = runs.read_bytes()
+
+    def crash(*a, **k):
+        raise OSError("disk full")
+    monkeypatch.setattr(tl.os, "replace", crash)
+    with pytest.raises(OSError):
+        tl.append_run(NIGHT, res, changed=False, auto_apply=False, path=str(runs))
+    assert runs.read_bytes() == before and len(tl.read_runs(str(runs))) == 1
