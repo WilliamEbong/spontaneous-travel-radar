@@ -160,7 +160,6 @@ def test_candidate_file_status_and_dedupe(tmp_path):
     prev = previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 12), root=tmp_path)
     assert prev["id"] == cand["id"] and not fare_dropped(640, prev, 15) and fare_dropped(540, prev, 15)
     assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 18), root=tmp_path) is None   # older than 7 days
-    assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 10), root=tmp_path, exclude_id=cand["id"]) is None
 
 
 def test_candidate_that_cannot_reach_the_hit_line_is_dropped(tmp_path):

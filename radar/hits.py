@@ -13,7 +13,8 @@ from urllib.parse import quote
 from radar.config import City, Reference, Scoring
 from radar.flights import Leg
 from radar.hotels import LodgingCheck, is_number
-from radar.score import Scored, breakdown, breakdown_of, components_dict, rescore, transfers_cad
+from radar.export import write_json
+from radar.score import Scored, _money, breakdown, breakdown_of, components_dict, rescore, transfers_cad
 
 ROOT = "hits"
 EVENTS_CAP = 10
@@ -26,21 +27,13 @@ def candidate_id(scan_date: date, city_key: str, window_id: str) -> str:
     return f"{scan_date}_{city_key}_{window_id}"
 
 
-def _write_json(path: Path, obj) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(obj, indent=1), encoding="utf-8")
-
-
-def previous_candidate(city_key: str, window_id: str, *, today: date, days: int = 7, root=ROOT,
-                       exclude_id: str | None = None) -> dict | None:
+def previous_candidate(city_key: str, window_id: str, *, today: date, days: int = 7, root=ROOT) -> dict | None:
     """The latest candidate for this city-window within `days` (today's included, so a re-run spends nothing) whose
     lodging check completed and which the routine has decided (or which was dropped after pass 2), D-66.
     A check skipped for quota, an error or no key does not count, and neither does a candidate still awaiting
     pass 3: a missed routine run gets a fresh candidate the next day instead of a week's silence (review, D-73)."""
     since, best = (today - timedelta(days=days)).isoformat(), None
     for p in Path(root, "candidates").glob("*.json"):
-        if p.stem == exclude_id:
-            continue
         h = json.loads(p.read_text(encoding="utf-8"))
         settled = h["status"] != "awaiting_pass3" or h["scan_date"] == today.isoformat()
         if (h["city"], h["window_id"]) == (city_key, window_id) and h["pass2"]["skipped"] is None and settled and h["scan_date"] >= since:
@@ -135,7 +128,7 @@ def write_candidate(x: Scored, city: City, ref: Reference, p2: dict, weather: tu
                        t.check_in.isoformat(), t.check_out.isoformat()),
     }
     j = Path(root, "candidates", f"{cid}.json")
-    _write_json(j, cand)
+    write_json(j, cand)
     m = j.with_suffix(".md")
     m.write_text(render_brief(cand), encoding="utf-8")
     return j, m
@@ -227,10 +220,10 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
             Path(root, old, cid + ext).unlink(missing_ok=True)
     sub = ("dry-run" if s.mode == "dry-run" else "") if is_hit else "near-miss"
     j = Path(root, sub, f"{cid}.json")
-    _write_json(j, out)
+    write_json(j, out)
     j.with_suffix(".md").write_text(render_brief(out), encoding="utf-8")
     cand["status"] = "done"
-    _write_json(cpath, cand)
+    write_json(cpath, cand)
     return j
 
 
@@ -251,10 +244,6 @@ def _fmt_leg(leg: dict) -> str:
     via = "non-stop" if not leg["stops"] else f"1 stop, {leg['layover_min'] // 60}h{leg['layover_min'] % 60:02d} layover"
     nums = ", ".join(leg["flight_numbers"]) or "/".join(leg["airlines"])
     return f"{leg['from']} {dep:%a %b %d %H:%M} → {leg['to']} {arr:%a %H:%M} local ({nums}; {via})"
-
-
-def _money(v) -> str:
-    return f"${v:,.0f}"
 
 
 def render_brief(h: dict) -> str:
