@@ -215,7 +215,3 @@ def load_scoring(path=None) -> Scoring:
     if xs != sorted(xs) or len(xs) < 2:
         raise ValueError(f"{path}: price_curve.points must be at least two [share, points] pairs in rising share order")
     return s
-
-
-def load_airline_surcharges(path="config/airlines.yaml") -> dict[str, int]:
-    return dict(_read(path))
