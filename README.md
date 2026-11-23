@@ -9,7 +9,7 @@ alerts) and tunes its own price judgment every night (D-82). See `docs/LEARNING-
 `docs/TUNING-PLAN.md`.
 
 - **Dashboard:** https://williamebong.github.io/spontaneous-travel-radar/
-- **Daily scan:** GitHub Actions `scan` workflow, 10:17 UTC (03:17 MST / 04:17 MDT), about 80 minutes
+- **Daily scan:** GitHub Actions `scan` workflow, 10:17 UTC (04:17 Calgary all year: Alberta stays on UTC-6 from November 2026, D-24), about 80 minutes
 - **Claude routines:** `radar-daily` (pass 3, the nightly self-tuning, the daily note, at most one change a day):
   https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw · hit reviewer (disabled until go-live):
   https://claude.ai/code/routines/trig_01TvveuLCRL8QwbwuF52yd9Y · see `routine/CAPABILITIES.md`
