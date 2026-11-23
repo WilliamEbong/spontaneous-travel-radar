@@ -529,10 +529,14 @@ function sortCards(by, animate = false) {
 function renderCities(latest, series) {
   $("cities-sec").hidden = false;
   const weeks = latest.classes?.dayoff?.min_weeks ?? 6;
+  const cut = (k, dflt) => {   // one number when both classes agree, else each class's own (the tuner moves them apart)
+    const d = latest.classes?.dayoff?.[k] ?? dflt, w = latest.classes?.weekend?.[k] ?? dflt;
+    return d === w ? `${d}` : `${d} (${w} for a weekend trip)`;
+  };
   $("cities-hint").textContent = "Each city's best trip in this scan, judged against what that route normally costs. Tap a city for every weekend and its price history.";
   $("how").replaceChildren(el("summary", { text: "How trips are judged" }),
     el("p", { text: `Two kinds of trip. Needs a day off: scanned ${weeks} to ${latest.classes?.dayoff?.max_weeks ?? 16} weeks out so the time can be approved; leave from 7:30 pm the evening before, home by 4 pm on the last day off. No day off needed: the next 6 weeks, out Friday after 5:30 pm, home Sunday by 4 pm, non-stop only.` }),
-    el("p", { text: `Fares are for two adults with a carry-on each, basic fares included. The score adds price (45 points: the complete trip against what the route normally costs), time there (20), convenience (10), city (15) and weather (10). ${latest.classes?.dayoff?.candidate_threshold ?? 70} or more passes; a fare at or under the route's good gets a real lodging check; a final ${latest.classes?.dayoff?.hit_threshold ?? 80} with lodging in hand is a hit.` }));
+    el("p", { text: `Fares are for two adults with a carry-on each, basic fares included. The score adds price (45 points: the complete trip against what the route normally costs), time there (20), convenience (10), city (15) and weather (10). ${cut("candidate_threshold", 70)} or more passes; a fare at or under the route's good gets a real lodging check; a final ${cut("hit_threshold", 80)} with lodging in hand is a hit.` }));
   const best = Object.fromEntries((latest.best_by_city || []).map((r) => [r.city, r]));
   const cities = latest.cities || [];
   $("cities").removeAttribute("aria-busy");   // the skeleton goes either way
