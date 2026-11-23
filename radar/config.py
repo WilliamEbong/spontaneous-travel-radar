@@ -1,6 +1,8 @@
 """Load and validate the YAML config (config/*.yaml) into dataclasses."""
+import os
 from dataclasses import MISSING, dataclass, field, fields
 from datetime import date, datetime
+from pathlib import Path
 
 import yaml
 
@@ -60,6 +62,15 @@ class Scoring:
 
 
 SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)   # libyaml when installed: the same objects, ~5x faster
+
+
+def write_atomic(path, data: str | bytes) -> None:
+    """Temp file + os.replace: a crash never leaves a partial file. str is written as UTF-8 text, bytes as is."""
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_name(p.name + ".tmp")
+    tmp.write_bytes(data) if isinstance(data, bytes) else tmp.write_text(data, encoding="utf-8")
+    os.replace(tmp, p)
 
 
 def _read(path):

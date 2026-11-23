@@ -133,5 +133,5 @@ def test_cache_write_failure_keeps_the_fetched_forecast(tmp_path, monkeypatch):
         raise PermissionError("file in use")
 
     monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
-    monkeypatch.setattr("radar.weather.os.replace", locked)
+    monkeypatch.setattr("radar.config.os.replace", locked)
     assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast"

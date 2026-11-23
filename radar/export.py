@@ -2,22 +2,16 @@
 import csv
 import io
 import json
-import os
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from radar.config import City, Reference
+from radar.config import City, Reference, write_atomic
 from radar.score import Scored, breakdown, breakdown_of
 
 
 def write_json(path, obj) -> None:
-    """Temp file + os.replace: a crash never leaves a partial file (Review Focus 3)."""
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    tmp = p.with_name(p.name + ".tmp")
-    tmp.write_text(json.dumps(obj, indent=1), encoding="utf-8")
-    os.replace(tmp, p)
+    write_atomic(path, json.dumps(obj, indent=1))   # a crash never leaves a partial file (Review Focus 3)
 
 
 def _row(x: Scored, city: City, passes: dict) -> dict:
@@ -146,10 +140,7 @@ def write_csv(path, rows: list[dict]) -> None:
     w = csv.DictWriter(buf, CSV_COLUMNS, quoting=csv.QUOTE_NONNUMERIC, lineterminator="\n")
     w.writeheader()
     w.writerows({k: ("" if v is None else v) for k, v in csv_row(r).items()} for r in rows)
-    p = Path(path)
-    tmp = p.with_name(p.name + ".tmp")
-    tmp.write_bytes(buf.getvalue().encode("utf-8-sig"))   # bytes: text mode on Windows would turn the LF into CRLF
-    os.replace(tmp, p)
+    write_atomic(path, buf.getvalue().encode("utf-8-sig"))   # bytes: text mode on Windows would turn the LF into CRLF
 
 
 def write_history_csvs(root="data/history") -> list[dict]:

@@ -1,6 +1,5 @@
 """Weather score 0..10: Open-Meteo forecast inside 16 days, climate normals beyond. Never raises."""
 import json
-import os
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -8,7 +7,7 @@ from typing import NamedTuple
 
 import httpx
 
-from radar.config import City
+from radar.config import City, write_atomic
 
 URL = "https://api.open-meteo.com/v1/forecast"
 HORIZON_DAYS = 15   # forecast_days=16 covers today + 15
@@ -132,10 +131,7 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
             r.raise_for_status()
             daily = _daily(json.loads(r.text))   # checked before it is cached, so a bad response is not kept all day
             try:   # the cache is best effort: a write that fails still uses the forecast in hand
-                path.parent.mkdir(parents=True, exist_ok=True)
-                tmp = path.with_name(path.name + ".tmp")
-                tmp.write_text(r.text, encoding="utf-8")
-                os.replace(tmp, path)
+                write_atomic(path, r.text)
             except OSError as e:
                 print(f"open-meteo {city.key}: cache not written: {type(e).__name__}", file=sys.stderr)
         idx = {d: i for i, d in enumerate(daily["time"])}

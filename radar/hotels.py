@@ -5,7 +5,6 @@ Options more than MAX_KM from the city centre are discarded; past CENTRAL_KM the
 """
 import json
 import math
-import os
 import sys
 from dataclasses import dataclass
 from datetime import date
@@ -13,7 +12,7 @@ from pathlib import Path
 
 import httpx
 
-from radar.config import City, Scoring
+from radar.config import City, Scoring, write_atomic
 
 URL = "https://serpapi.com/search.json"
 USAGE_PATH = "data/serpapi_usage.json"   # committed {"YYYY-MM": n}; NOT in data/cache (Actions runners start empty)
@@ -55,10 +54,7 @@ def serpapi_reserve(month: str, s: Scoring, path=None) -> bool:
     if usage.get(month, 0) >= s.serpapi_monthly_cap:
         return False
     usage[month] = usage.get(month, 0) + 1
-    p.parent.mkdir(parents=True, exist_ok=True)
-    tmp = p.with_suffix(".tmp")
-    tmp.write_text(json.dumps(usage, indent=1, sort_keys=True))
-    os.replace(tmp, p)
+    write_atomic(p, json.dumps(usage, indent=1, sort_keys=True))
     return True
 
 
@@ -156,10 +152,7 @@ def search(city: City, check_in: date, check_out: date, kind: str, s: Scoring, *
         return None, "error", 1
     payload.pop("search_parameters", None)
     payload.pop("search_metadata", None)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(json.dumps(payload), encoding="utf-8")
-    os.replace(tmp, path)
+    write_atomic(path, json.dumps(payload))
     return payload, None, 1
 
 

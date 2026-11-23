@@ -6,7 +6,6 @@ parse_items reads both lists from the raw page.
 """
 import json
 import math
-import os
 import random
 import sys
 import time
@@ -20,7 +19,7 @@ from fast_flights import FlightQuery, Passengers, create_query
 from fast_flights.fetcher import fetch_flights_html
 from selectolax.lexbor import LexborHTMLParser
 
-from radar.config import City
+from radar.config import City, write_atomic
 from radar.windows import Window
 
 HOME = "YYC"
@@ -246,8 +245,5 @@ def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=
                 print(f"fetch {q.key()} attempt {attempt + 1}: {type(e).__name__}: {e}", file=sys.stderr)
         if items is None:
             raise FetchError(f"{type(err).__name__}: {err}")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_name(path.name + ".tmp")
-        tmp.write_text(json.dumps(items), encoding="utf-8")
-        os.replace(tmp, path)
+        write_atomic(path, json.dumps(items))
     return [leg for it in items if (leg := to_leg(it, q.origin, q.dest, q.origin_tz, q.dest_tz))]
