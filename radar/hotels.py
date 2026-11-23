@@ -69,7 +69,10 @@ def used_this_month(month: str, path=None) -> int:
 
 def is_number(v) -> bool:
     """A real, finite JSON number: not true/false (bool is an int in Python) and not Infinity/NaN (json.loads reads them)."""
-    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+    try:
+        return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+    except OverflowError:   # an int too big for a float (10**400)
+        return False
 
 
 def km_between(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

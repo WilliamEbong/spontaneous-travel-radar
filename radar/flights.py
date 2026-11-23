@@ -107,7 +107,7 @@ def to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | N
     ZoneInfo(origin_tz), ZoneInfo(dest_tz)   # a bad zone is our config, not Google's payload: raise, outside the guard
     try:
         return _to_leg(raw, origin, dest, origin_tz, dest_tz)
-    except (IndexError, KeyError, TypeError, ValueError):   # Google's payload is untrusted: one bad item must not end the scan
+    except (IndexError, KeyError, OverflowError, TypeError, ValueError):   # Google's payload is untrusted: one bad item must not end the scan
         return None
 
 

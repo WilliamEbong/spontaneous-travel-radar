@@ -199,6 +199,7 @@ def test_malformed_serpapi_payload_is_skipped_not_fatal():
         {**good, "total_rate": {"extracted_after_taxes_fees": True}},              # Codex review: true is not $1
         {**good, "total_rate": {"extracted_after_taxes_fees": float("nan")}},
         {**good, "total_rate": {"extracted_before_taxes_fees": True}},
+        {**good, "total_rate": {"extracted_after_taxes_fees": 10**400}},           # isfinite overflows on a huge int
         "not a property",
     ]
     assert parse_options({"properties": None}, c, "hotel", S) == []

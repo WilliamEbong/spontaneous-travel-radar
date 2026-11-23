@@ -180,7 +180,7 @@ def test_one_malformed_item_in_a_live_response_keeps_the_rest(tmp_path, monkeypa
     assert len(legs) == 1 and legs[0].price_cad_2pax > 0
 
 
-@pytest.mark.parametrize("price", [True, 1e309, -5, "499"])
+@pytest.mark.parametrize("price", [True, 1e309, 10**400, -5, "499"])
 def test_unreadable_price_drops_the_item(price):
     # Codex review: true read as a $1 fare, and 1e309 (json.loads gives inf) raised OverflowError outside the guard.
     raw = json.loads(json.dumps(load_fixture("ff_yyc_yvr_oneway.json")[0]))
