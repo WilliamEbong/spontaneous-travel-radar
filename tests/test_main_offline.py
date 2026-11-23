@@ -165,6 +165,8 @@ def test_csv_row_tolerates_rows_from_before_the_components():
     assert v1["total_for_two"] is None and v1["typical_trip"] is None and v1["weather_pts"] is None and v1["weather_input"] is None
     v2 = csv_row({**base, "total_cad": 2852, "share": 1.7098, "nights": 2, "pass": 1, "final_score": None})
     assert v2["typical_trip"] == 1668 and v2["price_input"] is None and v2["pass"] == 1 and v2["winner"] == "no"
+    day = csv_row({**base, "back_arr": "2026-12-26T01:50:00-06:00", "nights": 0})   # a day trip landing after midnight
+    assert day["dates"].endswith("(0 nights)")
 
 
 def test_rows_carry_a_score_breakdown(tmp_path, monkeypatch):

@@ -132,7 +132,7 @@ def csv_row(r: dict) -> dict:
         lines = {b["key"]: b["input"] for b in breakdown(inputs, comps, total_cad=total, typical_cad=typical, share=share)}
     pts = {k: (comps or {}).get(k, r.get("price_pts") if k == "price" else None) for k in CRITERIA}
     yes = lambda v: "yes" if v else "no"  # noqa: E731
-    nights = r.get("nights") or (date.fromisoformat(r["back_arr"][:10]) - date.fromisoformat(r["out_dep"][:10])).days
+    nights = r["nights"] if r.get("nights") is not None else (date.fromisoformat(r["back_arr"][:10]) - date.fromisoformat(r["out_dep"][:10])).days
     return {
         "scan_date": r["scan_date"], "city": (inputs or {}).get("city_name") or r["city"].replace("_", " ").title(),
         "trip_class": r.get("trip_class", "dayoff"), "window_id": r["window_id"],
