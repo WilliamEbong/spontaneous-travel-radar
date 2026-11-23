@@ -195,3 +195,14 @@ def test_city_subset_rerun_keeps_the_other_cities_history(tmp_path, monkeypatch)
     assert len(after) == len(before)
     assert {r["city"] for r in after} == {"vancouver", "las_vegas", "new_orleans"}
     assert [r for r in after if r["city"] != "vancouver"] == [r for r in before if r["city"] != "vancouver"]
+
+
+def test_latest_says_how_far_out_day_off_trips_are_scanned(tmp_path, monkeypatch):
+    # site/app.js prints "scanned <min_weeks> to <max_weeks> weeks out"; max_weeks was never written, so the page always
+    # said 16 whatever lead time Settings chose (the scan covers min_weeks + span_weeks, radar/windows.py).
+    setup(tmp_path, monkeypatch)
+    assert radar_main.main(ARGS) == 0
+    dayoff = json.loads((tmp_path / "data/latest.json").read_text())["classes"]["dayoff"]
+    s = radar.config.load_scoring()
+    assert dayoff["min_weeks"] == s.dayoff_min_weeks
+    assert dayoff["max_weeks"] == s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]

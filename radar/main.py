@@ -170,6 +170,7 @@ def scan(args) -> int:
     classes = {k: {"enabled": v["enabled"], "candidate_threshold": v["candidate_threshold"], "hit_threshold": v["hit_threshold"]}
                for k, v in s.trip_classes.items()}
     classes["dayoff"]["min_weeks"] = s.dayoff_min_weeks
+    classes["dayoff"]["max_weeks"] = s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]   # the page's "N to M weeks out"
     write_latest(winners, cities, refs, health, scan_date=today, scan_ts=scan_ts, mode=s.mode,
                  candidates=cand_ids, passes=passes, classes=classes)
     export()
