@@ -31,3 +31,10 @@ def test_guard_date_is_calgary_not_utc(monkeypatch, capsys):
     monkeypatch.setitem(sys.modules, "datetime", types.SimpleNamespace(datetime=Frozen))
     exec(snippet, {})
     assert capsys.readouterr().out.strip() == "2026-11-23"
+
+
+def test_every_page_redeploys_the_site_when_pushed():
+    """A push that changes only table.html (D-77's scoring table) waited for the next scan to deploy."""
+    on = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))[True]   # YAML 1.1 reads the key `on` as true
+    pages = {p.name for p in WORKFLOW.parents[2].glob("*.html")}
+    assert pages and pages <= set(on["push"]["paths"])
