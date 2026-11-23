@@ -4,7 +4,6 @@ Layout: hits/candidates/<id>.json (written by the scan), then finalize writes th
 hits/dry-run/<id>.json (learning-run hit), hits/<id>.json (live hit) or hits/near-miss/<id>.json (D-69).
 """
 import json
-import math
 import re
 from dataclasses import asdict
 from datetime import date, datetime, timedelta, timezone
@@ -13,7 +12,7 @@ from urllib.parse import quote
 
 from radar.config import City, Reference, Scoring
 from radar.flights import Leg
-from radar.hotels import LodgingCheck
+from radar.hotels import LodgingCheck, is_number
 from radar.score import Scored, breakdown, breakdown_of, components_dict, rescore, transfers_cad
 
 ROOT = "hits"
@@ -157,20 +156,15 @@ def affordability(price_cad: float, famous: bool, interests: dict) -> float:
     return 0.3 if famous and price_cad <= p["famous"] else 0.0
 
 
-def _num(v) -> bool:
-    """A real, finite JSON number: not true/false (bool is an int in Python) and not Infinity/NaN (json.loads reads them)."""
-    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
-
-
 def _check_research(r: dict, path) -> None:
     items = r.get("items") if isinstance(r, dict) else None
     if not isinstance(items, list):
         raise ValueError(f"{path}: items must be a list (empty when nothing fits)")
     for i, it in enumerate(items):
         ok = (isinstance(it, dict) and isinstance(it.get("name"), str) and isinstance(it.get("reason"), str)
-              and _num(it.get("uniqueness")) and 0 <= it["uniqueness"] <= 3
-              and _num(it.get("fit")) and 0 <= it["fit"] <= 1
-              and _num(it.get("price_cad")) and it["price_cad"] >= 0
+              and is_number(it.get("uniqueness")) and 0 <= it["uniqueness"] <= 3
+              and is_number(it.get("fit")) and 0 <= it["fit"] <= 1
+              and is_number(it.get("price_cad")) and it["price_cad"] >= 0
               and isinstance(it.get("famous"), bool))
         if not ok:
             raise ValueError(f"{path}: item {i} needs name, reason, uniqueness 0-3, fit 0-1, price_cad >= 0 and famous true/false")
@@ -178,7 +172,7 @@ def _check_research(r: dict, path) -> None:
     if a is not None and not isinstance(a, dict):
         raise ValueError(f"{path}: airbnb must be an object ({{\"hint\": ...}} when there is no price)")
     a = a or {}
-    if a.get("total_cad") is not None and (not _num(a["total_cad"]) or a["total_cad"] <= 0
+    if a.get("total_cad") is not None and (not is_number(a["total_cad"]) or a["total_cad"] <= 0
                                            or not HTTPS.fullmatch(str(a.get("link", "")))):
         raise ValueError(f"{path}: an Airbnb price counts only with a positive total_cad and an https link")
 

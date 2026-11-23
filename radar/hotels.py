@@ -67,6 +67,11 @@ def used_this_month(month: str, path=None) -> int:
     return json.loads(p.read_text()).get(month, 0) if p.exists() else 0
 
 
+def is_number(v) -> bool:
+    """A real, finite JSON number: not true/false (bool is an int in Python) and not Infinity/NaN (json.loads reads them)."""
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
 def km_between(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Haversine, km."""
     r = math.pi / 180
@@ -98,10 +103,11 @@ def _option(p: dict, city: City, kind: str, s: Scoring) -> Option | None:
     tr = p.get("total_rate") or {}
     total = tr.get("extracted_after_taxes_fees") or tr.get("extracted_lowest")
     estimated = not total and bool(tr.get("extracted_before_taxes_fees"))
-    if estimated:
-        total = tr["extracted_before_taxes_fees"] * city.hotel_tax
-    if km > MAX_KM or not total or total <= 0:
+    raw = tr["extracted_before_taxes_fees"] if estimated else total
+    if km > MAX_KM or not is_number(raw) or raw <= 0:   # untrusted: true would read as $1, NaN passes "<= 0"
         return None
+    if estimated:
+        total = raw * city.hotel_tax
     cad = total * s.usd_cad if city.hotel_currency == "USD" else total
     return Option(
         kind=kind, name=p.get("name", ""), link=p.get("link", ""), total=round(float(total), 2), currency=city.hotel_currency,

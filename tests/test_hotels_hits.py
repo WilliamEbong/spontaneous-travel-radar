@@ -196,6 +196,9 @@ def test_malformed_serpapi_payload_is_skipped_not_fatal():
         {**good, "gps_coordinates": {"latitude": None, "longitude": c.lon}},
         {**good, "total_rate": {"extracted_after_taxes_fees": -70}},
         {**good, "overall_rating": "4.5"},
+        {**good, "total_rate": {"extracted_after_taxes_fees": True}},              # Codex review: true is not $1
+        {**good, "total_rate": {"extracted_after_taxes_fees": float("nan")}},
+        {**good, "total_rate": {"extracted_before_taxes_fees": True}},
         "not a property",
     ]
     assert parse_options({"properties": None}, c, "hotel", S) == []
