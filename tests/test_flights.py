@@ -159,3 +159,12 @@ def test_malformed_item_is_skipped_not_fatal(tmp_path):
     (tmp_path / f"{q.key()}.json").write_text(json.dumps([bad, good]), encoding="utf-8")
     legs = fetch_leg(q, Budget(0), cache_dir=tmp_path)
     assert len(legs) == 1 and legs[0].price_cad_2pax > 0
+
+
+def test_unknown_time_zone_is_not_swallowed_as_a_bad_item():
+    # ZoneInfoNotFoundError is a KeyError: the malformed-item guard must not turn a misspelled city zone into
+    # "no fares" for every query of that city (Codex review of the overnight branch).
+    from zoneinfo import ZoneInfoNotFoundError
+    raw = load_fixture("ff_yyc_yvr_oneway.json")[0]
+    with pytest.raises(ZoneInfoNotFoundError):
+        to_leg(raw, "YYC", "YVR", "America/Edmonton", "America/Vancuver")
