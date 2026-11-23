@@ -6,7 +6,6 @@ python -m radar.main export       # rebuild series.json, the history CSVs and th
 python -m radar.main summarize    # data/weekly-summary.json
 """
 import argparse
-import json
 import os
 import sys
 import time
@@ -172,19 +171,8 @@ def scan(args) -> int:
                for k, v in s.trip_classes.items()}
     classes["dayoff"]["min_weeks"] = s.dayoff_min_weeks
     classes["dayoff"]["max_weeks"] = s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]   # the page's "N to M weeks out"
-    keep = None
-    if args.cities:   # a re-run keeps the same day's other enabled cities on the page; another day's fares are stale
-        try:
-            prev = json.loads(Path("data/latest.json").read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            prev = None
-        if isinstance(prev, dict) and prev.get("scan_date") == today.isoformat():
-            others = {c.key for c in all_cities if c.enabled} - set(by_key)
-            keep = {"windows": [r for r in prev.get("windows", []) if r.get("city") in others],
-                    "cities": [c for c in prev.get("cities", []) if c.get("key") in others],
-                    "candidates": [i for i in prev.get("candidates", []) if any(i.startswith(f"{today}_{k}_") for k in others)]}
     write_latest(winners, cities, refs, health, scan_date=today, scan_ts=scan_ts, mode=s.mode,
-                 candidates=cand_ids, passes=passes, classes=classes, keep=keep)
+                 candidates=cand_ids, passes=passes, classes=classes)
     export(today=today)
     write_weekly_summary(read_history(90, today=today), today=today)
     return 0
