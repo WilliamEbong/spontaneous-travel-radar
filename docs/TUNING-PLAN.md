@@ -117,7 +117,7 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
   `ladder_exclude_ranges`, `ladder_mode` (William's undo), the trip classes' ranges and rules,
   `config/references.yaml`, `cities.yaml`, `interests.yaml`, `days_off.yaml`, code.
 - **A night**: `trials_per_night` (16 in `config/tuning.yaml`, 10 to 20) trials. The routine's `--try` proposals go
-  first (refused if off the surface or out of bounds); then one-step moves from the current config, the least-tried
+  first (refused if off the surface, out of bounds or more than one step); then one-step moves from the current config, the least-tried
   key first, rotated by the date. Each trial replays the whole history and is kept when the train score is at least
   1.0 above the current one with both guardrails holding and the replay under 2 minutes; otherwise it is reverted.
   The next trial starts from the current config (hill climbing). A trial over 2 minutes ends the night.

@@ -70,6 +70,10 @@ def test_proposals_held_to_the_surface(world):
     with pytest.raises(ValueError, match="not on tonight's surface"):
         tl.parse_try("weights.time=22,weights.price=43", s, keys(s))   # weights locked until 30 taps
     assert tl.parse_try("price_curve.share_0=0.55", s, keys(s)) == {"price_curve.share_0": 0.55}
+    with pytest.raises(ValueError, match="one step"):
+        tl.parse_try("rolling_ladder.good=35", s, keys(s))          # 25 to 35 is two steps (D-82: one step a trial)
+    with pytest.raises(ValueError, match="one step"):
+        tl.parse_try("dayoff.candidate_threshold=71", s, keys(s))   # off the 2-point grid the menu walks on
 
 
 def setup(tmp_path, monkeypatch, days: int):
