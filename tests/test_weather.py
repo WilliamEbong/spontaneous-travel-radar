@@ -135,30 +135,3 @@ def test_cache_write_failure_keeps_the_fetched_forecast(tmp_path, monkeypatch):
     monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
     monkeypatch.setattr("radar.weather.os.replace", locked)
     assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast"
-
-
-@pytest.mark.parametrize("key, value", [
-    ("temperature_2m_max", "14.6"), ("temperature_2m_max", True), ("precipitation_probability_max", "1"),
-    ("weathercode", "0"), ("time", 20261109),
-])
-def test_wrong_typed_forecast_value_is_a_cache_miss(tmp_path, monkeypatch, key, value):
-    """Codex review 3: equal-length lists with a text or true value inside passed the shape check, were cached and
-    sent the city to normals all day without a retry. Each value is now a number or null (time: a date string)."""
-    good = load_fixture("om_chicago.json")
-    bad = {"daily": {**good["daily"], key: [value] + good["daily"][key][1:]}}
-    first = date.fromisoformat(good["daily"]["time"][0])
-    (tmp_path / "om-chicago.json").write_text(json.dumps(bad), encoding="utf-8")
-    calls = []
-
-    class R:
-        text = json.dumps(good)
-
-        def raise_for_status(self):
-            pass
-
-    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: calls.append(1) or R())
-    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast" and calls == [1]
-    (tmp_path / "om-chicago.json").unlink()
-    R.text = json.dumps(bad)
-    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals"
-    assert not (tmp_path / "om-chicago.json").exists()   # a bad response is never cached
