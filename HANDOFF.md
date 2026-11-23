@@ -19,7 +19,7 @@ with email stays William's decision.
 
 ## Pending: branch `claude/overnight-fixes-bdabcb` (not pushed, not merged)
 
-A maintenance pass from 2026-11-22/23 (D-84, D-86), merged with `origin/main` up to `b62304b`, 157 tests (129 on
+A maintenance pass from 2026-11-22/23 (D-84, D-86, D-87), merged with `origin/main` up to `b62304b`, 157 tests (129 on
 `main`). In short: guards on everything Google Flights, SerpApi and Open-Meteo send; atomic writes of the day's
 history, the caches and the hit files; the backtest on D-41's formula; a `--cities` re-run keeps the other cities'
 history; same-day trips kept out of SerpApi; a failed SerpApi search retried; `--try` held to one step from the
@@ -31,7 +31,8 @@ committed; after the merge run `/graphify . --update` in the main checkout).
 
 Self-tuning (D-82): it has run every day; nights 2026-11-22 and -23 kept nothing (train score 0, holdout 9.16 on the
 23rd). It can start moving about 2026-11-30, and then only `rolling_ladder.good`: the candidate side stays at 0 while
-no trip scores 65 (the floor) and the best so far is 56.
+no trip scores 65 (the floor) and the best so far is 56. D-87 keeps the floor (rare alerts worth booking on sight);
+revisit when real trips score near it.
 
 `OVERNIGHT-CHANGES.md` on the branch opens with a plain-words summary, then every commit with how to undo it, the
 loop's health, what is still William's call, and the exact merge and rollback steps.
