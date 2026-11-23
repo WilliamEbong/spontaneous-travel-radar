@@ -227,3 +227,13 @@ def test_serpapi_status_error_is_an_error_but_no_results_is_a_completed_check(tm
     monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(empty))
     payload, skipped, n = search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path)
     assert skipped is None and n == 1 and "error" in payload and len(list(tmp_path.glob("serpapi-*.json"))) == 1
+
+
+def test_a_day_trip_spends_no_lookups_and_cannot_crash_pass_two(tmp_path, monkeypatch):
+    """19 real history rows are same-day trips (check-in = check-out, 0 nights); 6 were winners. Before, one that
+    reached the candidate line sent SerpApi a 0-night search (2 lookups, again every scan) and any option it returned
+    made the lodging line divide by zero, ending the scan before the day's history was written."""
+    monkeypatch.setattr("radar.hotels.USAGE_PATH", tmp_path / "usage.json")
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: pytest.fail("no SerpApi call for a day trip"))
+    check = check_lodging(city("vancouver"), JAN15, JAN15, S, api_key="x", cache_dir=tmp_path)
+    assert check == LodgingCheck((), "day trip", 0)

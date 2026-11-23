@@ -165,6 +165,8 @@ def search(city: City, check_in: date, check_out: date, kind: str, s: Scoring, *
 
 def check_lodging(city: City, check_in: date, check_out: date, s: Scoring, *, api_key: str | None, cache_dir,
                   today: date | None = None) -> LodgingCheck:
+    if check_out <= check_in:   # a same-day trip: no night to book, and a 0-night search would only spend quota
+        return LodgingCheck((), "day trip", 0)
     opts, skipped, spent = [], None, 0
     for kind in KINDS:
         payload, why, n = search(city, check_in, check_out, kind, s, api_key=api_key, cache_dir=cache_dir, today=today)
