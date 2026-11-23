@@ -136,8 +136,6 @@ def parse_try(text: str, s: Scoring, keys: list[str]) -> dict:
         v = int(v) if isinstance(step, int) and v == int(v) else round(v, 2)
         if not lo <= v <= hi or (isinstance(step, int) and not isinstance(v, int)):
             raise ValueError(f"{key}={raw.strip()} is outside {lo} to {hi}")
-        if abs(abs(v - get(s, key)) - step) > 1e-9:   # D-82: one step a trial, on the grid the menu walks
-            raise ValueError(f"{key}={raw.strip()} is not one step ({step}) from {get(s, key)}")
         move[key] = v
     if not valid(with_values(s, move)):
         raise ValueError("breaks the ladder order, the price-curve order or the weights' total of 100")
@@ -185,7 +183,7 @@ def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: 
     while len(trials) < budget:
         if pending:
             move, source = pending.pop(0), "routine"
-            if not valid(with_values(cur, move)):
+            if move not in neighbours(cur, keys):   # D-82: one step from tonight's current config, like the menu
                 continue
         else:
             fresh = [m for m in neighbours(cur, keys) if key_of(with_values(cur, m)) not in seen]
