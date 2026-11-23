@@ -20,7 +20,7 @@ from radar.flights import HOME, Budget, FetchError, build_queries, fetch_leg
 from radar.hits import candidate_id, fare_dropped, finalize, pass2, previous_candidate, write_candidate
 from radar.hotels import check_lodging, used_this_month
 from radar.itineraries import assemble
-from radar.score import score_trip, worth_flying
+from radar.score import best_per_window, score_trip, worth_flying
 from radar.store import quote_row, read_history, rolling_flights, route_percentile, write_day
 from radar.weather import weather_score
 from radar.windows import CALGARY, class_windows
@@ -119,7 +119,7 @@ def scan(args) -> int:
             wx = weather_score(c, list(w.days_off), today=today, cache_dir=None if args.offline else day_cache)
             sc = [score_trip(t, c, refs[c.key], s, weather_score=wx, history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
                   for t in trips]
-            win = max(sc, key=lambda x: (x.score, -x.total_cad))
+            (win,) = best_per_window(sc)   # one city-window here; the tested tie rule (score, then the lower total)
             winners.append(win)
             weather[(c.key, w.id)] = wx
             cheapest = {}
