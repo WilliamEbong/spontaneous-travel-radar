@@ -214,12 +214,12 @@ def slim(it) -> list | None:
     item without a readable segment list, so one malformed item never costs the query's other fares."""
     try:
         price = it[1][0][1]
-    except (IndexError, TypeError):
+    except (IndexError, KeyError, TypeError):
         price = None
     try:
         segs = [[s[i] if i in SEG_KEEP and i < len(s) else None for i in range(23)] for s in it[0][2]]
         return [[it[0][0], it[0][1], segs], [[None, price]]]
-    except (IndexError, TypeError):
+    except (IndexError, KeyError, TypeError):
         return None
 
 
