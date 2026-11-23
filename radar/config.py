@@ -25,7 +25,6 @@ class City:
     transfer_cost_cad_pp_each_way: int
     car_needed: bool
     neighbourhoods: tuple[str, ...]    # the first one is the lodging search's query text
-    season_months: tuple[int, ...]     # empty = year-round
     hotel_currency: str                # CAD | USD
     climate: dict[int, tuple[float, float, int]]  # month -> (mean_high_c, mean_low_c, rain_days)
     enabled: bool = True               # false = the scan skips the city (set from the dashboard's Settings panel)
@@ -86,7 +85,7 @@ def load_cities(path="config/cities.yaml") -> list[City]:
         if missing:
             raise ValueError(f"city {raw.get('key', '?')}: missing {', '.join(missing)}")
         v = {n: raw[n] for n in names}
-        for n in ("airports", "neighbourhoods", "season_months"):
+        for n in ("airports", "neighbourhoods"):
             v[n] = tuple(v[n])
         v["climate"] = {int(m): tuple(x) for m, x in v["climate"].items()}
         if len(v["climate"]) != 12:
