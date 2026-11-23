@@ -1,9 +1,10 @@
+import json
 from datetime import date, timedelta
 
 import pytest
 
 from radar.config import load_cities, load_scoring
-from radar.flights import Budget, FetchError, LegQuery, build_queries, fetch_leg, parse_items, to_leg
+from radar.flights import Budget, FetchError, LegQuery, build_queries, fetch_leg, parse_items, slim, to_leg
 from radar.windows import class_windows, generate_windows, weekend_windows
 from tests.conftest import load_fixture
 
@@ -145,3 +146,16 @@ def test_fresh_fetch_shows_basic_fares():
     price = lambda k, num: min(leg.price_cad_2pax for leg in legs[k] if num in leg.flight_numbers)  # noqa: E731
     assert price("exclude_basic_false", "WS 101") < price("exclude_basic_true", "WS 101")        # 343 vs 450
     assert min(leg.price_cad_2pax for leg in legs["exclude_basic_false"]) == 241
+
+
+def test_malformed_item_is_skipped_not_fatal(tmp_path):
+    # Google item with a price and a segment but no departure date: skip that item, keep the rest.
+    # Before the fix _dt raised TypeError outside fetch_leg's retry, which is not a FetchError, so the scan died
+    # and every re-run that day crashed on the same cached item.
+    good = slim(load_fixture("ff_yyc_yvr_oneway.json")[0])
+    bad = json.loads(json.dumps(good))
+    bad[0][2][0][20] = None
+    q = LegQuery("YYC", "YVR", date(2026, 12, 11), origin_tz="America/Edmonton", dest_tz="America/Vancouver")
+    (tmp_path / f"{q.key()}.json").write_text(json.dumps([bad, good]), encoding="utf-8")
+    legs = fetch_leg(q, Budget(0), cache_dir=tmp_path)
+    assert len(legs) == 1 and legs[0].price_cad_2pax > 0

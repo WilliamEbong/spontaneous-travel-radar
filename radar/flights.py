@@ -102,12 +102,16 @@ def _dt(d, t, tz: str) -> datetime:
 
 
 def to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | None:
-    """One raw Google item -> Leg; None for 2+ stops or a missing price."""
+    """One raw Google item -> Leg; None for 2+ stops, a missing price or a malformed item."""
     try:
-        price = raw[1][0][1]
-        segs = raw[0][2]
-    except (IndexError, TypeError):
+        return _to_leg(raw, origin, dest, origin_tz, dest_tz)
+    except (IndexError, KeyError, TypeError, ValueError):   # Google's payload is untrusted: one bad item must not end the scan
         return None
+
+
+def _to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | None:
+    price = raw[1][0][1]
+    segs = raw[0][2]
     if not price or not segs or len(segs) > 2:
         return None
     dep = _dt(segs[0][20], segs[0][8], origin_tz)
