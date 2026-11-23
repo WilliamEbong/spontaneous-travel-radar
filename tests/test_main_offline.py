@@ -197,6 +197,22 @@ def test_city_subset_rerun_keeps_the_other_cities_history(tmp_path, monkeypatch)
     assert [r for r in after if r["city"] != "vancouver"] == [r for r in before if r["city"] != "vancouver"]
 
 
+def test_city_subset_rerun_keeps_the_other_cities_on_the_page(tmp_path, monkeypatch):
+    """latest.json shrank to the re-run's cities until the next full scan; the other cities' rows from the same
+    scan day now stay. A previous day's file is not merged: its fares are stale."""
+    setup(tmp_path, monkeypatch)
+    assert radar_main.main(ARGS) == 0
+    full = json.loads((tmp_path / "data/latest.json").read_text())
+    assert radar_main.main(["scan", "--offline", "--today", "2026-10-08", "--cities", "vancouver"]) == 0
+    part = json.loads((tmp_path / "data/latest.json").read_text())
+    assert [w for w in part["windows"] if w["city"] != "vancouver"] == [w for w in full["windows"] if w["city"] != "vancouver"]
+    assert {c["key"] for c in part["cities"]} == {c["key"] for c in full["cities"]}
+    assert {b["city"] for b in part["best_by_city"]} == {b["city"] for b in full["best_by_city"]}
+    assert [w["score"] for w in part["windows"]] == sorted((w["score"] for w in part["windows"]), reverse=True)
+    assert radar_main.main(["scan", "--offline", "--today", "2026-10-09", "--cities", "vancouver"]) == 0
+    assert {w["city"] for w in json.loads((tmp_path / "data/latest.json").read_text())["windows"]} <= {"vancouver"}
+
+
 def test_latest_says_how_far_out_day_off_trips_are_scanned(tmp_path, monkeypatch):
     # site/app.js prints "scanned <min_weeks> to <max_weeks> weeks out"; max_weeks was never written, so the page always
     # said 16 whatever lead time Settings chose (the scan covers min_weeks + span_weeks, radar/windows.py).

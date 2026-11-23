@@ -41,21 +41,28 @@ def _row(x: Scored, city: City, passes: dict) -> dict:
 
 def write_latest(winners: list[Scored], cities: list[City], refs: dict[str, Reference], health: dict, *, scan_date: date,
                  scan_ts: str, mode: str, candidates: list[str], passes: dict, classes: dict | None = None,
-                 path="data/latest.json") -> None:
+                 keep: dict | None = None, path="data/latest.json") -> None:
     """windows: the top-scoring trip per city-window (both classes); best_by_city: each city's top score (FR-315).
     passes: id(winner) -> (pass reached, candidate id). Top-level keys are the v1 ones (hits stays, now always empty:
-    hits come from the routine's pass 3 and are listed in hits/index.json)."""
+    hits come from the routine's pass 3 and are listed in hits/index.json).
+    keep: rows of other cities to show as well ({"windows", "cities", "candidates"}), for a --cities re-run."""
     by_key = {c.key: c for c in cities}
     order = lambda r: (-r["score"], r["total_cad"])  # noqa: E731
-    rows = sorted((_row(x, by_key[x.trip.city_key], passes) for x in winners), key=order)
+    rows = [_row(x, by_key[x.trip.city_key], passes) for x in winners]
+    city_rows = [{"key": c.key, "name": c.name, "tier": c.tier, "rank": c.rank, "ladder": refs[c.key].flights,
+                  "confidence": refs[c.key].confidence, "nonstop": refs[c.key].nonstop} for c in cities]
+    if keep:
+        rows += keep["windows"]
+        city_rows += keep["cities"]
+        candidates = candidates + keep["candidates"]
+    rows.sort(key=order)
     best: dict[str, dict] = {}
     for r in rows:
         best.setdefault(r["city"], r)
     write_json(path, {
         "scan_date": scan_date.isoformat(), "scan_ts": scan_ts, "mode": mode,
         "best_by_city": sorted(best.values(), key=order), "windows": rows,
-        "cities": [{"key": c.key, "name": c.name, "tier": c.tier, "rank": c.rank, "ladder": refs[c.key].flights,
-                    "confidence": refs[c.key].confidence, "nonstop": refs[c.key].nonstop} for c in cities],
+        "cities": city_rows,
         "hits": [], "candidates": candidates, "health": health,
         "classes": classes or {},   # per class: enabled, thresholds, and the day-off lead time, for the page's copy
     })
