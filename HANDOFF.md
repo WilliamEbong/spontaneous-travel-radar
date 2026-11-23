@@ -19,13 +19,13 @@ with email stays William's decision.
 
 ## Pending: branch `claude/overnight-fixes-bdabcb` (not pushed, not merged)
 
-A maintenance pass from 2026-11-22/23 (D-84 to D-86): guards on everything Google Flights, SerpApi and Open-Meteo
-send, atomic writes of the day's history, the weather cache and the tuning runs log, `finalize` refusing dropped
-candidates, the backtest on D-41's formula, a `--cities` re-run that keeps the other cities, and smaller fixes.
-It also fixes the `scan.yml` same-day guard (Calgary date, not UTC), adds `table.html` to the Pages push filter
-and corrects the disabled weekly prompt's field names (all three approved by William). 168 tests on the branch
-(129 on `main`). `OVERNIGHT-CHANGES.md` on the branch lists every commit, how to undo it, how to merge, and what is
-still open.
+A maintenance pass from 2026-11-22/23 (D-84, D-86): guards on everything Google Flights, SerpApi and Open-Meteo
+send, atomic writes of the day's history and the weather cache, the backtest on D-41's formula, a `--cities` re-run
+that keeps the other cities' history, same-day trips kept out of SerpApi, `--try` held to one step, and smaller
+fixes. It also fixes the `scan.yml` same-day guard (Calgary date, not UTC), adds `table.html` to the Pages push
+filter and corrects the disabled weekly prompt's field names (all three approved by William). 156 tests on the
+branch (129 on `main`). `OVERNIGHT-CHANGES.md` on the branch lists every commit, how to undo it, how to merge, the
+self-tuning loop's health, and what is still open.
 
 ## Everything on `main` is live
 
