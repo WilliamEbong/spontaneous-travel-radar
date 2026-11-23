@@ -22,9 +22,10 @@ with email stays William's decision.
 A maintenance pass from 2026-11-22/23 (D-84 to D-86): guards on everything Google Flights, SerpApi and Open-Meteo
 send, atomic writes of the day's history, the weather cache and the tuning runs log, `finalize` refusing dropped
 candidates, the backtest on D-41's formula, a `--cities` re-run that keeps the other cities, and smaller fixes.
-166 tests on the branch (129 on `main`). `OVERNIGHT-CHANGES.md` on the branch lists every commit, how to undo it,
-how to merge, and the items still open: the UTC same-day guard and the `table.html` Pages filter in `scan.yml`,
-and the stale weekly prompt. All three edits were refused by that session's permission check.
+It also fixes the `scan.yml` same-day guard (Calgary date, not UTC), adds `table.html` to the Pages push filter
+and corrects the disabled weekly prompt's field names (all three approved by William). 168 tests on the branch
+(129 on `main`). `OVERNIGHT-CHANGES.md` on the branch lists every commit, how to undo it, how to merge, and what is
+still open.
 
 ## Everything on `main` is live
 

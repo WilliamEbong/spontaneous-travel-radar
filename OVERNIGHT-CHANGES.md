@@ -4,11 +4,12 @@ This was a maintenance pass on branch `claude/overnight-fixes-bdabcb`. It ran un
 2026-11-22 to about 00:30 on 2026-11-23, Calgary time. It started from `origin/main` at `f93e98e` (docs: daily
 note 2026-11-22).
 
-The pass found and fixed defects only. Nothing here changes the deal model, the scores, the config, the data,
-the workflows, the routine prompts or the look of the site. Each fix came from a test that failed before the
+The pass found and fixed defects only. Nothing here changes the deal model, the scores, the config, the data or
+the look of the site. Round 2 made three edits William approved directly: two lines of `scan.yml` (#29, #30)
+and the field names in the disabled weekly prompt (#31). Each fix came from a test that failed before the
 change and passes after it. The branch has not been pushed or merged.
 
-**Tests:** 129 passed before, 150 after round 1, 166 after round 2 (`.venv\Scripts\python -m pytest -q`,
+**Tests:** 129 passed before, 150 after round 1, 168 after round 2 (`.venv\Scripts\python -m pytest -q`,
 offline). Every change is one commit; undo any one with `git revert <hash>`. Round 2 ran on 2026-11-23 from about
 13:30 Calgary time.
 
@@ -72,30 +73,17 @@ that were his decision, and to keep improving. Each fix again has a test that fa
 | 26 | `569bce6` | **`export` and `summarize` now read history up to the Calgary scan date** (round-1 item 8). The scan's `export()` used the runner's `date.today()`. A `--today` run more than 90 days back wrote an empty `series.json`. The offline tests scan 2026-10-08, so they would have started failing on 2027-01-07. | `test_main_offline.py::test_export_reads_history_up_to_the_scan_date_not_the_runner_clock` |
 | 27 | `67b6430` | **A `--cities` re-run now keeps the day's other cities on the page** (round-1 item 3). The other enabled cities' windows, city entries and candidate ids carry over from the previous `latest.json`, but only from the same day. Another day's rows are stale, so they are not kept, and a city switched off since then is dropped. `health` still describes the re-run itself. | `test_main_offline.py::test_city_subset_rerun_keeps_the_other_cities_on_the_page`; `::test_settings_files_steer_the_scan` caught the switched-off case |
 | 28 | `2330f20` | **The scan now picks each city-window's winner with `best_per_window`** (round-1 item 7). The rule is the same; there is now one tested copy of it instead of a separate `max(...)` in the scan. | Existing `test_score.py` and offline-scan tests |
+| 29 | `623d304` | **The scan workflow's same-day guard now uses the Calgary date** (round-1 item 4; William approved this workflow edit directly). `scan_date` is Calgary's date, but the guard compared it with `date -u +%F`. A late cron slot that fired after 00:00 UTC (18:00 in Calgary in winter) saw a new day and scanned the same Calgary day again: about 700 Google fetches, and the day's rows replaced. The guard now gets the date the way the scan does (`radar.windows.CALGARY`, with the pip tzdata through `PYTHONTZPATH`). The YAML still parses, and the new step body ran here against `data/latest.json`. | `test_workflow.py::test_guard_date_is_calgary_not_utc` (runs the step's date line at 02:00 UTC on 24 Nov and expects 2026-11-23) |
+| 30 | `e41c021` | **A push that changes `table.html` now redeploys the site** (round-1 item 5). | `test_workflow.py::test_every_page_redeploys_the_site_when_pushed` |
+| 31 | `6ecbc7d` | **The weekly prompt now reads the summary's real field names** (round-1 item 6): `passes`, `near_misses` and `ladder_distribution`, and the ladders in `references.yaml`. All the fields it names are present in today's `data/weekly-summary.json`. The routine is disabled (D-30). | Field check against `data/weekly-summary.json` |
 
 ## Found, not changed (still open)
 
-1. **Workflow edit refused by this session's permission check: the same-day guard compares Calgary's
-   `scan_date` with the UTC date** (`.github/workflows/scan.yml`, step "Already scanned today?", `date -u +%F`).
-   A late cron slot that fires after 00:00 UTC (18:00 in Calgary in winter) sees a new UTC day while Calgary is
-   still on the same date. The day is then scanned again: about 700 Google fetches, and the day's rows are
-   replaced. The edit was approved through the orchestrating session, but this session's permission check refused
-   it, and I did not try it another way. **Ready fix:** in that step, replace `"$(date -u +%F)"` with
-   `"$(python -c "from datetime import datetime; from radar.windows import CALGARY; print(datetime.now(CALGARY).date())")"`
-   and give the step `env: PYTHONTZPATH: ""`, as the Scan step has. A regression test is ready to add: it reads the
-   step and runs its date line at 02:00 UTC on 24 Nov, and expects 2026-11-23.
-2. **Workflow edit, same refusal: the Pages push filter leaves out `table.html`** (`scan.yml` `paths:`). A push
-   that changes only `table.html` waits for the next scan to deploy. **Fix:** add `"table.html"`.
-3. **Routine prompt edit, same refusal: `routine/PROMPT-weekly.md` reads `would_have_fired` and
-   `band_distribution`.** `data/weekly-summary.json` no longer has those fields; it has `passes`, `near_misses` and
-   `ladder_distribution`. The prompt also looks for the bands in `scoring.yaml`, but the ladders are in
-   `references.yaml`. The routine is disabled (D-30) and stops itself after 2026-12-08. **Fix:** rename those
-   three references, or retire the file as D-82 did `PROMPT-tune.md`.
-4. **Dead code kept for its tests:** `previous_candidate(exclude_id=)` and `store.append_quotes` are used only by
+1. **Dead code kept for its tests:** `previous_candidate(exclude_id=)` and `store.append_quotes` are used only by
    their tests. Removing them would mean deleting tests, which this pass does not do.
-5. **Two `--cities` scans running at the same time could overwrite each other's rows for the day** (Codex review
+2. **Two `--cities` scans running at the same time could overwrite each other's rows for the day** (Codex review
    3). This cannot happen today: the workflow's `concurrency: scan` group runs one scan at a time.
-6. **Needs a browser:** a browser whose time-zone data is older than tzdata 2026f shows "Last scan" an hour
+3. **Needs a browser:** a browser whose time-zone data is older than tzdata 2026f shows "Last scan" an hour
    early, because Node 24 here still has Calgary at UTC-7 for 2026-11-22. Leg times are not affected (D-24). Check
    it once on William's phone.
 
@@ -103,7 +91,7 @@ that were his decision, and to keep improving. Each fix again has a test that fa
 
 - Review 1: 5 findings, all confirmed and fixed (#9 to #13).
 - Review 2: 4 findings, all confirmed and fixed (#14 to #17).
-- Review 3: 3 findings. 1 was fixed (#18) and 1 in round 2 (#21); the last is open item 5. By then the findings
+- Review 3: 3 findings. 1 was fixed (#18) and 1 in round 2 (#21); the last is open item 2. By then the findings
   were very unlikely edge cases, so I stopped the review loop there.
 
 ## How to merge
@@ -120,5 +108,5 @@ git push origin claude/overnight-fixes-bdabcb   # then open a PR, or merge to ma
 ```
 
 The branch touches only `radar/`, `scripts/backtest.py`, `scripts/tune_loop.py`, `tests/`, `.gitignore`,
-`README.md`, `HANDOFF.md`, `docs/notes/decisions.md` (D-84 to D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
+`.github/workflows/scan.yml`, `routine/PROMPT-weekly.md`, `README.md`, `HANDOFF.md`, `docs/notes/decisions.md` (D-84 to D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
 guards; no config or data change is needed.
