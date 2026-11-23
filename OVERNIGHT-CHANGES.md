@@ -8,8 +8,9 @@ The pass found and fixed defects only. Nothing here changes the deal model, the 
 the workflows, the routine prompts or the look of the site. Each fix came from a test that failed before the
 change and passes after it. The branch has not been pushed or merged.
 
-**Tests:** 129 passed before, 150 passed after (`.venv\Scripts\python -m pytest -q`, offline). Every change is
-one commit; undo any one with `git revert <hash>`.
+**Tests:** 129 passed before, 150 after round 1, 166 after round 2 (`.venv\Scripts\python -m pytest -q`,
+offline). Every change is one commit; undo any one with `git revert <hash>`. Round 2 ran on 2026-11-23 from about
+13:30 Calgary time.
 
 ## How the work was done
 
@@ -54,71 +55,55 @@ Line endings: my first edits on Windows turned four LF files into CRLF and one C
 review I rebuilt those commits, with the same content and messages, so each one keeps its file's original line
 endings. `git diff --stat origin/main` shows only the real lines.
 
-## Found, not changed (below the bar, off-limits, or the owner's call)
+## Round 2, 2026-11-23 (William's go-ahead to settle the open items)
 
-1. **`finalize` will run pass 3 on a candidate marked `dropped`** (radar/hits.py `finalize`). D-69 says "pass 3
-   runs on today's awaiting candidates only", but only the routine's list command enforces that. A candidate
-   dropped for quota can still become a hit if it is finalized by hand with an Airbnb total. I started a fix and
-   then reverted it: three existing tests deliberately finalize D-67-dropped candidates to test the Airbnb
-   rescue, so refusing them changes tested behaviour. **Recommendation:** decide whether pass 3 may rescue a
-   D-67 drop. If it may not, refuse `status == "dropped"` in `finalize` and update those three tests. If it may,
-   refuse only the "pass 2 did not run" drops (D-73(1)).
-2. **The backtest replay drifts 1 point from D-41's formula** (scripts/backtest.py `judge`). It rounds
-   `price + sum of components` instead of using `score - price_pts + new price`. On the real history, 7 of
-   1,502 winners replay 1 point off; D-82 noted 2. Candidate decisions still match 1,502 of 1,502. I did not
-   change it because it would shift the tune loop's numbers. **Recommendation:** switch to the D-41 formula in a
-   tune-loop iteration, with its own before and after.
-3. **A `--cities` re-run still shrinks `latest.json` to the scanned cities** until the next full scan. History is
-   kept (fix #2), but the dashboard shows only those cities for the rest of the day. **Recommendation:** merge
-   the other cities' `windows` and `best_by_city` from the previous `latest.json`, or document that `--cities`
-   is for testing.
-4. **Workflow, not edited: the same-day guard compares Calgary's `scan_date` with the UTC date**
-   (`.github/workflows/scan.yml`, "Already scanned today?", `date -u +%F`). GitHub has run cron slots 7.5 to 10
-   hours late (D-79, D-83). A 16:17 UTC slot that fires after 00:00 UTC lands on the next UTC day while Calgary
-   still has the same date, so the guard says "not done" and the day is scanned again: about 700 Google fetches,
-   and the day's rows are replaced. **Fix:** compute the date in Calgary, for example
-   `python -c "from datetime import datetime; from zoneinfo import ZoneInfo; print(datetime.now(ZoneInfo('America/Edmonton')).date())"`
-   with `PYTHONTZPATH=""`, as the Scan step already does.
-5. **Workflow, not edited: the Pages push filter leaves out `table.html`** (`scan.yml` `paths:`). A push that
-   changes only `table.html` waits for the next scan to deploy. **Fix:** add `"table.html"`.
-6. **Routine prompt, not edited: `routine/PROMPT-weekly.md` reads `would_have_fired` and `band_distribution`.**
-   Neither exists in `data/weekly-summary.json`, whose keys are now `ladder_distribution` and others. The
-   prompt also says the bands are in `scoring.yaml`. The routine is disabled (D-30), so this only matters if it
-   is turned back on. **Fix:** retire the file or rename the fields.
-7. **Dead code: `score.best_per_window` and `previous_candidate(exclude_id=)` are used only by tests.**
-   `main.scan` picks the winner with its own `max(...)`, so the tested rule and the live rule can drift apart.
-   Removing them would mean deleting tests, so I left them. `store.append_quotes` is now also used only by its
-   test, since #6.
-8. **`export()` and `summarize` use `date.today()` on the runner (UTC), not the Calgary scan date.** This only
-   moves the 90-day and 7-day edges by a day. Low.
-9. **`tune_loop.append_run` appends a line without an atomic write.** A crash mid-append would leave a
-   truncated `data/tuning/runs.jsonl`, and every later night and `--summary` would raise on it. This is unlikely,
-   because the routine commits only after the run. Not proven.
-10. **A SerpApi HTTP 200 response that carries an `"error"` key** is cached as a completed check with no
-    options. D-66 would then skip that city-window for 7 days. Proving it needs a real 200 error response that is
-    not "no results".
-11. **`trip_classes` values (`rotate_days`, `span_weeks`, `min_days`, `max_days`) are not validated.**
-    `rotate_days: 0` would raise `ZeroDivisionError` mid-scan. Only a hand edit can set these; the tune loop
-    cannot.
-12. **Needs a browser (none was used tonight):** a browser with time-zone data older than tzdata 2026f shows
-    "Last scan" an hour early, because Node 24 here still has Calgary at UTC-7 for 2026-11-22. Leg times are not
-    affected (D-24). Check it once on William's phone.
-13. **Doc drift:** HANDOFF.md says "129 tests"; the branch now has 150. I left it, because the count changes
-    with every merge.
+The orchestrating session passed on William's approval to settle the items found in round 1, including the two
+that were his decision, and to keep improving. Each fix again has a test that failed before the change.
 
-14. **Codex, review 3: forecast value types are not checked.** A forecast with a text value where a high should
-    be passes the list checks of #13 and #16. It is cached, and that city falls back to normals for the day
-    without a retry. The scan does not crash, and Open-Meteo has never sent such values, so I stopped here.
-    **Recommendation:** check that each high is a number or null before caching.
-15. **Codex, review 3: two `--cities` scans running at the same time could overwrite each other's rows for the
-    day.** Not reachable today: the workflow's `concurrency: scan` group with `cancel-in-progress: false` runs
-    one scan at a time. It would matter only for two manual local runs at once.
+| # | Commit | What and why | Evidence (the test that failed before) |
+|---|---|---|---|
+| 19 | `5f3c27d` | **`finalize` refuses a `dropped` candidate** (round-1 item 1; D-85). D-67 says a dropped candidate gets no research, and D-69 says pass 3 runs on awaiting candidates only. Only the routine's list command enforced that, so finalizing a drop by hand with a cheap Airbnb total could turn it into a hit. The D-73(1) Airbnb rescue of an awaiting candidate with no lodging is unchanged, and re-running `finalize` on a `done` candidate still works. Three pass-3 tests used to finalize a drop; they now use a hit line that leaves their candidate awaiting, and their assertions are unchanged. | `test_pass3.py::test_a_dropped_candidate_is_not_finalized` |
+| 20 | `834b393` | **The backtest now replays with D-41's formula** (round-1 item 2; D-86): `score - price_pts + new price`. On the real history it reproduces 1,502 of 1,502 logged winner scores, against 1,495 before. Candidate decisions match 1,502 of 1,502 both before and after, and the hindsight score is 0.0 both before and after, so no tuning number moves. | `test_backtest.py::test_replay_starts_from_the_logged_score_not_the_rounded_components` |
+| 21 | `22f762a` | **A forecast value that is not a number or null now counts as a cache miss** (Codex review 3; round-1 item 14). | `test_weather.py::test_wrong_typed_forecast_value_is_a_cache_miss` (5 cases) |
+| 22 | `e0daab8` | **A bad trip rule now fails when the config loads** (round-1 item 11). Before, `rotate_days: 0` raised `ZeroDivisionError` in the middle of a scan. `span_weeks`, `rotate_days`, `min_days`, `max_days` (which may not be under `min_days`) and `max_air_min` are now checked along with the other Settings values. The live config still loads. | `test_config.py::test_bad_trip_rule_fails_loudly` (5 cases) |
+| 23 | `49620ee` | **The tuning runs log is now written in full to a temp file and renamed** (round-1 item 9). A crash can no longer leave a cut-off line, which every later night and `--summary` would have raised on. | `test_tune_loop.py::test_a_failed_runs_append_leaves_the_earlier_lines_whole` |
+| 24 | `4820b51` | **`*.tmp` files are now git-ignored.** The scan, the SerpApi counter and the runs log each write a `.tmp` file and then rename it. If a crash left one behind, `git add data` would have committed it. | `git check-ignore data/tuning/runs.jsonl.tmp` |
+| 25 | `253eb3d` | **A SerpApi search whose `search_metadata.status` is "Error" is now retried, not cached as done** (round-1 item 10). SerpApi's documentation (api-status-and-error-codes) says a failed search still returns HTTP 200, with status "Error". Empty results come back as "Success" with an `error` message. Before, a failed search counted as a completed check, so D-66 skipped that city-window for 7 days. Empty results still count as a completed check. | `test_hotels_hits.py::test_serpapi_status_error_is_an_error_but_no_results_is_a_completed_check` |
+| 26 | `569bce6` | **`export` and `summarize` now read history up to the Calgary scan date** (round-1 item 8). The scan's `export()` used the runner's `date.today()`. A `--today` run more than 90 days back wrote an empty `series.json`. The offline tests scan 2026-10-08, so they would have started failing on 2027-01-07. | `test_main_offline.py::test_export_reads_history_up_to_the_scan_date_not_the_runner_clock` |
+| 27 | `67b6430` | **A `--cities` re-run now keeps the day's other cities on the page** (round-1 item 3). The other enabled cities' windows, city entries and candidate ids carry over from the previous `latest.json`, but only from the same day. Another day's rows are stale, so they are not kept, and a city switched off since then is dropped. `health` still describes the re-run itself. | `test_main_offline.py::test_city_subset_rerun_keeps_the_other_cities_on_the_page`; `::test_settings_files_steer_the_scan` caught the switched-off case |
+| 28 | `2330f20` | **The scan now picks each city-window's winner with `best_per_window`** (round-1 item 7). The rule is the same; there is now one tested copy of it instead of a separate `max(...)` in the scan. | Existing `test_score.py` and offline-scan tests |
+
+## Found, not changed (still open)
+
+1. **Workflow edit refused by this session's permission check: the same-day guard compares Calgary's
+   `scan_date` with the UTC date** (`.github/workflows/scan.yml`, step "Already scanned today?", `date -u +%F`).
+   A late cron slot that fires after 00:00 UTC (18:00 in Calgary in winter) sees a new UTC day while Calgary is
+   still on the same date. The day is then scanned again: about 700 Google fetches, and the day's rows are
+   replaced. The edit was approved through the orchestrating session, but this session's permission check refused
+   it, and I did not try it another way. **Ready fix:** in that step, replace `"$(date -u +%F)"` with
+   `"$(python -c "from datetime import datetime; from radar.windows import CALGARY; print(datetime.now(CALGARY).date())")"`
+   and give the step `env: PYTHONTZPATH: ""`, as the Scan step has. A regression test is ready to add: it reads the
+   step and runs its date line at 02:00 UTC on 24 Nov, and expects 2026-11-23.
+2. **Workflow edit, same refusal: the Pages push filter leaves out `table.html`** (`scan.yml` `paths:`). A push
+   that changes only `table.html` waits for the next scan to deploy. **Fix:** add `"table.html"`.
+3. **Routine prompt edit, same refusal: `routine/PROMPT-weekly.md` reads `would_have_fired` and
+   `band_distribution`.** `data/weekly-summary.json` no longer has those fields; it has `passes`, `near_misses` and
+   `ladder_distribution`. The prompt also looks for the bands in `scoring.yaml`, but the ladders are in
+   `references.yaml`. The routine is disabled (D-30) and stops itself after 2026-12-08. **Fix:** rename those
+   three references, or retire the file as D-82 did `PROMPT-tune.md`.
+4. **Dead code kept for its tests:** `previous_candidate(exclude_id=)` and `store.append_quotes` are used only by
+   their tests. Removing them would mean deleting tests, which this pass does not do.
+5. **Two `--cities` scans running at the same time could overwrite each other's rows for the day** (Codex review
+   3). This cannot happen today: the workflow's `concurrency: scan` group runs one scan at a time.
+6. **Needs a browser:** a browser whose time-zone data is older than tzdata 2026f shows "Last scan" an hour
+   early, because Node 24 here still has Calgary at UTC-7 for 2026-11-22. Leg times are not affected (D-24). Check
+   it once on William's phone.
 
 ## Codex reviews
 
 - Review 1: 5 findings, all confirmed and fixed (#9 to #13).
 - Review 2: 4 findings, all confirmed and fixed (#14 to #17).
-- Review 3: 3 findings. 1 was fixed (#18). The other 2 are listed as items 14 and 15 above. By then the findings
+- Review 3: 3 findings. 1 was fixed (#18) and 1 in round 2 (#21); the last is open item 5. By then the findings
   were very unlikely edge cases, so I stopped the review loop there.
 
 ## How to merge
@@ -134,6 +119,6 @@ git rebase origin/main          # the routines commit data to main every day; th
 git push origin claude/overnight-fixes-bdabcb   # then open a PR, or merge to main once it is green
 ```
 
-The branch touches only `radar/`, `tests/`, `README.md`, `docs/notes/decisions.md` (D-84), `SESSION-LOG.md`
-and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
+The branch touches only `radar/`, `scripts/backtest.py`, `scripts/tune_loop.py`, `tests/`, `.gitignore`,
+`README.md`, `HANDOFF.md`, `docs/notes/decisions.md` (D-84 to D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
 guards; no config or data change is needed.

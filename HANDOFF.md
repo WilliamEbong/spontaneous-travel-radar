@@ -17,7 +17,16 @@ learning run (`mode: dry-run`, nothing alerts, everything is logged and shown) h
 radar tunes its own price judgment every night, autoresearch-style (`docs/TUNING-PLAN.md`). Going live
 with email stays William's decision.
 
-## Everything on `main` is live (nothing pending on branches)
+## Pending: branch `claude/overnight-fixes-bdabcb` (not pushed, not merged)
+
+A maintenance pass from 2026-11-22/23 (D-84 to D-86): guards on everything Google Flights, SerpApi and Open-Meteo
+send, atomic writes of the day's history, the weather cache and the tuning runs log, `finalize` refusing dropped
+candidates, the backtest on D-41's formula, a `--cities` re-run that keeps the other cities, and smaller fixes.
+166 tests on the branch (129 on `main`). `OVERNIGHT-CHANGES.md` on the branch lists every commit, how to undo it,
+how to merge, and the items still open: the UTC same-day guard and the `table.html` Pages filter in `scan.yml`,
+and the stale weekly prompt. All three edits were refused by that session's permission check.
+
+## Everything on `main` is live
 
 Merged and deployed on 2026-11-09/10, newest last: dashboard v2 (D-36), settings panel (D-43 to D-48),
 softened departure rule and time curve (D-50/51), two trip classes (D-52 to D-55), price below the bad
