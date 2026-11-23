@@ -206,14 +206,18 @@ def _fetch_items(q: LegQuery) -> list:
 SEG_KEEP = (3, 6, 8, 10, 11, 20, 21, 22)   # the segment fields to_leg reads
 
 
-def slim(it) -> list:
-    """Same positional shape as a raw item, unused fields dropped (~1.2 KB -> ~0.2 KB per itinerary)."""
+def slim(it) -> list | None:
+    """Same positional shape as a raw item, unused fields dropped (~1.2 KB -> ~0.2 KB per itinerary); None for an
+    item without a readable segment list, so one malformed item never costs the query's other fares."""
     try:
         price = it[1][0][1]
     except (IndexError, TypeError):
         price = None
-    segs = [[s[i] if i in SEG_KEEP and i < len(s) else None for i in range(23)] for s in it[0][2]]
-    return [[it[0][0], it[0][1], segs], [[None, price]]]
+    try:
+        segs = [[s[i] if i in SEG_KEEP and i < len(s) else None for i in range(23)] for s in it[0][2]]
+        return [[it[0][0], it[0][1], segs], [[None, price]]]
+    except (IndexError, TypeError):
+        return None
 
 
 def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=None, retry_wait=30.0) -> list[Leg]:
@@ -232,7 +236,7 @@ def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=
                 time.sleep(retry_wait)
             time.sleep(random.uniform(*sleep_range))
             try:
-                items = [slim(it) for it in _fetch_items(q)]
+                items = [x for it in _fetch_items(q) if (x := slim(it)) is not None]
                 break
             except Exception as e:  # noqa: BLE001 - any fetch/parse failure gets one retry
                 err = e

@@ -168,3 +168,13 @@ def test_unknown_time_zone_is_not_swallowed_as_a_bad_item():
     raw = load_fixture("ff_yyc_yvr_oneway.json")[0]
     with pytest.raises(ZoneInfoNotFoundError):
         to_leg(raw, "YYC", "YVR", "America/Edmonton", "America/Vancuver")
+
+
+def test_one_malformed_item_in_a_live_response_keeps_the_rest(tmp_path, monkeypatch):
+    # slim runs on every item before caching; one item with no segment list raised there, the attempt was retried
+    # and the whole query's fares were lost (Codex review of the overnight branch).
+    good = load_fixture("ff_yyc_yvr_oneway.json")[0]
+    monkeypatch.setattr("radar.flights._fetch_items", lambda q: [[[1, 2, None], [[None, 500]]], good])
+    q = LegQuery("YYC", "YVR", date(2026, 12, 11), origin_tz="America/Edmonton", dest_tz="America/Vancouver")
+    legs = fetch_leg(q, Budget(1), cache_dir=tmp_path, sleep_range=(0, 0), retry_wait=0)
+    assert len(legs) == 1 and legs[0].price_cad_2pax > 0
