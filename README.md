@@ -85,14 +85,15 @@ uv pip install --python .venv -e ".[dev]"
 Offline scan (recorded fares, no network): it writes `data/` and `hits/` in the current folder, over the real scan
 files, so run it in an empty folder holding only copies of `radar/`, `config/` and `tests/fixtures/offline/`, and
 never commit its output (a committed offline run would publish a fake 2026-10-08 scan as the latest one). The
-fixtures cover three cities, so name them:
+fixtures cover three cities, so name them. From that folder, run the project's interpreter by its full path
+(the folder has no `.venv` of its own; `-m radar` uses the folder's copy of the code):
 
 ```
-.venv\Scripts\python -m radar.main scan --offline --today 2026-10-08 --cities vancouver,las_vegas,new_orleans
+& "<project folder>\.venv\Scripts\python" -m radar.main scan --offline --today 2026-10-08 --cities vancouver,las_vegas,new_orleans
 ```
 
-Expect about 35 of 220 queries answered and the rest skipped, and no candidates: pass 2 (lodging) does not run
-offline. Progress goes to stderr, which Windows PowerShell shows in red; the exit code is what counts.
+Expect about 35 of 220 queries answered and the rest skipped, and no candidates with these fixtures. Offline, pass 2
+makes no SerpApi lookup: a trip that does qualify is filed as a candidate with no lodging check. Progress goes to stderr, which Windows PowerShell shows in red; the exit code is what counts.
 
 Live scan (contacts Google Flights, and SerpApi when `.env` has a key; writes the real `data/`): only when you mean it.
 
