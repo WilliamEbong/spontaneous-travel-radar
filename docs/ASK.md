@@ -38,10 +38,14 @@ Claude Code session in this folder and asks. This file tells that session how to
 ## Useful commands
 
 ```
-.venv\Scripts\python -c "import json; d=json.load(open('data/latest.json')); print([ (r['city'], r['score'], r['window_id']) for r in d['best_by_city'] ])"
+.venv\Scripts\python -c "import json; d=json.load(open('data/latest.json', encoding='utf-8')); print([ (r['city'], r['score'], r['window_id']) for r in d['best_by_city'] ])"
 .venv\Scripts\python -m radar.main export     # rebuild series, CSVs and indexes from what is on disk; no network
 gh run list --workflow scan.yml --limit 3     # did the scan run, how long, did it fail
 ```
+
+Did the last scan work, without the network: `data/latest.json` `scan_date` and `health` (`coverage_pct` near 100,
+`fetch_error_count`, `blocked` false, `host` github-actions); the day's note in `data/digests/` says the same in
+words. `host: offline` means a test run on recorded fares, never a real scan.
 
 ## Storage plan (what is kept, where, how big)
 

@@ -80,13 +80,28 @@ scoring table, `table.html`) and the weekly summary, and runs without API keys t
 uv venv --python 3.12 .venv
 uv pip install --python .venv -e ".[dev]"
 .venv\Scripts\python -m pytest -q
-.venv\Scripts\python -m radar.main scan --offline --today 2026-10-08
+```
+
+Offline scan (recorded fares, no network): it writes `data/` and `hits/` in the current folder, over the real scan
+files, so run it in an empty folder holding only copies of `radar/`, `config/` and `tests/fixtures/offline/`, and
+never commit its output (a committed offline run would publish a fake 2026-10-08 scan as the latest one). The
+fixtures cover three cities, so name them:
+
+```
+.venv\Scripts\python -m radar.main scan --offline --today 2026-10-08 --cities vancouver,las_vegas,new_orleans
+```
+
+Expect about 35 of 220 queries answered and the rest skipped, and no candidates: pass 2 (lodging) does not run
+offline. Progress goes to stderr, which Windows PowerShell shows in red; the exit code is what counts.
+
+Live scan (contacts Google Flights, and SerpApi when `.env` has a key; writes the real `data/`): only when you mean it.
+
+```
 .venv\Scripts\python -m radar.main scan --cities vancouver,las_vegas --budget 60
 ```
 
-Both scan lines write `data/` and `hits/` in the current folder, over the real scan files. Run the offline one
-in a scratch copy that holds `config/` and `tests/fixtures/offline/`, and never commit its output: a committed
-offline run would publish a fake 2026-10-08 scan as the latest one.
+`export` and `summarize` rebuild the series, CSVs, indexes and weekly summary from what is on disk, for today's
+Calgary date (they take no `--today`).
 
 Keys go in `.env` (see `.env.example`); `radar.main` reads it. In Actions they are repo secrets.
 
