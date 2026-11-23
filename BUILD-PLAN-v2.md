@@ -209,4 +209,5 @@ system that finds deals so exceptional he books on sight, not trips under a budg
 ## Later (not this build)
 
 "Would book / Not for me" tap on cards writing `data/labels.jsonl`; interests editable in the panel;
-labels-driven weight tuning on Dec 9; seasonal room references finer than winter/summer.
+labels-driven weight tuning on Dec 9; seasonal room references finer than winter/summer. A Friday-to-Monday 4-day window when both are days off (Good Friday plus Easter Monday): new scope, more
+Google requests (D-87).
