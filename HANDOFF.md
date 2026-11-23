@@ -26,6 +26,8 @@ fixes. It also fixes the `scan.yml` same-day guard (Calgary date, not UTC), adds
 filter and corrects the disabled weekly prompt's field names (all three approved by William). 156 tests on the
 branch (129 on `main`). `OVERNIGHT-CHANGES.md` on the branch lists every commit, how to undo it, how to merge, the
 self-tuning loop's health, and what is still open.
+Round 3 tidied the code (about 50 lines fewer, config loads 10x faster) and set up graphify: a `.graphifyignore` on the
+branch and a local graph in `graphify-out/` (not committed; after the merge run `/graphify . --update` in the main checkout).
 
 ## Everything on `main` is live
 

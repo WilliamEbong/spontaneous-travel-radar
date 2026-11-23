@@ -111,6 +111,36 @@ that were his decision, and to keep improving. Each fix again has a test that fa
 
 **Changed here:** #20 (the replay now matches all 1,502 logged scores, so a trial is not judged on rounding noise) and #32. **Still William's:** whether the 65 floor on `candidate_threshold` should stay while no trip scores above 56. Until fares or that bound change, the loop can only learn the ladder half.
 
+## Round 3, 2026-11-23 (tidy, simplify, graphify)
+
+Round 3 removed or merged code without changing what it does. An Opus auditor ran a repo-wide over-engineering pass (ponytail-audit) and I checked each lead with grep before acting on it. Codex review 5 of the clean-up diff found nothing to fix. Result: **47 lines added and 94 removed** in `radar/`, `scripts/`, `tests/` and `site/`, with 157 tests passing after every commit.
+
+| Commit | What | Who notices |
+|---|---|---|
+| `6225dc9` | **Config files now load with libyaml's safe loader when it is installed.** On all 9 config files it produces the same objects as `yaml.safe_load`. Five loads of cities, scoring and references dropped from **1.81 s to 0.17 s**. If libyaml is missing, the pure-Python loader is used. | Every scan, `finalize`, tuning night and test run. |
+| `4d3efd5` | **The daily-volume test loads the cities once instead of 42 times:** 1.12 s to 0.47 s. | Anyone running the tests. |
+| `d055e3d` | **Deleted code that only its own tests called:** `export.dayoff_rows`, `store.append_quotes`, `windows.scan_dates` and `itineraries.in_window`. Their tests now check the live paths instead (`write_day`, `out_ok` and `back_ok`). | Less code to maintain. |
+| `e3118c3` | **`hits.py` now reuses `export.write_json` and `score._money`.** Its `_write_json` was a non-atomic copy, so candidate and hit files are now written whole and then renamed. The unused `exclude_id` parameter is gone. | One writer, and crash-safe hit files (the round-2 open item). |
+| `14a8843` | **One `write_atomic` helper (in `radar/config.py`, the leaf module) replaces six copies of the temp-file-and-rename step.** The bytes written are the same. | Less code; one place to get it right. |
+| `a5b55e5` | **The graphify scope (`.graphifyignore`) is set, and `graphify-out/` is kept out of git**, as in William's other projects. | Anyone asking the graph about the code. |
+
+**Speed.** The full suite took 124.5 s on the first measured run. After the changes it took 34.6 s to 37.9 s, two runs in a row. Machine load varies a lot here: one run in between took 332 s with other sessions busy. So the solid number is the measured config load, 1.81 s to 0.17 s, and the rest is indicative only. A cold start of `import radar.main` took 16 s once and 1.5 s warm, and fast-flights accounts for 0.58 s of that. I left the import alone, because the scan runs once a day.
+
+**Left alone, and why:**
+- **William's call:**
+  - `KICKOFF-PROMPT.md`: a one-time prompt that nothing references.
+  - `config/airlines.yaml` and its loader: the file says it is not applied.
+  - `City.season_months`: loaded but never read.
+- **`site/table.js` copies four helpers from `app.js`.** Sharing them means a new `site/dom.js` and an extra script tag on both pages, a site change for about 20 lines.
+- **`hits/` readers that skip a corrupt file:** only a crash mid-write could cause one, and the writes are now atomic.
+- **Trimming the cap test** saved nothing measurable (6.8 s to 6.6 s), so I put it back.
+
+**graphify** is set up and built in this worktree's `graphify-out/` (not committed):
+- **Graph:** 933 nodes, 2,360 edges and 51 named communities. It covers 40 code files by AST and 51 docs, config files, specs and routine prompts, read by three Opus extraction agents (about 474k tokens).
+- **Health check:** 157 dangling-endpoint edges, mostly AST references to standard-library types such as `date`, plus 61 collapsed duplicate edges. The graph is usable, but those edges are incomplete.
+- **Query it from the repo root:** `graphify query "<question>"`, or open `graphify-out/graph.html`. `GRAPH_REPORT.md` lists the central nodes (`Scoring`, `score_trip`, `scan`, `finalize`, `write_candidate`) and the suggested questions.
+- **Because the graph is not committed, it does not travel with the merge.** After merging, run `/graphify . --update` in the main checkout. It reuses this run's semantic cache only if `graphify-out/` is copied over; otherwise it rebuilds.
+
 ## Found, not changed (still open)
 
 1. **Dead code kept for its tests:** `previous_candidate(exclude_id=)` and `store.append_quotes` are used only by
@@ -135,6 +165,7 @@ that were his decision, and to keep improving. Each fix again has a test that fa
 
 - Review 1: 5 findings, all confirmed and fixed (#9 to #13).
 - Review 2: 4 findings, all confirmed and fixed (#14 to #17).
+- Review 5 (round 3's clean-up diff): no actionable finding.
 - Review 4 (round 2's diff): 4 findings. 2 were fixed (#37, #38); the other 2 fail the bar and are listed below.
 - Review 3: 3 findings. 1 was fixed (#18) and 1 in round 2 (#21); the last is open item 2. By then the findings
   were very unlikely edge cases, so I stopped the review loop there.
@@ -153,5 +184,5 @@ git push origin claude/overnight-fixes-bdabcb   # then open a PR, or merge to ma
 ```
 
 The branch touches only `radar/`, `scripts/backtest.py`, `scripts/tune_loop.py`, `tests/`, `.gitignore`,
-`.github/workflows/scan.yml`, `routine/PROMPT-weekly.md`, `README.md`, `HANDOFF.md`, `docs/notes/decisions.md` (D-84 to D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
+`.github/workflows/scan.yml`, `routine/PROMPT-weekly.md`, `.graphifyignore`, `README.md`, `HANDOFF.md`, `site/app.js`, `docs/ASK.md`, `docs/TUNING-PLAN.md`, `docs/notes/decisions.md` (D-84 to D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
 guards; no config or data change is needed.
