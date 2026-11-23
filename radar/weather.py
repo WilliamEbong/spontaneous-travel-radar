@@ -131,10 +131,13 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
                                        "timezone": "auto"}, timeout=10)
             r.raise_for_status()
             daily = _daily(json.loads(r.text))   # checked before it is cached, so a bad response is not kept all day
-            path.parent.mkdir(parents=True, exist_ok=True)
-            tmp = path.with_name(path.name + ".tmp")
-            tmp.write_text(r.text, encoding="utf-8")
-            os.replace(tmp, path)
+            try:   # the cache is best effort: a write that fails still uses the forecast in hand
+                path.parent.mkdir(parents=True, exist_ok=True)
+                tmp = path.with_name(path.name + ".tmp")
+                tmp.write_text(r.text, encoding="utf-8")
+                os.replace(tmp, path)
+            except OSError as e:
+                print(f"open-meteo {city.key}: cache not written: {type(e).__name__}", file=sys.stderr)
         idx = {d: i for i, d in enumerate(daily["time"])}
         rows = [idx[d.isoformat()] for d in days]
         highs = [daily["temperature_2m_max"][i] for i in rows]

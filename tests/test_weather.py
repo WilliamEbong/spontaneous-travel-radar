@@ -116,3 +116,22 @@ def test_short_forecast_arrays_are_a_cache_miss(tmp_path, monkeypatch):
 
     monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: calls.append(1) or R())
     assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast" and calls == [1]
+
+
+def test_cache_write_failure_keeps_the_fetched_forecast(tmp_path, monkeypatch):
+    """Codex review: weather_score never raises; a cache that cannot be replaced (a Windows file lock) must not end the scan."""
+    good = load_fixture("om_chicago.json")
+    first = date.fromisoformat(good["daily"]["time"][0])
+
+    class R:
+        text = json.dumps(good)
+
+        def raise_for_status(self):
+            pass
+
+    def locked(*a, **k):
+        raise PermissionError("file in use")
+
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
+    monkeypatch.setattr("radar.weather.os.replace", locked)
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast"
