@@ -2,12 +2,11 @@ from datetime import date
 
 import pytest
 
-from radar.store import append_quotes, read_history, route_percentile
+from radar.store import read_history, route_percentile, write_day
 
 
-def test_append_and_read_roundtrip(tmp_path):
-    p = append_quotes(date(2026, 11, 20), [{"city": "vancouver", "price_pp": 150}], root=tmp_path)
-    append_quotes(date(2026, 11, 20), [{"city": "vancouver", "price_pp": 130}], root=tmp_path)
+def test_write_and_read_roundtrip(tmp_path):
+    p = write_day(date(2026, 11, 20), [{"city": "vancouver", "price_pp": 150}, {"city": "vancouver", "price_pp": 130}], root=tmp_path)
     rows = read_history(90, root=tmp_path, today=date(2026, 11, 21))
     assert len(rows) == 2 and p.name == "2026-11-20.jsonl"
     assert read_history(90, root=tmp_path, today=date(2027, 6, 1)) == []

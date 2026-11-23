@@ -61,11 +61,6 @@ def write_latest(winners: list[Scored], cities: list[City], refs: dict[str, Refe
     })
 
 
-def dayoff_rows(history: list[dict]) -> list[dict]:
-    """Rows logged before the trip classes existed have no trip_class and were all day-off trips."""
-    return [r for r in history if r.get("trip_class", "dayoff") == "dayoff"]
-
-
 def write_series(history: list[dict], path="data/series.json", days: int = 30) -> None:
     """{city: {trip_class: [[scan_date, cheapest price_pp that day], ...]}} for the last `days` scan days, one line per
     class (a weekend card's history must not mix with day-off fares: different lead times and rules)."""

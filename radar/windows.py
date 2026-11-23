@@ -90,7 +90,3 @@ def class_windows(today: date, s, holidays: set[date], extra: set[date] = frozen
         wk = tc["weekend"]
         out += weekend_windows(today, wk["min_days"], wk["max_days"], wk["depart_from"], wk["depart_to"], blocked)
     return out
-
-
-def scan_dates(windows: list[Window]) -> tuple[set[date], set[date]]:
-    return {d for w in windows for d in w.out_dates}, {d for w in windows for d in w.back_dates}

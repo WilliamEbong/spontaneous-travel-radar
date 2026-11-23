@@ -33,14 +33,6 @@ def quote_row(x: Scored, scan_date: date, scan_ts: str, winner: bool, *, pass_: 
     }
 
 
-def append_quotes(day: date, rows: list[dict], root="data/history") -> Path:
-    p = Path(root) / f"{day.isoformat()}.jsonl"
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("a", encoding="utf-8") as f:
-        f.writelines(json.dumps(r, separators=(",", ":")) + "\n" for r in rows)
-    return p
-
-
 def write_day(day: date, rows: list[dict], root="data/history") -> Path:
     """Replace the day's history file in one step (temp file + rename), so a crash mid-write keeps the old file whole."""
     p = Path(root) / f"{day.isoformat()}.jsonl"

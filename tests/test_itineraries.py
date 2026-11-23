@@ -5,7 +5,7 @@ import pytest
 
 from radar.config import load_cities
 from radar.flights import Leg
-from radar.itineraries import assemble, hotel_dates, hours_on_ground, in_window
+from radar.itineraries import assemble, back_ok, hotel_dates, hours_on_ground, out_ok
 from radar.windows import generate_windows
 
 
@@ -20,25 +20,25 @@ W = next(w for w in generate_windows(date(2026, 11, 10), set()) if w.id == "2026
 def test_evening_out_and_after_midnight_return_are_in_window():
     out = leg("YYC", "LAX", "2026-11-19T19:45", "2026-11-19T22:00", "America/Edmonton", "America/Los_Angeles")
     back = leg("LAX", "YYC", "2026-11-21T22:30", "2026-11-22T01:40", "America/Los_Angeles", "America/Edmonton")
-    assert in_window(out, back, W)          # Review Focus 1
+    assert (out_ok(out, W) and back_ok(back, W))          # Review Focus 1
 
 
 def test_return_after_4pm_day3_is_out():
     out = leg("YYC", "YVR", "2026-11-20T08:00", "2026-11-20T08:30", "America/Edmonton", "America/Vancouver")
     back = leg("YVR", "YYC", "2026-11-22T15:00", "2026-11-22T17:20", "America/Vancouver", "America/Edmonton")
-    assert not in_window(out, back, W)
+    assert not (out_ok(out, W) and back_ok(back, W))
 
 
 def test_out_before_1930_is_out():
     out = leg("YYC", "YVR", "2026-11-19T19:00", "2026-11-19T19:30", "America/Edmonton", "America/Vancouver")
     back = leg("YVR", "YYC", "2026-11-22T10:00", "2026-11-22T12:20", "America/Vancouver", "America/Edmonton")
-    assert not in_window(out, back, W)
+    assert not (out_ok(out, W) and back_ok(back, W))
 
 
 def test_return_landing_before_5pm_day2_is_out():
     out = leg("YYC", "YVR", "2026-11-20T08:00", "2026-11-20T08:30", "America/Edmonton", "America/Vancouver")
     back = leg("YVR", "YYC", "2026-11-21T14:00", "2026-11-21T16:30", "America/Vancouver", "America/Edmonton")
-    assert not in_window(out, back, W)
+    assert not (out_ok(out, W) and back_ok(back, W))
 
 
 def test_hours_on_ground_crosses_time_zones():
