@@ -152,6 +152,9 @@ def scan(args) -> int:
             for x, win in logged]
 
     today_file = Path("data/history") / f"{today}.jsonl"
+    if args.cities and today_file.exists():   # a --cities re-run replaces only its own cities' rows for the day
+        scanned = {c.key for c in cities}
+        rows = [r for r in read_history(0, today=today) if r["scan_date"] == today.isoformat() and r["city"] not in scanned] + rows
     today_file.unlink(missing_ok=True)   # a re-run on the same day replaces that day's rows
     append_quotes(today, rows)
     health = {

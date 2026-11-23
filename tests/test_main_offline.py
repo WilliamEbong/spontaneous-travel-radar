@@ -180,3 +180,18 @@ def test_rows_carry_a_score_breakdown(tmp_path, monkeypatch):
         assert abs(sum(b["points"] for b in bd) - r["score"]) <= 0.5
         assert all(b["label"] and b["input"] and b["max"] > 0 for b in bd)
         assert bd[4]["input"].endswith("of 30 days")     # offline: climate normals, never a forecast
+
+
+def test_city_subset_rerun_keeps_the_other_cities_history(tmp_path, monkeypatch):
+    # A manual `--cities` re-run (scan.yml's cities input) replaces only the cities it scanned; before the fix it
+    # deleted the day's file and wrote back one city, and the workflow committed the loss.
+    setup(tmp_path, monkeypatch)
+    day = tmp_path / "data/history/2026-10-08.jsonl"
+    assert radar_main.main(ARGS) == 0
+    before = [json.loads(line) for line in day.read_text().splitlines()]
+    assert {r["city"] for r in before} == {"vancouver", "las_vegas", "new_orleans"}
+    assert radar_main.main(["scan", "--offline", "--today", "2026-10-08", "--cities", "vancouver"]) == 0
+    after = [json.loads(line) for line in day.read_text().splitlines()]
+    assert len(after) == len(before)
+    assert {r["city"] for r in after} == {"vancouver", "las_vegas", "new_orleans"}
+    assert [r for r in after if r["city"] != "vancouver"] == [r for r in before if r["city"] != "vancouver"]
