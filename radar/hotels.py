@@ -78,7 +78,8 @@ def parse_options(payload: dict, city: City, kind: str, s: Scoring) -> list[Opti
     """Acceptable options from one SerpApi google_hotels response: rated 4.3+, hotels 4-5 star, within MAX_KM.
     The payload is untrusted: a property with a missing or wrong-typed field is skipped, never fatal to the scan."""
     out = []
-    for p in (payload.get("properties") if isinstance(payload, dict) else None) or []:
+    props = payload.get("properties") if isinstance(payload, dict) else None
+    for p in props if isinstance(props, list) else []:
         try:
             opt = _option(p, city, kind, s)
         except (AttributeError, KeyError, TypeError, ValueError):

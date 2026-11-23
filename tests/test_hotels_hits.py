@@ -200,6 +200,7 @@ def test_malformed_serpapi_payload_is_skipped_not_fatal():
     ]
     assert parse_options({"properties": None}, c, "hotel", S) == []
     assert parse_options([], c, "hotel", S) == []
+    assert parse_options({"properties": True}, c, "hotel", S) == []          # Codex review: not a list
     assert [o.name for o in parse_options({"properties": [*bad, good]}, c, "hotel", S)] == ["ok"]
 
 
