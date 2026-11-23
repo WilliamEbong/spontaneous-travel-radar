@@ -47,9 +47,11 @@ jobs:
       - name: Already scanned today?
         id: done
         if: github.event_name == 'schedule' || inputs.skip_if_done == 'true'
+        env:
+          PYTHONTZPATH: ""   # the Scan step's zone data: scan_date is the Calgary date, so compare with Calgary's
         run: |
           d=$(python -c "import json; print(json.load(open('data/latest.json')).get('scan_date', ''))")
-          echo "today=$([ "$d" = "$(date -u +%F)" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+          echo "today=$([ "$d" = "$(python -c "from datetime import datetime; from radar.windows import CALGARY; print(datetime.now(CALGARY).date())")" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
           echo "latest scan_date=$d"
       - name: Scan
         if: github.event_name != 'push' && steps.done.outputs.today != 'yes'
