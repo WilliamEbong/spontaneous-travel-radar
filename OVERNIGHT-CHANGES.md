@@ -28,11 +28,11 @@ Nothing about how deals are judged has changed: the deal model, the scores, the 
 - The settings files load 10 times faster.
 - graphify is set up, so you can ask the code questions.
 
-**Still yours to decide** (each is explained under "Found, not changed" and "Loop health"):
-- The 65 floor on the pass line.
-- A Good Friday to Easter Monday four-day window.
-- The final score's rounding at the hit line.
-- Whether to delete `KICKOFF-PROMPT.md`, `config/airlines.yaml` and the unused `season_months` field.
+**Decided for you** (you delegated these; D-87 has the reasons):
+- **The 65 floor on the pass line stays,** so alerts remain rare and worth booking on sight. Revisit when real trips start scoring near 65.
+- **No Good Friday to Easter Monday window for now.** It is new scope and is on the Later list.
+- **The final score's rounding stays as it is.** Changing it would move scores.
+- **Removed:** `KICKOFF-PROMPT.md`, `config/airlines.yaml` and the unused `season_months` field. Palm Springs' winter season was never applied; the route has always been scanned all year.
 
 **To make it live:** see "How to merge" at the end. In short: push the branch, merge it into `main`, done. If anything looks wrong afterwards, one revert of the merge undoes it all.
 
@@ -168,10 +168,7 @@ Round 3 removed or merged code without changing what it does. An Opus auditor ra
 **Speed.** The full suite took 124.5 s on the first measured run. After the changes it took 34.6 s to 37.9 s, two runs in a row. Machine load varies a lot here: one run in between took 332 s with other sessions busy. So the solid number is the measured config load, 1.81 s to 0.17 s, and the rest is indicative only. A cold start of `import radar.main` took 16 s once and 1.5 s warm, and fast-flights accounts for 0.58 s of that. I left the import alone, because the scan runs once a day.
 
 **Left alone, and why:**
-- **William's call:**
-  - `KICKOFF-PROMPT.md`: a one-time prompt that nothing references.
-  - `config/airlines.yaml` and its loader: the file says it is not applied.
-  - `City.season_months`: loaded but never read.
+- **Deleted later, once decided (D-87):** `KICKOFF-PROMPT.md` (`68faa32`); `config/airlines.yaml` and its loader (`2ccfbf6`); `City.season_months` and its `cities.yaml` keys (`b16f12f`). Each was grepped for callers, and the suite stayed green.
 - **`site/table.js` copies four helpers from `app.js`.** Sharing them means a new `site/dom.js` and an extra script tag on both pages, a site change for about 20 lines.
 - **`hits/` readers that skip a corrupt file:** only a crash mid-write could cause one, and the writes are now atomic.
 - **Trimming the cap test** saved nothing measurable (6.8 s to 6.6 s), so I put it back.
@@ -214,8 +211,8 @@ Seen but not changed (below the bar or a design choice):
    early, because Node 24 here still has Calgary at UTC-7 for 2026-11-22. Leg times are not affected (D-24). Check
    it once on William's phone.
 4. **Audit round 2, real but William's call or below the bar:**
-   - **No Friday-to-Monday block when both days are off.** Good Friday plus Easter Monday 2027 gives only the separate fri-off and mon-off windows. Adding it is a new window type and more Google requests, so it is William's call.
-   - **`finalize` adds what's on to the rounded pass-2 score.** One real New York case lands on 80, a hit, while its breakdown rows add up to 79.22. BUILD-PLAN-v2 says "pass 2 + events", so which rounding is meant is a deal-model question.
+   - **No Friday-to-Monday block when both days are off.** Good Friday plus Easter Monday 2027 gives only the separate fri-off and mon-off windows. Decided (D-87): new scope; it is on the Later list in BUILD-PLAN-v2.
+   - **`finalize` adds what's on to the rounded pass-2 score.** One real New York case lands on 80, a hit, while its breakdown rows add up to 79.22. Decided (D-87): left as it is, because changing it moves scores.
    - **The breakdown says "central room" when pass 2 found no room.** The wording is wrong, but the score is right.
    - **A degraded same-day full re-run replaces the morning's rows.** This needs a manual run.
    - **A failed flight-cache write ends a local scan.** This needs the Windows fallback host.
