@@ -1,5 +1,6 @@
 """Weather score 0..10: Open-Meteo forecast inside 16 days, climate normals beyond. Never raises."""
 import json
+import os
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -112,14 +113,19 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
         return normals_score(city, days)
     path = Path(cache_dir) / f"om-{city.key}.json"
     try:
-        if not path.exists():
+        try:
+            cached = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):   # missing or half-written cache file = cache miss (D-23)
             r = httpx.get(URL, params={"latitude": city.lat, "longitude": city.lon, "forecast_days": 16,
                                        "daily": "temperature_2m_max,precipitation_probability_max,weathercode",
                                        "timezone": "auto"}, timeout=10)
             r.raise_for_status()
+            cached = json.loads(r.text)
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(r.text, encoding="utf-8")
-        daily = json.loads(path.read_text(encoding="utf-8"))["daily"]
+            tmp = path.with_name(path.name + ".tmp")
+            tmp.write_text(r.text, encoding="utf-8")
+            os.replace(tmp, path)
+        daily = cached["daily"]
         idx = {d: i for i, d in enumerate(daily["time"])}
         rows = [idx[d.isoformat()] for d in days]
         highs = [daily["temperature_2m_max"][i] for i in rows]
@@ -129,6 +135,6 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
         codes = tuple(daily["weathercode"][i] for i in rows) if "weathercode" in daily else ()   # older cache: no sky word
         return Weather(score_from_daily(highs, precip), "forecast", tuple(highs), tuple(precip), (),
                        tuple(d.isoformat() for d in days), codes)
-    except (httpx.HTTPError, ValueError, KeyError) as e:
+    except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError) as e:   # untrusted payload: never raises
         print(f"open-meteo {city.key}: {type(e).__name__}: {e}", file=sys.stderr)
         return normals_score(city, days)

@@ -49,3 +49,31 @@ def test_weather_falls_back_to_normals():
     jan = weather_score(city("chicago"), [date(2027, 1, 16), date(2027, 1, 17)], today=date(2026, 11, 10))
     assert jan.months == ("January",) and weather_line(jan) == "January normals: highs −1 °C, rain on 11 of 30 days"
     assert weather_line(Weather(7.0, "given")) == "score 7.0 of 10 as given"
+
+
+def test_half_written_weather_cache_is_a_miss(tmp_path, monkeypatch):
+    """D-23: a corrupt cache file counts as a miss. Before the fix a truncated om-<city>.json was never refetched, so
+    every window of that city fell back to normals for the rest of the day."""
+    text = (FIXTURES / "om_chicago.json").read_text(encoding="utf-8")
+    first = date.fromisoformat(load_fixture("om_chicago.json")["daily"]["time"][0])
+    (tmp_path / "om-chicago.json").write_text(text[: len(text) // 2], encoding="utf-8")
+    calls = []
+
+    class R:
+        text = (FIXTURES / "om_chicago.json").read_text(encoding="utf-8")
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: calls.append(1) or R())
+    w = weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path)
+    assert w.source == "forecast" and calls == [1]
+    assert json.loads((tmp_path / "om-chicago.json").read_text(encoding="utf-8")) == load_fixture("om_chicago.json")
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_wrong_typed_forecast_falls_back_to_normals(tmp_path):
+    """Open-Meteo's payload is untrusted and weather_score never raises: a null time list means normals, not a crash."""
+    (tmp_path / "om-chicago.json").write_text(json.dumps({"daily": {"time": None}}), encoding="utf-8")
+    first = date.fromisoformat(load_fixture("om_chicago.json")["daily"]["time"][0])
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals"
