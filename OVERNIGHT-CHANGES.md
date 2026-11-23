@@ -90,6 +90,7 @@ that were his decision, and to keep improving. Each fix again has a test that fa
 - The routine's tuning step ran every day from 2026-11-13. It reported "collecting, N of 14" on each of those days (the iteration log and daily notes).
 - On 2026-11-15 and 2026-11-19 the count did not move. The routine ran before that day's scan landed. This is harmless, because the loop reads whatever history is on `main`.
 - The first real night was 2026-11-22, with 14 scan days. It ran 16 trials and kept none. The score was 0.00 both before and after. `docs/tuning-log.md` and `data/tuning/runs.jsonl` each have that one night, and no config error was recorded.
+- The second night, 2026-11-23 (15 scan days), also ran 16 trials and kept none. The train score was still 0.00, but the holdout score is now **9.16**, the first non-zero number, because the last 7 days have rolling ladders. The one trial that lowered `rolling_ladder.good` (25 to 20) took the holdout down to 7.36. That agrees with the probe below: the loop's only lever points toward raising the good line.
 - No `radar/tune-*` or `radar/iter-*` pull request has ever been opened. The daily change step chose "action: none" every day.
 
 **Can it improve? Not yet, and on the deal side not with today's fares.** I probed it offline on main's 15 days of real history (2,861 rows, 591 judged winners). I lowered `rolling_min_days` in memory only, so that the train days get rolling ladders:
