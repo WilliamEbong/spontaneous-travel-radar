@@ -1,8 +1,12 @@
 # Travel Radar maintenance, 2026-11-22 to 2026-11-23
 
+## Landed 2026-11-23
+
+The branch was pushed and merged into `main` through pull request 3 (https://github.com/WilliamEbong/spontaneous-travel-radar/pull/3), merge commit `b107ef9`. All 157 tests passed on the merge. GitHub Pages redeployed and the live site is responding, so everything below is now live.
+
 ## What changed for you, in plain words
 
-Nothing about how deals are judged has changed: the deal model, the scores, the settings and your data are the same. What changed is that the radar breaks less, wastes less, and says what it means. None of this is live until the branch is merged (steps at the end).
+Nothing about how deals are judged has changed: the deal model, the scores, the settings and your data are the same. What changed is that the radar breaks less, wastes less, and says what it means. All of it is live since the merge on 2026-11-23 (see "Landed" above).
 
 **What you will notice on the page**
 - **A trip card now shows the trip's own days.** Today's best deal, San Francisco, is one night: you fly out Friday and are home Saturday. The card used to say "Fri 29 – Sun 31 Jan" because it showed the whole long weekend. It now says "Fri 29 – Sat 30 Jan". A trip that leaves the evening before now starts on that evening.
@@ -40,7 +44,7 @@ Nothing about how deals are judged has changed: the deal model, the scores, the 
 - **The self-tuning loop is sound but has little to learn yet.** It needs about 22 days of history, and while no trip scores near 65 it can move only one setting. That is expected, not a fault.
 - **Guarding against inputs nobody sends costs more than it saves.** Five such fixes were reverted under your "tangible, not fringe" bar. The final Codex review raised four more like them, and they are listed, not built.
 
-**To make it live:** see "How to merge" at the end. In short: push the branch, merge it into `main`, done. If anything looks wrong afterwards, one revert of the merge undoes it all.
+**It is live:** merged as `b107ef9` on 2026-11-23. If anything looks wrong, one revert of that merge undoes it all (see "How to merge" at the end).
 
 ---
 
@@ -53,7 +57,7 @@ note 2026-11-22).
 The pass found and fixed defects only. Nothing here changes the deal model, the scores, the config, the data or
 the look of the site. Round 2 made three edits William approved directly: two lines of `scan.yml` (#29, #30)
 and the field names in the disabled weekly prompt (#31). Each fix came from a test that failed before the
-change and passes after it. The branch has not been pushed or merged.
+change and passes after it. The branch was pushed and merged on 2026-11-23 (pull request 3, merge `b107ef9`).
 
 **Tests:** 129 passed before, 150 after round 1, 156 after round 2 (after five reverts against the tangible-value bar), 157 after rounds 3 and 4 (`.venv\Scripts\python -m pytest -q`,
 offline). Every change is one commit; undo any one with `git revert <hash>`. Round 2 ran on 2026-11-23 from about
@@ -243,7 +247,7 @@ Seen but not changed (below the bar or a design choice):
 
 ## How to merge
 
-The branch already contains `origin/main` up to `b62304b` (merged in `4deed82`; the suite passed on the result).
+Done on 2026-11-23 through pull request 3 (merge `b107ef9`); the steps are kept for the record. The branch already contained `origin/main` up to `b62304b` (merged in `4deed82`; the suite passed on the result).
 Merge it as a merge commit, so the hashes in this record stay valid and one revert undoes all of it:
 
 ```powershell
