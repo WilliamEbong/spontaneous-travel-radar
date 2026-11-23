@@ -121,6 +121,10 @@ def test_weekly_summary_counts_each_candidates_lookups_once(tmp_path):
     (ITEMS[0], {"total_cad": 400, "link": "http://x"}, "https link"),
     ("Jazz festival", None, "item 0"),                                            # review finding 8
     (ITEMS[0], "not found", "airbnb must be an object"),
+    ({**ITEMS[0], "uniqueness": True, "fit": True}, None, "item 0"),               # true is not a number (D-69)
+    ({**ITEMS[0], "price_cad": float("inf")}, None, "item 0"),                     # json.loads reads Infinity
+    (ITEMS[0], {"total_cad": True, "link": "https://www.airbnb.ca/rooms/1"}, "https link"),
+    (ITEMS[0], {"total_cad": float("inf"), "link": "https://www.airbnb.ca/rooms/1"}, "https link"),
 ])
 def test_bad_research_file_is_refused(tmp_path, item, airbnb, msg):
     cand = candidate(tmp_path)
