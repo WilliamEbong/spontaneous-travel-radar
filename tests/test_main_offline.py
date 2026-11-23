@@ -206,3 +206,20 @@ def test_latest_says_how_far_out_day_off_trips_are_scanned(tmp_path, monkeypatch
     s = radar.config.load_scoring()
     assert dayoff["min_weeks"] == s.dayoff_min_weeks
     assert dayoff["max_weeks"] == s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]
+
+
+def test_export_reads_history_up_to_the_scan_date_not_the_runner_clock(tmp_path, monkeypatch):
+    """The scan's export used date.today() (UTC on the runner): a --today run more than 90 days back wrote an empty
+    series.json, and this suite would have started failing on 2027-01-07. It now uses the scan date."""
+    import datetime as dt
+
+    import radar.store
+
+    class Later(dt.date):
+        @classmethod
+        def today(cls):
+            return dt.date(2027, 6, 1)
+    setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(radar.store, "date", Later)
+    assert radar_main.main(ARGS) == 0
+    assert "vancouver" in json.loads((tmp_path / "data/series.json").read_text())

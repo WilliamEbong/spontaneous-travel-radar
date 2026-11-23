@@ -173,7 +173,7 @@ def scan(args) -> int:
     classes["dayoff"]["max_weeks"] = s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]   # the page's "N to M weeks out"
     write_latest(winners, cities, refs, health, scan_date=today, scan_ts=scan_ts, mode=s.mode,
                  candidates=cand_ids, passes=passes, classes=classes)
-    export()
+    export(today=today)
     write_weekly_summary(read_history(90, today=today), today=today)
     return 0
 
@@ -186,8 +186,8 @@ def finalize_cmd(args) -> int:
     return 0
 
 
-def export(_args=None) -> int:
-    write_series(read_history(90))
+def export(_args=None, today: date | None = None) -> int:
+    write_series(read_history(90, today=today or datetime.now(CALGARY).date()))   # the scan's date, not the runner's UTC one
     write_history_csvs()
     write_hits_index()
     write_digests_index()
@@ -195,7 +195,8 @@ def export(_args=None) -> int:
 
 
 def summarize(_args=None) -> int:
-    write_weekly_summary(read_history(90))
+    today = datetime.now(CALGARY).date()
+    write_weekly_summary(read_history(90, today=today), today=today)
     return 0
 
 
