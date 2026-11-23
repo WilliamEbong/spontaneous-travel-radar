@@ -72,8 +72,29 @@ def test_half_written_weather_cache_is_a_miss(tmp_path, monkeypatch):
     assert not list(tmp_path.glob("*.tmp"))
 
 
-def test_wrong_typed_forecast_falls_back_to_normals(tmp_path):
-    """Open-Meteo's payload is untrusted and weather_score never raises: a null time list means normals, not a crash."""
-    (tmp_path / "om-chicago.json").write_text(json.dumps({"daily": {"time": None}}), encoding="utf-8")
+def test_wrong_typed_forecast_falls_back_to_normals(tmp_path, monkeypatch):
+    """Open-Meteo's payload is untrusted and weather_score never raises: a null time list means normals, not a crash.
+    Codex review: such a file is a cache miss (refetched), and a response shaped like it is never cached."""
+    import httpx
+    bad = json.dumps({"daily": {"time": None}})
+    (tmp_path / "om-chicago.json").write_text(bad, encoding="utf-8")
     first = date.fromisoformat(load_fixture("om_chicago.json")["daily"]["time"][0])
+    calls = []
+
+    def down(*a, **k):
+        calls.append(1)
+        raise httpx.ConnectError("down")
+
+    monkeypatch.setattr("radar.weather.httpx.get", down)
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals" and calls == [1]
+
+    class R:
+        text = bad
+
+        def raise_for_status(self):
+            pass
+
+    (tmp_path / "om-chicago.json").unlink()
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
     assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals"
+    assert not (tmp_path / "om-chicago.json").exists()

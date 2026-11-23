@@ -106,6 +106,15 @@ def weather_line(w: Weather) -> str:
     return f"score {w.score:.1f} of 10 as given"
 
 
+def _daily(payload) -> dict:
+    """The forecast's daily block, or ValueError when it lacks the lists weather_score reads (untrusted payload)."""
+    daily = payload.get("daily") if isinstance(payload, dict) else None
+    if not isinstance(daily, dict) or not all(isinstance(daily.get(k), list)
+                                              for k in ("time", "temperature_2m_max", "precipitation_probability_max")):
+        raise ValueError("forecast without its daily lists")
+    return daily
+
+
 def weather_score(city: City, days: list[date], *, today: date | None = None, cache_dir=None) -> Weather:
     """(score, source, per-day highs and precipitation): a tuple, so `score, source = weather_score(...)[:2]` still reads."""
     today = today or date.today()
@@ -114,18 +123,17 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
     path = Path(cache_dir) / f"om-{city.key}.json"
     try:
         try:
-            cached = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):   # missing or half-written cache file = cache miss (D-23)
+            daily = _daily(json.loads(path.read_text(encoding="utf-8")))
+        except (OSError, ValueError):   # missing, half-written or wrongly shaped cache file = cache miss (D-23)
             r = httpx.get(URL, params={"latitude": city.lat, "longitude": city.lon, "forecast_days": 16,
                                        "daily": "temperature_2m_max,precipitation_probability_max,weathercode",
                                        "timezone": "auto"}, timeout=10)
             r.raise_for_status()
-            cached = json.loads(r.text)
+            daily = _daily(json.loads(r.text))   # checked before it is cached, so a bad response is not kept all day
             path.parent.mkdir(parents=True, exist_ok=True)
             tmp = path.with_name(path.name + ".tmp")
             tmp.write_text(r.text, encoding="utf-8")
             os.replace(tmp, path)
-        daily = cached["daily"]
         idx = {d: i for i, d in enumerate(daily["time"])}
         rows = [idx[d.isoformat()] for d in days]
         highs = [daily["temperature_2m_max"][i] for i in rows]
