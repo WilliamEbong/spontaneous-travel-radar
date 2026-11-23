@@ -34,6 +34,12 @@ Nothing about how deals are judged has changed: the deal model, the scores, the 
 - **The final score's rounding stays as it is.** Changing it would move scores.
 - **Removed:** `KICKOFF-PROMPT.md`, `config/airlines.yaml` and the unused `season_months` field. Palm Springs' winter season was never applied; the route has always been scanned all year.
 
+**What we learned along the way**
+- **The scan's weak spot was trust in outside data.** One odd item from Google, SerpApi or the weather service could stop the whole morning scan. Worse, it was cached, so every re-run failed the same way. Most fixes are about that.
+- **A trip card has to show the trip, not the long weekend around it.** Two fresh reviewers caught this; the tests never would have.
+- **The self-tuning loop is sound but has little to learn yet.** It needs about 22 days of history, and while no trip scores near 65 it can move only one setting. That is expected, not a fault.
+- **Guarding against inputs nobody sends costs more than it saves.** Five such fixes were reverted under your "tangible, not fringe" bar. The final Codex review raised four more like them, and they are listed, not built.
+
 **To make it live:** see "How to merge" at the end. In short: push the branch, merge it into `main`, done. If anything looks wrong afterwards, one revert of the merge undoes it all.
 
 ---
@@ -219,12 +225,16 @@ Seen but not changed (below the bar or a design choice):
    - **`mode`, `weights` and the trip rules are not validated.** Only a hand edit can set them wrong.
    - **A non-atomic write under `hits/`.** This needs a crash mid-write.
    - **A backdated `--today` export in a checkout that has later history files** draws its series with those later days (Codex review 4). Only a manual replay hits this.
+   - **Final Codex review:**
+     - A high-scoring same-day trip still takes one of the three daily lodging-check slots. It costs no quota, and no trip scores near the line.
+     - A forecast `weathercode` or a hotel coordinate or rating sent as text or as a huge number can still stop a scan. Neither service has ever sent one.
    - **The disabled weekly prompt compares fares with the static ladders**, while routes with 14 days use rolling ones (Codex review 4). This matters only if the routine is turned back on.
 
 ## Codex reviews
 
 - Review 1: 5 findings, all confirmed and fixed (#9 to #13).
 - Review 2: 4 findings, all confirmed and fixed (#14 to #17).
+- Review 7 (final, whole branch against `origin/main`): 4 findings, none fixed, none blocking. They are listed under "Found, not changed", item 4. Each was checked against the code, and each is either a case no real input produces or a manual replay.
 - Review 6 (round 4): 3 findings, all fixed (`e3123f8`).
 - Review 5 (round 3's clean-up diff): no actionable finding.
 - Review 4 (round 2's diff): 4 findings. 2 were fixed (#37, #38); the other 2 fail the bar and are listed below.
