@@ -98,3 +98,21 @@ def test_wrong_typed_forecast_falls_back_to_normals(tmp_path, monkeypatch):
     monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
     assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals"
     assert not (tmp_path / "om-chicago.json").exists()
+
+
+def test_short_forecast_arrays_are_a_cache_miss(tmp_path, monkeypatch):
+    """Codex review: a time list with no matching highs passed the shape check, was trusted from the cache all day."""
+    good = load_fixture("om_chicago.json")
+    short = {"daily": {**good["daily"], "temperature_2m_max": []}}
+    (tmp_path / "om-chicago.json").write_text(json.dumps(short), encoding="utf-8")
+    first = date.fromisoformat(good["daily"]["time"][0])
+    calls = []
+
+    class R:
+        text = json.dumps(good)
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: calls.append(1) or R())
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast" and calls == [1]

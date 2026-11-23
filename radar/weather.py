@@ -109,9 +109,10 @@ def weather_line(w: Weather) -> str:
 def _daily(payload) -> dict:
     """The forecast's daily block, or ValueError when it lacks the lists weather_score reads (untrusted payload)."""
     daily = payload.get("daily") if isinstance(payload, dict) else None
-    if not isinstance(daily, dict) or not all(isinstance(daily.get(k), list)
-                                              for k in ("time", "temperature_2m_max", "precipitation_probability_max")):
-        raise ValueError("forecast without its daily lists")
+    keys = ("time", "temperature_2m_max", "precipitation_probability_max") + (("weathercode",) if isinstance(daily, dict) and "weathercode" in daily else ())
+    if (not isinstance(daily, dict) or not all(isinstance(daily.get(k), list) for k in keys)
+            or len({len(daily[k]) for k in keys}) != 1):
+        raise ValueError("forecast without its daily lists, or lists of different lengths")
     return daily
 
 
