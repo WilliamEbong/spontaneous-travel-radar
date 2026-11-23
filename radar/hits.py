@@ -182,8 +182,6 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
     A hit needs real lodging (pass 2 or a concrete Airbnb total for these exact dates), never the pass-1 estimate."""
     cpath = Path(root, "candidates", f"{cid}.json")
     cand = json.loads(cpath.read_text(encoding="utf-8"))
-    if cand["status"] == "dropped":   # D-67/D-69: no research on a drop; a re-run of a "done" one is still fine (D-73(5))
-        raise ValueError(f"{cid} was dropped ({cand['drop_reason']}): pass 3 runs on awaiting candidates only")
     research = json.loads(Path(research_path).read_text(encoding="utf-8"))
     _check_research(research, research_path)
     items = []
