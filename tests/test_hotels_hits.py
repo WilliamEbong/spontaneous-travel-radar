@@ -213,3 +213,17 @@ def test_non_object_serpapi_response_is_an_error(tmp_path, monkeypatch):
     monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(["unexpected"]))
     assert search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path) == (None, "error", 1)
     assert not list(tmp_path.glob("serpapi-*.json"))   # nothing cached, so the next scan can try again
+
+
+def test_serpapi_status_error_is_an_error_but_no_results_is_a_completed_check(tmp_path, monkeypatch):
+    """serpapi.com/api-status-and-error-codes: a failed search answers HTTP 200 with search_metadata.status "Error";
+    empty results are status "Success" with an "error" message. Only the failure is retried (D-66) and not cached."""
+    monkeypatch.setattr("radar.hotels.USAGE_PATH", tmp_path / "usage.json")
+    failed = {"search_metadata": {"status": "Error"}, "error": "Proxy timeout"}
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(failed))
+    assert search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path) == (None, "error", 1)
+    assert not list(tmp_path.glob("serpapi-*.json"))
+    empty = {"search_metadata": {"status": "Success"}, "error": "Google Hotels hasn't returned any results for this query."}
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(empty))
+    payload, skipped, n = search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path)
+    assert skipped is None and n == 1 and "error" in payload and len(list(tmp_path.glob("serpapi-*.json"))) == 1

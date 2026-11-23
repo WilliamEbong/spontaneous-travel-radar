@@ -149,6 +149,11 @@ def search(city: City, check_in: date, check_out: date, kind: str, s: Scoring, *
     if not isinstance(payload, dict):   # untrusted: anything but a JSON object is an error, and is not cached
         print(f"serpapi {kind} {city.key}: response is not an object", file=sys.stderr)
         return None, "error", 1
+    meta = payload.get("search_metadata")
+    status = meta.get("status") if isinstance(meta, dict) else None
+    if status not in (None, "Success"):   # "Error" = the search failed (HTTP 200 still); empty results are "Success"
+        print(f"serpapi {kind} {city.key}: status {str(status)[:40]}", file=sys.stderr)
+        return None, "error", 1
     payload.pop("search_parameters", None)
     payload.pop("search_metadata", None)
     path.parent.mkdir(parents=True, exist_ok=True)
