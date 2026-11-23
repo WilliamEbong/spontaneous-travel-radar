@@ -66,7 +66,7 @@ def test_live_hit_goes_to_hits_and_a_short_one_to_near_miss(tmp_path):
     live = replace(S, mode="live")
     cand = candidate(tmp_path, s=live)
     assert finalize(cand["id"], research(tmp_path), live, I, root=tmp_path).parent == tmp_path
-    strict = replace(S, trip_classes={**S.trip_classes, "dayoff": {**S.trip_classes["dayoff"], "hit_threshold": 110}})
+    strict = replace(S, trip_classes={**S.trip_classes, "dayoff": {**S.trip_classes["dayoff"], "hit_threshold": 85}})   # 78 + 10 can reach it, 78 + 0 cannot
     cand = candidate(tmp_path, scan=date(2026, 11, 11), s=strict)
     out = finalize(cand["id"], research(tmp_path, items=[]), strict, I, root=tmp_path)
     h = json.loads(out.read_text())
@@ -79,17 +79,20 @@ def test_events_cap_at_ten(tmp_path):
     assert json.loads(finalize(cand["id"], research(tmp_path, many), S, I, root=tmp_path).read_text())["pass3"]["events_pts"] == 10
 
 
+LOW = replace(S, trip_classes={**S.trip_classes, "dayoff": {**S.trip_classes["dayoff"], "hit_threshold": 50}})   # $1,500 lodging scores 43: awaiting, not a D-67 drop
+
+
 def test_concrete_airbnb_price_rescores_a_hint_does_not(tmp_path):
-    cand = candidate(tmp_path, lodging=1500)
+    cand = candidate(tmp_path, lodging=1500, s=LOW)
     dates = {"check_in": cand["dates"]["check_in"], "check_out": cand["dates"]["check_out"]}
     cheap = {"total_cad": 500, "link": "https://www.airbnb.ca/rooms/1", "title": "Loft", **dates}
     other = {**cheap, "check_out": cand["dates"]["check_in"]}                 # review finding 2: a cached total for other dates
-    h = json.loads(finalize(cand["id"], research(tmp_path, [], other), S, I, root=tmp_path).read_text())
+    h = json.loads(finalize(cand["id"], research(tmp_path, [], other), LOW, I, root=tmp_path).read_text())
     assert h["pass3"]["lodging_source"] == "hotel" and not h["pass3"]["airbnb_used"]
-    h = json.loads(finalize(cand["id"], research(tmp_path, [], cheap), S, I, root=tmp_path).read_text())
+    h = json.loads(finalize(cand["id"], research(tmp_path, [], cheap), LOW, I, root=tmp_path).read_text())
     assert h["pass3"]["lodging_source"] == "airbnb" and h["pass3"]["lodging_cad"] == 500 and h["pass3"]["score"] > cand["pass2"]["score"]
     assert "Airbnb beat it" in Path(tmp_path, "near-miss" if not h["is_hit"] else "dry-run", f"{cand['id']}.md").read_text(encoding="utf-8")
-    h = json.loads(finalize(cand["id"], research(tmp_path, [], {"hint": "lofts from about $300 a night"}), S, I, root=tmp_path).read_text())
+    h = json.loads(finalize(cand["id"], research(tmp_path, [], {"hint": "lofts from about $300 a night"}), LOW, I, root=tmp_path).read_text())
     assert h["pass3"]["lodging_source"] == "hotel" and h["pass3"]["score"] == cand["pass2"]["score"]
 
 
@@ -105,6 +108,15 @@ def test_no_real_lodging_is_never_a_hit(tmp_path):
     h = json.loads(finalize(cand["id"], research(tmp_path, airbnb=airbnb), S, I, root=tmp_path).read_text())
     assert h["is_hit"] and h["pass3"]["lodging_source"] == "airbnb"                 # a concrete Airbnb total is real lodging
     assert not (tmp_path / "near-miss" / f"{cand['id']}.json").exists()            # review finding 5: the old verdict is gone
+
+
+def test_a_dropped_candidate_is_not_finalized(tmp_path):
+    """D-67/D-69: pass 3 runs on awaiting candidates only; a drop gets no research and cannot become a hit."""
+    cand = candidate(tmp_path, lodging=1500)
+    assert cand["status"] == "dropped"
+    with pytest.raises(ValueError, match="dropped"):
+        finalize(cand["id"], research(tmp_path), S, I, root=tmp_path)
+    assert not list(tmp_path.glob("**/dry-run/*")) and not (tmp_path / "near-miss").exists()
 
 
 def test_weekly_summary_counts_each_candidates_lookups_once(tmp_path):
@@ -147,7 +159,7 @@ def test_finalize_cli(tmp_path, monkeypatch):
 def test_breakdown_follows_the_passes(tmp_path):
     """D-75: pass 2 adds the lodging row (no points of its own) and pass 3 the what's-on row; each pass's rows add up
     to that pass's score, and a cheaper Airbnb re-renders the price and lodging lines."""
-    cand = candidate(tmp_path, lodging=1500)
+    cand = candidate(tmp_path, lodging=1500, s=LOW)
     p1, p2 = cand["pass1"]["breakdown"], cand["pass2"]["breakdown"]
     assert [r["key"] for r in p1] == ["price", "time", "convenience", "city", "weather"]
     assert [r["key"] for r in p2] == [*(r["key"] for r in p1), "lodging"] and cand["breakdown"] == p2
@@ -157,7 +169,7 @@ def test_breakdown_follows_the_passes(tmp_path):
     assert p2[2]["input"] == "non-stop both ways (10) · airport 45 min from downtown · no car needed · lands 14:00 · central room"
     dates = {"check_in": cand["dates"]["check_in"], "check_out": cand["dates"]["check_out"]}
     airbnb = {"total_cad": 500, "link": "https://www.airbnb.ca/rooms/1", "title": "Loft", **dates}
-    h = json.loads(finalize(cand["id"], research(tmp_path, airbnb=airbnb), S, I, root=tmp_path).read_text())
+    h = json.loads(finalize(cand["id"], research(tmp_path, airbnb=airbnb), LOW, I, root=tmp_path).read_text())
     p3 = h["pass3"]["breakdown"]
     assert [r["key"] for r in p3][-2:] == ["lodging", "whats_on"] and h["breakdown"] == p3
     assert p3[-1]["points"] == h["pass3"]["events_pts"] == 5.2 and p3[-1]["max"] == 10
