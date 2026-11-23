@@ -9,6 +9,7 @@ from typing import NamedTuple
 import httpx
 
 from radar.config import City
+from radar.hotels import is_number
 
 URL = "https://api.open-meteo.com/v1/forecast"
 HORIZON_DAYS = 15   # forecast_days=16 covers today + 15
@@ -113,6 +114,9 @@ def _daily(payload) -> dict:
     if (not isinstance(daily, dict) or not all(isinstance(daily.get(k), list) for k in keys)
             or len({len(daily[k]) for k in keys}) != 1):
         raise ValueError("forecast without its daily lists, or lists of different lengths")
+    if not all(isinstance(d, str) for d in daily["time"]) or not all(
+            v is None or is_number(v) for k in keys[1:] for v in daily[k]):
+        raise ValueError("forecast value that is not a number or null")
     return daily
 
 
