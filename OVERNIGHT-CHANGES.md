@@ -182,6 +182,28 @@ Round 3 removed or merged code without changing what it does. An Opus auditor ra
 - **Query it from the repo root:** `graphify query "<question>"`, or open `graphify-out/graph.html`. `GRAPH_REPORT.md` lists the central nodes (`Scoring`, `score_trip`, `scan`, `finalize`, `write_candidate`) and the suggested questions.
 - **Because the graph is not committed, it does not travel with the merge.** After merging, run `/graphify . --update` in the main checkout. It reuses this run's semantic cache only if `graphify-out/` is copied over; otherwise it rebuilds.
 
+## Round 4, 2026-11-23 (merge readiness and independent acceptance)
+
+The branch now contains `origin/main` up to `b62304b` (merge `4deed82`, no conflicts; the 2026-11-23 scan, note and tuning night). 157 tests pass on the result. Two fresh-context Opus agents checked the branch, given only the README and ASK.md:
+- **A new maintainer, offline.** Setup and the 157 tests worked. The offline scan, `export` and the ASK.md one-liner also worked, and the score breakdown explained the deal.
+- **William on his phone (390 px, today's real data, served from localhost).** There were no console errors and no sideways scroll, and the breakdown adds up.
+
+What they hit, fixed:
+
+| Commit | What | Who notices |
+|---|---|---|
+| `97f7d74` | **A trip card shows the trip's own days**, leave to home. Today's best deal (San Francisco) is one night, home on Saturday, but read "Fri 29 – Sun 31 Jan". A trip leaving the evening before now starts on that evening. The judging copy also says a lodging check needs a passing score, not just a good fare. | William, on the headline deal every day. |
+| `4e2d5cd` | **The README separates the offline and live scans**, and says how to run the offline one and what to expect. ASK.md opens `latest.json` as UTF-8 (the text was garbled on Windows) and says how to tell from `latest.json` whether the last scan worked. | Whoever maintains it next, and an ASK session. |
+| `e3123f8` | Codex review 6: **the offline command names the project's interpreter by path.** Run from the repo root instead, it would overwrite the real data. Offline, pass 2 makes no SerpApi lookup; it does not skip pass 2. The page now says a passing trip "qualifies for" a lodging check (three a day), rather than promising every such trip one. | The same readers. |
+
+Seen but not changed (below the bar or a design choice):
+- **The fare tag and the "% of typical" beside it measure different things.** The tag rates the flight fare; the percentage rates the whole trip. So "above typical · 98% of typical" can appear.
+- **The header shows the scan's health only as an icon.**
+- **Health shows "Requests 623 of 900" next to "606 queries"**, because retries count as requests.
+- **The scoring table is a long sideways swipe on a phone.**
+- **PowerShell shows the scan's progress output in red.** The README now says so.
+- **The README assumes Windows paths.**
+
 ## Found, not changed (still open)
 
 1. **Dead code kept for its tests:** `previous_candidate(exclude_id=)` and `store.append_quotes` are used only by
@@ -206,6 +228,7 @@ Round 3 removed or merged code without changing what it does. An Opus auditor ra
 
 - Review 1: 5 findings, all confirmed and fixed (#9 to #13).
 - Review 2: 4 findings, all confirmed and fixed (#14 to #17).
+- Review 6 (round 4): 3 findings, all fixed (`e3123f8`).
 - Review 5 (round 3's clean-up diff): no actionable finding.
 - Review 4 (round 2's diff): 4 findings. 2 were fixed (#37, #38); the other 2 fail the bar and are listed below.
 - Review 3: 3 findings. 1 was fixed (#18) and 1 in round 2 (#21); the last is open item 2. By then the findings
