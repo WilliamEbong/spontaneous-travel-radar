@@ -1,4 +1,44 @@
-# Overnight changes, 2026-11-22 to 2026-11-23
+# Travel Radar maintenance, 2026-11-22 to 2026-11-23
+
+## What changed for you, in plain words
+
+Nothing about how deals are judged has changed: the deal model, the scores, the settings and your data are the same. What changed is that the radar breaks less, wastes less, and says what it means. None of this is live until the branch is merged (steps at the end).
+
+**What you will notice on the page**
+- **A trip card now shows the trip's own days.** Today's best deal, San Francisco, is one night: you fly out Friday and are home Saturday. The card used to say "Fri 29 – Sun 31 Jan" because it showed the whole long weekend. It now says "Fri 29 – Sat 30 Jan". A trip that leaves the evening before now starts on that evening.
+- **"How trips are judged" now gives the real rules.** It names the pass line the tuning loop has actually set, separately for weekend trips when the two differ. It also says a lodging check needs a passing score as well as a good fare.
+- **The scoring table shows a same-day trip as 0 nights**, not 1.
+
+**What stops going wrong**
+- **No second scan of the same day.** On a day when GitHub fires a backup start after 6 pm Calgary, the radar no longer scans that day a second time (about 700 Google requests). This was the workflow fix you approved here.
+- **A bad answer from Google Flights, SerpApi or the weather service is skipped.** Before, one malformed item could stop the whole morning scan, and every re-run that day failed the same way.
+- **History stays whole.** The day's history file and the caches are written in one step, so a crash leaves the old file intact. A one-city re-run keeps the other 19 cities' history for the day.
+- **No wasted SerpApi quota.** A same-day trip no longer spends hotel lookups, which could also have crashed the scan. A SerpApi search that failed is retried instead of being treated as done for a week.
+- **A `table.html` change goes live** without waiting for the next scan.
+
+**The self-tuning loop**
+- It has run every day since D-82. Its first two real nights (22 and 23 Nov) ran 16 trials each and kept nothing.
+- It cannot learn anything until about **30 Nov**, when it will have enough history.
+- After that, the one setting it can usefully move is the "good fare" line.
+- **The "send for a closer look" half cannot move at all while no trip scores above 56, because your lower limit on the pass line is 65.** That is your call; see "Loop health".
+- A routine-proposed trial is now held to the one-step rule.
+
+**Tidier underneath**
+- About 50 fewer lines of code.
+- The settings files load 10 times faster.
+- graphify is set up, so you can ask the code questions.
+
+**Still yours to decide** (each is explained under "Found, not changed" and "Loop health"):
+- The 65 floor on the pass line.
+- A Good Friday to Easter Monday four-day window.
+- The final score's rounding at the hit line.
+- Whether to delete `KICKOFF-PROMPT.md`, `config/airlines.yaml` and the unused `season_months` field.
+
+**To make it live:** see "How to merge" at the end. In short: push the branch, merge it into `main`, done. If anything looks wrong afterwards, one revert of the merge undoes it all.
+
+---
+
+## Record
 
 This was a maintenance pass on branch `claude/overnight-fixes-bdabcb`. It ran unattended from about 22:55 on
 2026-11-22 to about 00:30 on 2026-11-23, Calgary time. It started from `origin/main` at `f93e98e` (docs: daily
@@ -9,7 +49,7 @@ the look of the site. Round 2 made three edits William approved directly: two li
 and the field names in the disabled weekly prompt (#31). Each fix came from a test that failed before the
 change and passes after it. The branch has not been pushed or merged.
 
-**Tests:** 129 passed before, 150 after round 1, 156 after round 2 (after five reverts against the tangible-value bar) (`.venv\Scripts\python -m pytest -q`,
+**Tests:** 129 passed before, 150 after round 1, 156 after round 2 (after five reverts against the tangible-value bar), 157 after rounds 3 and 4 (`.venv\Scripts\python -m pytest -q`,
 offline). Every change is one commit; undo any one with `git revert <hash>`. Round 2 ran on 2026-11-23 from about
 13:30 Calgary time.
 
@@ -173,17 +213,21 @@ Round 3 removed or merged code without changing what it does. An Opus auditor ra
 
 ## How to merge
 
-The local `main` checkout is days behind, so do this from the worktree or from a fresh clone that is up to date
-with `origin/main`:
+The branch already contains `origin/main` up to `b62304b` (merged in `4deed82`; the suite passed on the result).
+Merge it as a merge commit, so the hashes in this record stay valid and one revert undoes all of it:
 
 ```powershell
 git fetch origin
 git switch claude/overnight-fixes-bdabcb
-git rebase origin/main          # the routines commit data to main every day; the branch touches no data files
-.venv\Scripts\python -m pytest -q
-git push origin claude/overnight-fixes-bdabcb   # then open a PR, or merge to main once it is green
+git merge origin/main            # picks up any data commits since; the branch touches no data files
+.venv\Scripts\python -m pytest -q   # 157 expected
+git push origin claude/overnight-fixes-bdabcb
+gh pr create --base main --head claude/overnight-fixes-bdabcb --title "Maintenance pass 2026-11-22/23" --body-file OVERNIGHT-CHANGES.md
+gh pr merge --merge              # a merge commit, not a squash
 ```
 
-The branch touches only `radar/`, `scripts/backtest.py`, `scripts/tune_loop.py`, `tests/`, `.gitignore`,
-`.github/workflows/scan.yml`, `routine/PROMPT-weekly.md`, `.graphifyignore`, `README.md`, `HANDOFF.md`, `site/app.js`, `docs/ASK.md`, `docs/TUNING-PLAN.md`, `docs/notes/decisions.md` (D-84, D-86), `SESSION-LOG.md` and this file, so it should not conflict with the daily data commits. After the merge, the next scan uses the new
-guards; no config or data change is needed.
+**Rollback:** `git revert -m 1 <the merge commit on main>` then push. Any single change: `git revert <its hash>`
+from the tables above.
+
+After merging, the next scan uses everything here; no config or data change is needed. graphify lives in the
+worktree's `graphify-out/`, which is not committed: run `/graphify . --update` in the main checkout to build it there.
