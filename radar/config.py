@@ -1,6 +1,8 @@
 """Load and validate the YAML config (config/*.yaml) into dataclasses."""
+import os
 from dataclasses import MISSING, dataclass, field, fields
 from datetime import date, datetime
+from pathlib import Path
 
 import yaml
 
@@ -23,7 +25,6 @@ class City:
     transfer_cost_cad_pp_each_way: int
     car_needed: bool
     neighbourhoods: tuple[str, ...]    # the first one is the lodging search's query text
-    season_months: tuple[int, ...]     # empty = year-round
     hotel_currency: str                # CAD | USD
     climate: dict[int, tuple[float, float, int]]  # month -> (mean_high_c, mean_low_c, rain_days)
     enabled: bool = True               # false = the scan skips the city (set from the dashboard's Settings panel)
@@ -59,9 +60,21 @@ class Scoring:
     ladder_exclude_ranges: tuple = ()  # ((first, last), ...): windows starting inside one never feed a ladder
 
 
+SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)   # libyaml when installed: the same objects, ~5x faster
+
+
+def write_atomic(path, data: str | bytes) -> None:
+    """Temp file + os.replace: a crash never leaves a partial file. str is written as UTF-8 text, bytes as is."""
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_name(p.name + ".tmp")
+    tmp.write_bytes(data) if isinstance(data, bytes) else tmp.write_text(data, encoding="utf-8")
+    os.replace(tmp, p)
+
+
 def _read(path):
     with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        return yaml.load(f, Loader=SAFE_LOADER)
 
 
 def load_cities(path="config/cities.yaml") -> list[City]:
@@ -72,7 +85,7 @@ def load_cities(path="config/cities.yaml") -> list[City]:
         if missing:
             raise ValueError(f"city {raw.get('key', '?')}: missing {', '.join(missing)}")
         v = {n: raw[n] for n in names}
-        for n in ("airports", "neighbourhoods", "season_months"):
+        for n in ("airports", "neighbourhoods"):
             v[n] = tuple(v[n])
         v["climate"] = {int(m): tuple(x) for m, x in v["climate"].items()}
         if len(v["climate"]) != 12:
@@ -201,7 +214,3 @@ def load_scoring(path=None) -> Scoring:
     if xs != sorted(xs) or len(xs) < 2:
         raise ValueError(f"{path}: price_curve.points must be at least two [share, points] pairs in rising share order")
     return s
-
-
-def load_airline_surcharges(path="config/airlines.yaml") -> dict[str, int]:
-    return dict(_read(path))

@@ -2,22 +2,16 @@
 import csv
 import io
 import json
-import os
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from radar.config import City, Reference
+from radar.config import City, Reference, write_atomic
 from radar.score import Scored, breakdown, breakdown_of
 
 
 def write_json(path, obj) -> None:
-    """Temp file + os.replace: a crash never leaves a partial file (Review Focus 3)."""
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    tmp = p.with_name(p.name + ".tmp")
-    tmp.write_text(json.dumps(obj, indent=1), encoding="utf-8")
-    os.replace(tmp, p)
+    write_atomic(path, json.dumps(obj, indent=1))   # a crash never leaves a partial file (Review Focus 3)
 
 
 def _row(x: Scored, city: City, passes: dict) -> dict:
@@ -59,11 +53,6 @@ def write_latest(winners: list[Scored], cities: list[City], refs: dict[str, Refe
         "hits": [], "candidates": candidates, "health": health,
         "classes": classes or {},   # per class: enabled, thresholds, and the day-off lead time, for the page's copy
     })
-
-
-def dayoff_rows(history: list[dict]) -> list[dict]:
-    """Rows logged before the trip classes existed have no trip_class and were all day-off trips."""
-    return [r for r in history if r.get("trip_class", "dayoff") == "dayoff"]
 
 
 def write_series(history: list[dict], path="data/series.json", days: int = 30) -> None:
@@ -132,7 +121,7 @@ def csv_row(r: dict) -> dict:
         lines = {b["key"]: b["input"] for b in breakdown(inputs, comps, total_cad=total, typical_cad=typical, share=share)}
     pts = {k: (comps or {}).get(k, r.get("price_pts") if k == "price" else None) for k in CRITERIA}
     yes = lambda v: "yes" if v else "no"  # noqa: E731
-    nights = r.get("nights") or (date.fromisoformat(r["back_arr"][:10]) - date.fromisoformat(r["out_dep"][:10])).days
+    nights = r["nights"] if r.get("nights") is not None else (date.fromisoformat(r["back_arr"][:10]) - date.fromisoformat(r["out_dep"][:10])).days
     return {
         "scan_date": r["scan_date"], "city": (inputs or {}).get("city_name") or r["city"].replace("_", " ").title(),
         "trip_class": r.get("trip_class", "dayoff"), "window_id": r["window_id"],
@@ -151,10 +140,7 @@ def write_csv(path, rows: list[dict]) -> None:
     w = csv.DictWriter(buf, CSV_COLUMNS, quoting=csv.QUOTE_NONNUMERIC, lineterminator="\n")
     w.writeheader()
     w.writerows({k: ("" if v is None else v) for k, v in csv_row(r).items()} for r in rows)
-    p = Path(path)
-    tmp = p.with_name(p.name + ".tmp")
-    tmp.write_bytes(buf.getvalue().encode("utf-8-sig"))   # bytes: text mode on Windows would turn the LF into CRLF
-    os.replace(tmp, p)
+    write_atomic(path, buf.getvalue().encode("utf-8-sig"))   # bytes: text mode on Windows would turn the LF into CRLF
 
 
 def write_history_csvs(root="data/history") -> list[dict]:

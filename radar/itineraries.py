@@ -34,10 +34,6 @@ def back_ok(back: Leg, w: Window) -> bool:
     return w.return_from <= back.arr.astimezone(CALGARY) <= w.return_to
 
 
-def in_window(out: Leg, back: Leg, w: Window) -> bool:
-    return out_ok(out, w) and back_ok(back, w)
-
-
 def hotel_dates(out: Leg, back: Leg) -> tuple[date, date]:
     """An arrival before 05:00 local needs the previous night's room."""
     check_in = out.arr.date() - timedelta(days=1 if out.arr.hour < 5 else 0)

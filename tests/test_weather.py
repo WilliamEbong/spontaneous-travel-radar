@@ -49,3 +49,89 @@ def test_weather_falls_back_to_normals():
     jan = weather_score(city("chicago"), [date(2027, 1, 16), date(2027, 1, 17)], today=date(2026, 11, 10))
     assert jan.months == ("January",) and weather_line(jan) == "January normals: highs −1 °C, rain on 11 of 30 days"
     assert weather_line(Weather(7.0, "given")) == "score 7.0 of 10 as given"
+
+
+def test_half_written_weather_cache_is_a_miss(tmp_path, monkeypatch):
+    """D-23: a corrupt cache file counts as a miss. Before the fix a truncated om-<city>.json was never refetched, so
+    every window of that city fell back to normals for the rest of the day."""
+    text = (FIXTURES / "om_chicago.json").read_text(encoding="utf-8")
+    first = date.fromisoformat(load_fixture("om_chicago.json")["daily"]["time"][0])
+    (tmp_path / "om-chicago.json").write_text(text[: len(text) // 2], encoding="utf-8")
+    calls = []
+
+    class R:
+        text = (FIXTURES / "om_chicago.json").read_text(encoding="utf-8")
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: calls.append(1) or R())
+    w = weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path)
+    assert w.source == "forecast" and calls == [1]
+    assert json.loads((tmp_path / "om-chicago.json").read_text(encoding="utf-8")) == load_fixture("om_chicago.json")
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_wrong_typed_forecast_falls_back_to_normals(tmp_path, monkeypatch):
+    """Open-Meteo's payload is untrusted and weather_score never raises: a null time list means normals, not a crash.
+    Codex review: such a file is a cache miss (refetched), and a response shaped like it is never cached."""
+    import httpx
+    bad = json.dumps({"daily": {"time": None}})
+    (tmp_path / "om-chicago.json").write_text(bad, encoding="utf-8")
+    first = date.fromisoformat(load_fixture("om_chicago.json")["daily"]["time"][0])
+    calls = []
+
+    def down(*a, **k):
+        calls.append(1)
+        raise httpx.ConnectError("down")
+
+    monkeypatch.setattr("radar.weather.httpx.get", down)
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals" and calls == [1]
+
+    class R:
+        text = bad
+
+        def raise_for_status(self):
+            pass
+
+    (tmp_path / "om-chicago.json").unlink()
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "normals"
+    assert not (tmp_path / "om-chicago.json").exists()
+
+
+def test_short_forecast_arrays_are_a_cache_miss(tmp_path, monkeypatch):
+    """Codex review: a time list with no matching highs passed the shape check, was trusted from the cache all day."""
+    good = load_fixture("om_chicago.json")
+    short = {"daily": {**good["daily"], "temperature_2m_max": []}}
+    (tmp_path / "om-chicago.json").write_text(json.dumps(short), encoding="utf-8")
+    first = date.fromisoformat(good["daily"]["time"][0])
+    calls = []
+
+    class R:
+        text = json.dumps(good)
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: calls.append(1) or R())
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast" and calls == [1]
+
+
+def test_cache_write_failure_keeps_the_fetched_forecast(tmp_path, monkeypatch):
+    """Codex review: weather_score never raises; a cache that cannot be replaced (a Windows file lock) must not end the scan."""
+    good = load_fixture("om_chicago.json")
+    first = date.fromisoformat(good["daily"]["time"][0])
+
+    class R:
+        text = json.dumps(good)
+
+        def raise_for_status(self):
+            pass
+
+    def locked(*a, **k):
+        raise PermissionError("file in use")
+
+    monkeypatch.setattr("radar.weather.httpx.get", lambda *a, **k: R())
+    monkeypatch.setattr("radar.config.os.replace", locked)
+    assert weather_score(city("chicago"), [first], today=first, cache_dir=tmp_path).source == "forecast"

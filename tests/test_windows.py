@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from radar.windows import CALGARY, generate_windows, scan_dates
+from radar.windows import CALGARY, generate_windows
 
 
 def test_extra_day_off_counts_like_a_stat():
@@ -64,7 +64,8 @@ def test_lookahead_bounds():
 
 def test_scan_dates_shared():
     ws = generate_windows(date(2026, 11, 10), set())
-    outs, backs = scan_dates([w for w in ws if w.days_off[0] in (date(2026, 11, 20), date(2026, 11, 21))])
+    two = [w for w in ws if w.days_off[0] in (date(2026, 11, 20), date(2026, 11, 21))]
+    outs, backs = {d for w in two for d in w.out_dates}, {d for w in two for d in w.back_dates}
     assert outs == {date(2026, 11, 19), date(2026, 11, 20), date(2026, 11, 21)}
     assert backs == {date(2026, 11, 21), date(2026, 11, 22), date(2026, 11, 23)}
 

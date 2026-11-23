@@ -1,9 +1,10 @@
+import json
 from datetime import date, timedelta
 
 import pytest
 
 from radar.config import load_cities, load_scoring
-from radar.flights import Budget, FetchError, LegQuery, build_queries, fetch_leg, parse_items, to_leg
+from radar.flights import Budget, FetchError, LegQuery, build_queries, fetch_leg, parse_items, slim, to_leg
 from radar.windows import class_windows, generate_windows, weekend_windows
 from tests.conftest import load_fixture
 
@@ -104,8 +105,8 @@ def test_disabled_city_gets_no_queries():
 
 def test_daily_volume_stays_at_or_under_688():
     """Acceptance check 10 (v2): the dry-run query build over six weeks of scan days plans 572 to 688 a day (D-54)."""
-    s = load_scoring()
-    ns = [len(build_queries(load_cities(), class_windows(d, s, set()), d, s.trip_classes))
+    s, cities = load_scoring(), load_cities()
+    ns = [len(build_queries(cities, class_windows(d, s, set()), d, s.trip_classes))
           for d in (date(2026, 11, 10) + timedelta(days=i) for i in range(42))]
     assert 500 <= min(ns) and max(ns) <= 688, (min(ns), max(ns))
 
@@ -145,3 +146,43 @@ def test_fresh_fetch_shows_basic_fares():
     price = lambda k, num: min(leg.price_cad_2pax for leg in legs[k] if num in leg.flight_numbers)  # noqa: E731
     assert price("exclude_basic_false", "WS 101") < price("exclude_basic_true", "WS 101")        # 343 vs 450
     assert min(leg.price_cad_2pax for leg in legs["exclude_basic_false"]) == 241
+
+
+def test_malformed_item_is_skipped_not_fatal(tmp_path):
+    # Google item with a price and a segment but no departure date: skip that item, keep the rest.
+    # Before the fix _dt raised TypeError outside fetch_leg's retry, which is not a FetchError, so the scan died
+    # and every re-run that day crashed on the same cached item.
+    good = slim(load_fixture("ff_yyc_yvr_oneway.json")[0])
+    bad = json.loads(json.dumps(good))
+    bad[0][2][0][20] = None
+    q = LegQuery("YYC", "YVR", date(2026, 12, 11), origin_tz="America/Edmonton", dest_tz="America/Vancouver")
+    (tmp_path / f"{q.key()}.json").write_text(json.dumps([bad, good]), encoding="utf-8")
+    legs = fetch_leg(q, Budget(0), cache_dir=tmp_path)
+    assert len(legs) == 1 and legs[0].price_cad_2pax > 0
+
+
+def test_unknown_time_zone_is_not_swallowed_as_a_bad_item():
+    # ZoneInfoNotFoundError is a KeyError: the malformed-item guard must not turn a misspelled city zone into
+    # "no fares" for every query of that city (Codex review of the overnight branch).
+    from zoneinfo import ZoneInfoNotFoundError
+    raw = load_fixture("ff_yyc_yvr_oneway.json")[0]
+    with pytest.raises(ZoneInfoNotFoundError):
+        to_leg(raw, "YYC", "YVR", "America/Edmonton", "America/Vancuver")
+
+
+def test_one_malformed_item_in_a_live_response_keeps_the_rest(tmp_path, monkeypatch):
+    # slim runs on every item before caching; one item with no segment list raised there, the attempt was retried
+    # and the whole query's fares were lost (Codex review of the overnight branch).
+    good = load_fixture("ff_yyc_yvr_oneway.json")[0]
+    monkeypatch.setattr("radar.flights._fetch_items", lambda q: [[[1, 2, None], [[None, 500]]], {"price": 1}, good])
+    q = LegQuery("YYC", "YVR", date(2026, 12, 11), origin_tz="America/Edmonton", dest_tz="America/Vancouver")
+    legs = fetch_leg(q, Budget(1), cache_dir=tmp_path, sleep_range=(0, 0), retry_wait=0)
+    assert len(legs) == 1 and legs[0].price_cad_2pax > 0
+
+
+@pytest.mark.parametrize("price", [True, 1e309, 10**400, -5, "499"])
+def test_unreadable_price_drops_the_item(price):
+    # Codex review: true read as a $1 fare, and 1e309 (json.loads gives inf) raised OverflowError outside the guard.
+    raw = json.loads(json.dumps(load_fixture("ff_yyc_yvr_oneway.json")[0]))
+    raw[1][0][1] = price
+    assert to_leg(raw, "YYC", "YVR", "America/Edmonton", "America/Vancouver") is None

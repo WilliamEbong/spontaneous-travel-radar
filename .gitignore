@@ -6,3 +6,5 @@ data/cache/
 *.egg-info/
 .claude/scheduled_tasks.lock
 .playwright-mcp/
+*.tmp
+graphify-out/

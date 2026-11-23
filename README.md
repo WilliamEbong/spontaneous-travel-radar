@@ -9,7 +9,7 @@ alerts) and tunes its own price judgment every night (D-82). See `docs/LEARNING-
 `docs/TUNING-PLAN.md`.
 
 - **Dashboard:** https://williamebong.github.io/spontaneous-travel-radar/
-- **Daily scan:** GitHub Actions `scan` workflow, 10:17 UTC (03:17 MST / 04:17 MDT), about 80 minutes
+- **Daily scan:** GitHub Actions `scan` workflow, 10:17 UTC (04:17 Calgary all year: Alberta stays on UTC-6 from November 2026, D-24), about 80 minutes
 - **Claude routines:** `radar-daily` (pass 3, the nightly self-tuning, the daily note, at most one change a day):
   https://claude.ai/code/routines/trig_01VGioWFbgQxwEh1iZRypsCw · hit reviewer (disabled until go-live):
   https://claude.ai/code/routines/trig_01TvveuLCRL8QwbwuF52yd9Y · see `routine/CAPABILITIES.md`
@@ -80,9 +80,29 @@ scoring table, `table.html`) and the weekly summary, and runs without API keys t
 uv venv --python 3.12 .venv
 uv pip install --python .venv -e ".[dev]"
 .venv\Scripts\python -m pytest -q
-.venv\Scripts\python -m radar.main scan --offline --today 2026-10-08
+```
+
+Offline scan (recorded fares, no network): it writes `data/` and `hits/` in the current folder, over the real scan
+files, so run it in an empty folder holding only copies of `radar/`, `config/` and `tests/fixtures/offline/`, and
+never commit its output (a committed offline run would publish a fake 2026-10-08 scan as the latest one). The
+fixtures cover three cities, so name them. From that folder, run the project's interpreter by its full path
+(the folder has no `.venv` of its own; `-m radar` uses the folder's copy of the code):
+
+```
+& "<project folder>\.venv\Scripts\python" -m radar.main scan --offline --today 2026-10-08 --cities vancouver,las_vegas,new_orleans
+```
+
+Expect about 35 of 220 queries answered and the rest skipped, and no candidates with these fixtures. Offline, pass 2
+makes no SerpApi lookup: a trip that does qualify is filed as a candidate with no lodging check. Progress goes to stderr, which Windows PowerShell shows in red; the exit code is what counts.
+
+Live scan (contacts Google Flights, and SerpApi when `.env` has a key; writes the real `data/`): only when you mean it.
+
+```
 .venv\Scripts\python -m radar.main scan --cities vancouver,las_vegas --budget 60
 ```
+
+`export` and `summarize` rebuild the series, CSVs, indexes and weekly summary from what is on disk, for today's
+Calgary date (they take no `--today`).
 
 Keys go in `.env` (see `.env.example`); `radar.main` reads it. In Actions they are repo secrets.
 

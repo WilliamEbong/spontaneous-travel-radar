@@ -183,7 +183,7 @@ def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: 
     while len(trials) < budget:
         if pending:
             move, source = pending.pop(0), "routine"
-            if not valid(with_values(cur, move)):
+            if move not in neighbours(cur, keys):   # D-82: one step from tonight's current config, like the menu
                 continue
         else:
             fresh = [m for m in neighbours(cur, keys) if key_of(with_values(cur, m)) not in seen]

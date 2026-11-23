@@ -5,7 +5,7 @@ fast-flights 3.1.0's parser reads only payload[3][0] ("other flights") and drops
 parse_items reads both lists from the raw page.
 """
 import json
-import os
+import math
 import random
 import sys
 import time
@@ -19,7 +19,7 @@ from fast_flights import FlightQuery, Passengers, create_query
 from fast_flights.fetcher import fetch_flights_html
 from selectolax.lexbor import LexborHTMLParser
 
-from radar.config import City
+from radar.config import City, write_atomic
 from radar.windows import Window
 
 HOME = "YYC"
@@ -102,13 +102,20 @@ def _dt(d, t, tz: str) -> datetime:
 
 
 def to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | None:
-    """One raw Google item -> Leg; None for 2+ stops or a missing price."""
+    """One raw Google item -> Leg; None for 2+ stops, a missing price or a malformed item."""
+    ZoneInfo(origin_tz), ZoneInfo(dest_tz)   # a bad zone is our config, not Google's payload: raise, outside the guard
     try:
-        price = raw[1][0][1]
-        segs = raw[0][2]
-    except (IndexError, TypeError):
+        return _to_leg(raw, origin, dest, origin_tz, dest_tz)
+    except (IndexError, KeyError, OverflowError, TypeError, ValueError):   # Google's payload is untrusted: one bad item must not end the scan
         return None
-    if not price or not segs or len(segs) > 2:
+
+
+def _to_leg(raw, origin: str, dest: str, origin_tz: str, dest_tz: str) -> Leg | None:
+    price = raw[1][0][1]
+    segs = raw[0][2]
+    if type(price) not in (int, float) or not math.isfinite(price) or price <= 0:   # not true, inf, NaN or text
+        return None
+    if not segs or len(segs) > 2:
         return None
     dep = _dt(segs[0][20], segs[0][8], origin_tz)
     arr = _dt(segs[-1][21], segs[-1][10], dest_tz)
@@ -201,14 +208,18 @@ def _fetch_items(q: LegQuery) -> list:
 SEG_KEEP = (3, 6, 8, 10, 11, 20, 21, 22)   # the segment fields to_leg reads
 
 
-def slim(it) -> list:
-    """Same positional shape as a raw item, unused fields dropped (~1.2 KB -> ~0.2 KB per itinerary)."""
+def slim(it) -> list | None:
+    """Same positional shape as a raw item, unused fields dropped (~1.2 KB -> ~0.2 KB per itinerary); None for an
+    item without a readable segment list, so one malformed item never costs the query's other fares."""
     try:
         price = it[1][0][1]
-    except (IndexError, TypeError):
+    except (IndexError, KeyError, TypeError):
         price = None
-    segs = [[s[i] if i in SEG_KEEP and i < len(s) else None for i in range(23)] for s in it[0][2]]
-    return [[it[0][0], it[0][1], segs], [[None, price]]]
+    try:
+        segs = [[s[i] if i in SEG_KEEP and i < len(s) else None for i in range(23)] for s in it[0][2]]
+        return [[it[0][0], it[0][1], segs], [[None, price]]]
+    except (IndexError, KeyError, TypeError):
+        return None
 
 
 def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=None, retry_wait=30.0) -> list[Leg]:
@@ -227,15 +238,12 @@ def fetch_leg(q: LegQuery, budget: Budget, *, sleep_range=(3.0, 7.0), cache_dir=
                 time.sleep(retry_wait)
             time.sleep(random.uniform(*sleep_range))
             try:
-                items = [slim(it) for it in _fetch_items(q)]
+                items = [x for it in _fetch_items(q) if (x := slim(it)) is not None]
                 break
             except Exception as e:  # noqa: BLE001 - any fetch/parse failure gets one retry
                 err = e
                 print(f"fetch {q.key()} attempt {attempt + 1}: {type(e).__name__}: {e}", file=sys.stderr)
         if items is None:
             raise FetchError(f"{type(err).__name__}: {err}")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_name(path.name + ".tmp")
-        tmp.write_text(json.dumps(items), encoding="utf-8")
-        os.replace(tmp, path)
+        write_atomic(path, json.dumps(items))
     return [leg for it in items if (leg := to_leg(it, q.origin, q.dest, q.origin_tz, q.dest_tz))]

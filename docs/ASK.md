@@ -7,7 +7,8 @@ Claude Code session in this folder and asks. This file tells that session how to
 ## Where the answers live (read, never re-scan)
 
 - `data/latest.json`: the current scan. `best_by_city` (one row per city, its top-scoring trip),
-  `windows` (every city-weekend winner), `candidates`, `hits`, `cities` (each city's ladder:
+  `windows` (every city-weekend winner), `candidates`, `hits` (always empty since v2: hits, near misses and
+  candidates are rows of `hits/index.json`, with `is_hit`, `stage`, `status`, `final_score`), `cities` (each city's ladder:
   typical / good / exceptional flight price), `health` (coverage, requests, errors, blocked, lookups).
   Every trip row carries `breakdown`: each criterion with its `input` (the evidence in words), `points`
   and `max`. Quote those lines; they are the explanation.
@@ -37,10 +38,14 @@ Claude Code session in this folder and asks. This file tells that session how to
 ## Useful commands
 
 ```
-.venv\Scripts\python -c "import json; d=json.load(open('data/latest.json')); print([ (r['city'], r['score'], r['window_id']) for r in d['best_by_city'] ])"
+.venv\Scripts\python -c "import json; d=json.load(open('data/latest.json', encoding='utf-8')); print([ (r['city'], r['score'], r['window_id']) for r in d['best_by_city'] ])"
 .venv\Scripts\python -m radar.main export     # rebuild series, CSVs and indexes from what is on disk; no network
 gh run list --workflow scan.yml --limit 3     # did the scan run, how long, did it fail
 ```
+
+Did the last scan work, without the network: `data/latest.json` `scan_date` and `health` (`coverage_pct` near 100,
+`fetch_error_count`, `blocked` false, `host` github-actions); the day's note in `data/digests/` says the same in
+words. `host: offline` means a test run on recorded fares, never a real scan.
 
 ## Storage plan (what is kept, where, how big)
 

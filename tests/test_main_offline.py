@@ -165,6 +165,8 @@ def test_csv_row_tolerates_rows_from_before_the_components():
     assert v1["total_for_two"] is None and v1["typical_trip"] is None and v1["weather_pts"] is None and v1["weather_input"] is None
     v2 = csv_row({**base, "total_cad": 2852, "share": 1.7098, "nights": 2, "pass": 1, "final_score": None})
     assert v2["typical_trip"] == 1668 and v2["price_input"] is None and v2["pass"] == 1 and v2["winner"] == "no"
+    day = csv_row({**base, "back_arr": "2026-12-26T01:50:00-06:00", "nights": 0})   # a day trip landing after midnight
+    assert day["dates"].endswith("(0 nights)")
 
 
 def test_rows_carry_a_score_breakdown(tmp_path, monkeypatch):
@@ -180,3 +182,46 @@ def test_rows_carry_a_score_breakdown(tmp_path, monkeypatch):
         assert abs(sum(b["points"] for b in bd) - r["score"]) <= 0.5
         assert all(b["label"] and b["input"] and b["max"] > 0 for b in bd)
         assert bd[4]["input"].endswith("of 30 days")     # offline: climate normals, never a forecast
+
+
+def test_city_subset_rerun_keeps_the_other_cities_history(tmp_path, monkeypatch):
+    # A manual `--cities` re-run (scan.yml's cities input) replaces only the cities it scanned; before the fix it
+    # deleted the day's file and wrote back one city, and the workflow committed the loss.
+    setup(tmp_path, monkeypatch)
+    day = tmp_path / "data/history/2026-10-08.jsonl"
+    assert radar_main.main(ARGS) == 0
+    before = [json.loads(line) for line in day.read_text().splitlines()]
+    assert {r["city"] for r in before} == {"vancouver", "las_vegas", "new_orleans"}
+    assert radar_main.main(["scan", "--offline", "--today", "2026-10-08", "--cities", "vancouver"]) == 0
+    after = [json.loads(line) for line in day.read_text().splitlines()]
+    assert len(after) == len(before)
+    assert {r["city"] for r in after} == {"vancouver", "las_vegas", "new_orleans"}
+    assert [r for r in after if r["city"] != "vancouver"] == [r for r in before if r["city"] != "vancouver"]
+
+
+def test_latest_says_how_far_out_day_off_trips_are_scanned(tmp_path, monkeypatch):
+    # site/app.js prints "scanned <min_weeks> to <max_weeks> weeks out"; max_weeks was never written, so the page always
+    # said 16 whatever lead time Settings chose (the scan covers min_weeks + span_weeks, radar/windows.py).
+    setup(tmp_path, monkeypatch)
+    assert radar_main.main(ARGS) == 0
+    dayoff = json.loads((tmp_path / "data/latest.json").read_text())["classes"]["dayoff"]
+    s = radar.config.load_scoring()
+    assert dayoff["min_weeks"] == s.dayoff_min_weeks
+    assert dayoff["max_weeks"] == s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]
+
+
+def test_export_reads_history_up_to_the_scan_date_not_the_runner_clock(tmp_path, monkeypatch):
+    """The scan's export used date.today() (UTC on the runner): a --today run more than 90 days back wrote an empty
+    series.json, and this suite would have started failing on 2027-01-07. It now uses the scan date."""
+    import datetime as dt
+
+    import radar.store
+
+    class Later(dt.date):
+        @classmethod
+        def today(cls):
+            return dt.date(2027, 6, 1)
+    setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(radar.store, "date", Later)
+    assert radar_main.main(ARGS) == 0
+    assert "vancouver" in json.loads((tmp_path / "data/series.json").read_text())

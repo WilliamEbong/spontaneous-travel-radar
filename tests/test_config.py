@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from radar.config import load_airline_surcharges, load_cities, load_days_off, load_holidays, load_references, load_scoring
+from radar.config import load_cities, load_days_off, load_holidays, load_references, load_scoring
 
 
 def test_enabled_defaults_true_and_must_be_a_bool(tmp_path):
@@ -84,7 +84,6 @@ def test_scoring_v2_shape():
     assert s.weights["price"] == s.price_curve["points"][0][1] == 45 and s.cap_cad is None and s.serpapi_monthly_cap == 200
     classes = {c: (v["enabled"], v["candidate_threshold"], v["hit_threshold"]) for c, v in s.trip_classes.items()}
     assert classes == {"dayoff": (True, 70, 80), "weekend": (True, 70, 80)}
-    assert load_airline_surcharges()["F8"] == 110
 
 
 def test_bad_class_setting_fails_loudly(tmp_path):

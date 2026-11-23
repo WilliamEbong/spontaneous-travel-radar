@@ -19,8 +19,8 @@ from radar.flights import HOME, Budget, FetchError, build_queries, fetch_leg
 from radar.hits import candidate_id, fare_dropped, finalize, pass2, previous_candidate, write_candidate
 from radar.hotels import check_lodging, used_this_month
 from radar.itineraries import assemble
-from radar.score import score_trip, worth_flying
-from radar.store import append_quotes, quote_row, read_history, rolling_flights, route_percentile
+from radar.score import best_per_window, score_trip, worth_flying
+from radar.store import quote_row, read_history, rolling_flights, route_percentile, write_day
 from radar.weather import weather_score
 from radar.windows import CALGARY, class_windows
 
@@ -118,7 +118,7 @@ def scan(args) -> int:
             wx = weather_score(c, list(w.days_off), today=today, cache_dir=None if args.offline else day_cache)
             sc = [score_trip(t, c, refs[c.key], s, weather_score=wx, history_pct=pct(c.key, cls, round(t.flights_cad_2pax / 2)))
                   for t in trips]
-            win = max(sc, key=lambda x: (x.score, -x.total_cad))
+            (win,) = best_per_window(sc)   # one city-window here; the tested tie rule (score, then the lower total)
             winners.append(win)
             weather[(c.key, w.id)] = wx
             cheapest = {}
@@ -152,8 +152,10 @@ def scan(args) -> int:
             for x, win in logged]
 
     today_file = Path("data/history") / f"{today}.jsonl"
-    today_file.unlink(missing_ok=True)   # a re-run on the same day replaces that day's rows
-    append_quotes(today, rows)
+    if args.cities and today_file.exists():   # a --cities re-run replaces only its own cities' rows for the day
+        scanned = {c.key for c in cities}
+        rows = [r for r in read_history(0, today=today) if r["scan_date"] == today.isoformat() and r["city"] not in scanned] + rows
+    write_day(today, rows)   # a re-run on the same day replaces that day's rows, in one atomic step
     health = {
         "queries_planned": len(queries), "queries_answered": len(legs), "queries_attempted": budget.used,
         "budget_max": budget.max_attempts, "coverage_pct": round(100 * len(legs) / len(queries), 1) if queries else 0.0,
@@ -168,9 +170,10 @@ def scan(args) -> int:
     classes = {k: {"enabled": v["enabled"], "candidate_threshold": v["candidate_threshold"], "hit_threshold": v["hit_threshold"]}
                for k, v in s.trip_classes.items()}
     classes["dayoff"]["min_weeks"] = s.dayoff_min_weeks
+    classes["dayoff"]["max_weeks"] = s.dayoff_min_weeks + s.trip_classes["dayoff"]["span_weeks"]   # the page's "N to M weeks out"
     write_latest(winners, cities, refs, health, scan_date=today, scan_ts=scan_ts, mode=s.mode,
                  candidates=cand_ids, passes=passes, classes=classes)
-    export()
+    export(today=today)
     write_weekly_summary(read_history(90, today=today), today=today)
     return 0
 
@@ -183,8 +186,8 @@ def finalize_cmd(args) -> int:
     return 0
 
 
-def export(_args=None) -> int:
-    write_series(read_history(90))
+def export(_args=None, today: date | None = None) -> int:
+    write_series(read_history(90, today=today or datetime.now(CALGARY).date()))   # the scan's date, not the runner's UTC one
     write_history_csvs()
     write_hits_index()
     write_digests_index()
@@ -192,7 +195,8 @@ def export(_args=None) -> int:
 
 
 def summarize(_args=None) -> int:
-    write_weekly_summary(read_history(90))
+    today = datetime.now(CALGARY).date()
+    write_weekly_summary(read_history(90, today=today), today=today)
     return 0
 
 

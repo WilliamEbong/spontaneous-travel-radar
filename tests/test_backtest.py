@@ -60,6 +60,15 @@ def test_replay_reproduces_the_logged_score(world):
     assert all(j["score"] == r["score"] for r, j in zip(rows, judge(rows, s, refs, cities).values()))
 
 
+def test_replay_starts_from_the_logged_score_not_the_rounded_components(world):
+    """D-41: a variant is score - price_pts + new price points. The logged components are rounded to 2 places, so
+    adding them up again can land a point off; a full point of drift in them must not move the replayed score."""
+    s, refs, cities = world
+    rows = synthetic_history(days=3)
+    drifted = [{**r, "components": {**r["components"], "time": r["components"]["time"] + 1.0}} for r in rows]
+    assert [j["score"] for j in judge(drifted, s, refs, cities).values()] == [r["score"] for r in rows]
+
+
 def test_holdout_never_reaches_the_train_score(world):
     s, refs, cities = world
     rows = synthetic_history()

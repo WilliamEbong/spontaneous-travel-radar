@@ -72,6 +72,20 @@ def test_proposals_held_to_the_surface(world):
     assert tl.parse_try("price_curve.share_0=0.55", s, keys(s)) == {"price_curve.share_0": 0.55}
 
 
+
+def test_a_proposal_runs_only_as_one_step_from_the_current_config(world):
+    """D-82: one step a trial. A --try two steps away, off the grid, moving two keys, or a second step on top of a
+    kept first one never runs; a real one-step proposal runs first."""
+    s, refs, cities = world
+    bad = [{"rolling_ladder.good": 35}, {"dayoff.candidate_threshold": 71},
+           {"dayoff.candidate_threshold": 72, "weekend.candidate_threshold": 72}]
+    res = tl.run_night(synthetic_history(), s, refs, cities, day=NIGHT, budget=3, keys=keys(s),
+                       proposals=[*bad, {"dayoff.candidate_threshold": 72}, {"dayoff.candidate_threshold": 68}])
+    moves = [t["move"] for t in res["trials"]]
+    assert all(m not in moves for m in bad) and moves[0] == {"dayoff.candidate_threshold": 72}
+    assert res["trials"][0]["kept"] and {"dayoff.candidate_threshold": 68} not in moves   # 72 kept: 68 is two steps
+
+
 def setup(tmp_path, monkeypatch, days: int):
     monkeypatch.chdir(tmp_path)
     shutil.copytree(ROOT / "config", tmp_path / "config")

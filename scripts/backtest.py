@@ -31,7 +31,7 @@ MIN_OBS = 3          # a weekend counts once it has been priced on at least 3 sc
 BETA = 0.5           # F0.5: a flag that proved right weighs twice a low that was caught
 HOLDOUT_DAYS = 7     # the most recent scan days: reported, never used to pick a trial
 LABELS_MIN = 30      # book/skip taps in data/labels.jsonl before they blend into the score
-NEEDED = ("winner", "share", "total_cad", "nights", "components", "inputs", "out_arr", "back_dep", "trip_class")
+NEEDED = ("winner", "share", "total_cad", "nights", "score", "price_pts", "components", "inputs", "out_arr", "back_dep", "trip_class")
 
 
 def load_rows(root="data/history", until: str | None = None) -> list[dict]:
@@ -75,7 +75,9 @@ def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict) -> dict[tuple,
                                    replace(refs[r["city"]], flights=lad), s)
         price = price_component(r["total_cad"], typical, s)[1]
         w0 = r["inputs"]["weights"]
-        score = round(price + sum(v * s.weights[c] / w0[c] for c, v in r["components"].items() if c != "price"))
+        # D-41: score - price_pts + new price, plus any weight change; summing the 2-place components drifts a point
+        score = round(r["score"] - r["price_pts"] + price
+                      + sum(v * (s.weights[c] / w0[c] - 1) for c, v in r["components"].items() if c != "price"))
         out[(r["city"], r["window_id"], r["scan_date"])] = {
             "price_pp": r["price_pp"], "good": r["price_pp"] <= lad["good"], "score": score,
             "candidate": is_candidate(r["price_pp"], score, lad["good"], s.trip_classes[r["trip_class"]]["candidate_threshold"]),

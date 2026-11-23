@@ -7,7 +7,7 @@ from typing import NamedTuple
 
 import httpx
 
-from radar.config import City
+from radar.config import City, write_atomic
 
 URL = "https://api.open-meteo.com/v1/forecast"
 HORIZON_DAYS = 15   # forecast_days=16 covers today + 15
@@ -105,6 +105,16 @@ def weather_line(w: Weather) -> str:
     return f"score {w.score:.1f} of 10 as given"
 
 
+def _daily(payload) -> dict:
+    """The forecast's daily block, or ValueError when it lacks the lists weather_score reads (untrusted payload)."""
+    daily = payload.get("daily") if isinstance(payload, dict) else None
+    keys = ("time", "temperature_2m_max", "precipitation_probability_max") + (("weathercode",) if isinstance(daily, dict) and "weathercode" in daily else ())
+    if (not isinstance(daily, dict) or not all(isinstance(daily.get(k), list) for k in keys)
+            or len({len(daily[k]) for k in keys}) != 1):
+        raise ValueError("forecast without its daily lists, or lists of different lengths")
+    return daily
+
+
 def weather_score(city: City, days: list[date], *, today: date | None = None, cache_dir=None) -> Weather:
     """(score, source, per-day highs and precipitation): a tuple, so `score, source = weather_score(...)[:2]` still reads."""
     today = today or date.today()
@@ -112,14 +122,18 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
         return normals_score(city, days)
     path = Path(cache_dir) / f"om-{city.key}.json"
     try:
-        if not path.exists():
+        try:
+            daily = _daily(json.loads(path.read_text(encoding="utf-8")))
+        except (OSError, ValueError):   # missing, half-written or wrongly shaped cache file = cache miss (D-23)
             r = httpx.get(URL, params={"latitude": city.lat, "longitude": city.lon, "forecast_days": 16,
                                        "daily": "temperature_2m_max,precipitation_probability_max,weathercode",
                                        "timezone": "auto"}, timeout=10)
             r.raise_for_status()
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(r.text, encoding="utf-8")
-        daily = json.loads(path.read_text(encoding="utf-8"))["daily"]
+            daily = _daily(json.loads(r.text))   # checked before it is cached, so a bad response is not kept all day
+            try:   # the cache is best effort: a write that fails still uses the forecast in hand
+                write_atomic(path, r.text)
+            except OSError as e:
+                print(f"open-meteo {city.key}: cache not written: {type(e).__name__}", file=sys.stderr)
         idx = {d: i for i, d in enumerate(daily["time"])}
         rows = [idx[d.isoformat()] for d in days]
         highs = [daily["temperature_2m_max"][i] for i in rows]
@@ -129,6 +143,6 @@ def weather_score(city: City, days: list[date], *, today: date | None = None, ca
         codes = tuple(daily["weathercode"][i] for i in rows) if "weathercode" in daily else ()   # older cache: no sky word
         return Weather(score_from_daily(highs, precip), "forecast", tuple(highs), tuple(precip), (),
                        tuple(d.isoformat() for d in days), codes)
-    except (httpx.HTTPError, ValueError, KeyError) as e:
+    except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError) as e:   # untrusted payload: never raises
         print(f"open-meteo {city.key}: {type(e).__name__}: {e}", file=sys.stderr)
         return normals_score(city, days)

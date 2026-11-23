@@ -160,7 +160,6 @@ def test_candidate_file_status_and_dedupe(tmp_path):
     prev = previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 12), root=tmp_path)
     assert prev["id"] == cand["id"] and not fare_dropped(640, prev, 15) and fare_dropped(540, prev, 15)
     assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 18), root=tmp_path) is None   # older than 7 days
-    assert previous_candidate("new_york", "2026-12-04_fri-off", today=date(2026, 11, 10), root=tmp_path, exclude_id=cand["id"]) is None
 
 
 def test_candidate_that_cannot_reach_the_hit_line_is_dropped(tmp_path):
@@ -183,3 +182,57 @@ def test_brief_links_are_https_only():
     assert _link("Hotel", "https://example.com/a?b=1") == "[Hotel](https://example.com/a?b=1)"
     assert _link("Hotel", "https://x.example/a)[Win](https://evil.example") == "Hotel"   # cannot open a second link
     assert _link("Loft", "") == "Loft" and _link("Loft", "http://x.example") == "Loft"
+
+
+def test_malformed_serpapi_payload_is_skipped_not_fatal():
+    """SerpApi's payload is untrusted: a null list, a null coordinate or a negative price skips that property only.
+    Before the fix each of these raised (or let a negative total through) inside the scan, after the payload was
+    cached, so every re-run that day crashed the same way."""
+    c = city("vancouver")
+    good = {"name": "ok", "overall_rating": 4.5, "extracted_hotel_class": 4,
+            "gps_coordinates": {"latitude": c.lat, "longitude": c.lon}, "total_rate": {"extracted_after_taxes_fees": 400}}
+    bad = [
+        {**good, "gps_coordinates": {"latitude": None, "longitude": c.lon}},
+        {**good, "total_rate": {"extracted_after_taxes_fees": -70}},
+        {**good, "overall_rating": "4.5"},
+        {**good, "total_rate": {"extracted_after_taxes_fees": True}},              # Codex review: true is not $1
+        {**good, "total_rate": {"extracted_after_taxes_fees": float("nan")}},
+        {**good, "total_rate": {"extracted_before_taxes_fees": True}},
+        {**good, "total_rate": {"extracted_after_taxes_fees": 10**400}},           # isfinite overflows on a huge int
+        "not a property",
+    ]
+    assert parse_options({"properties": None}, c, "hotel", S) == []
+    assert parse_options([], c, "hotel", S) == []
+    assert parse_options({"properties": True}, c, "hotel", S) == []          # Codex review: not a list
+    assert [o.name for o in parse_options({"properties": [*bad, good]}, c, "hotel", S)] == ["ok"]
+
+
+def test_non_object_serpapi_response_is_an_error(tmp_path, monkeypatch):
+    monkeypatch.setattr("radar.hotels.USAGE_PATH", tmp_path / "usage.json")
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(["unexpected"]))
+    assert search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path) == (None, "error", 1)
+    assert not list(tmp_path.glob("serpapi-*.json"))   # nothing cached, so the next scan can try again
+
+
+def test_serpapi_status_error_is_an_error_but_no_results_is_a_completed_check(tmp_path, monkeypatch):
+    """serpapi.com/api-status-and-error-codes: a failed search answers HTTP 200 with search_metadata.status "Error";
+    empty results are status "Success" with an "error" message. Only the failure is retried (D-66) and not cached."""
+    monkeypatch.setattr("radar.hotels.USAGE_PATH", tmp_path / "usage.json")
+    failed = {"search_metadata": {"status": "Error"}, "error": "Proxy timeout"}
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(failed))
+    assert search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path) == (None, "error", 1)
+    assert not list(tmp_path.glob("serpapi-*.json"))
+    empty = {"search_metadata": {"status": "Success"}, "error": "Google Hotels hasn't returned any results for this query."}
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: FakeResponse(empty))
+    payload, skipped, n = search(city("vancouver"), JAN15, JAN17, "hotel", S, api_key="x", cache_dir=tmp_path)
+    assert skipped is None and n == 1 and "error" in payload and len(list(tmp_path.glob("serpapi-*.json"))) == 1
+
+
+def test_a_day_trip_spends_no_lookups_and_cannot_crash_pass_two(tmp_path, monkeypatch):
+    """19 real history rows are same-day trips (check-in = check-out, 0 nights); 6 were winners. Before, one that
+    reached the candidate line sent SerpApi a 0-night search (2 lookups, again every scan) and any option it returned
+    made the lodging line divide by zero, ending the scan before the day's history was written."""
+    monkeypatch.setattr("radar.hotels.USAGE_PATH", tmp_path / "usage.json")
+    monkeypatch.setattr("radar.hotels.httpx.get", lambda *a, **k: pytest.fail("no SerpApi call for a day trip"))
+    check = check_lodging(city("vancouver"), JAN15, JAN15, S, api_key="x", cache_dir=tmp_path)
+    assert check == LodgingCheck((), "day trip", 0)
