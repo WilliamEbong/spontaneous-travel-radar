@@ -12,7 +12,7 @@ A session cron checks the repo after each of the next three mornings' runs, afte
 |---|---|---|
 | Does it run unattended? | pending | |
 | Is the tuning step running correctly? | pending | |
-| Can it improve anything yet? | Not before about 2026-11-30, and only the "good fare" line | Day 0, below |
+| Can it improve anything yet? | Yes, since D-89 (2026-11-24): the train score is real (27.90), every key can act, and a change is kept when the redraw rule says it is real | "Running now, 2026-11-24", below |
 | What can still stop it? | See "Continuity" | |
 
 ## Day 0: 2026-11-23, after the merge (PR 3, `b107ef9`)
@@ -25,11 +25,34 @@ A session cron checks the repo after each of the next three mornings' runs, afte
 | Tuning nights so far | ran and succeeded, kept nothing | 22 Nov and 23 Nov ran 16 trials each, 0 kept, train score 0.00. Holdout was 9.16 on the 23rd. |
 | Daily improvement step | ran, chose "action: none" every day | No `radar/iter-*` pull request has been opened since the start. |
 
-**What the loop can improve in the next two weeks:**
-- **Until about 2026-11-30, nothing.** A train day needs 14 earlier scan days for its rolling ladder, and the last 7 days are held out. That takes about 22 scan days, and there are 15. Until then every trial scores 0.00 and nothing can be kept. This is correct behaviour, not a fault.
-- **From about 30 Nov, only `rolling_ladder.good`.** An offline probe on the real history (in `OVERNIGHT-CHANGES.md`, Loop health) found that raising it from 25 to 30 is the one move that scores better. The 23 Nov holdout agrees: lowering it to 20 scored worse (9.16 to 7.36).
-- **The "send for a closer look" half stays at 0.** No trip has ever scored 65 (D-87 keeps that floor). The best was 56 until the rolling ladders took effect; on 23 Nov it was 61 (San Francisco). If scores keep rising, the floor comes into reach.
-- **The noise test needs more days.** Whether a 1-point win is above noise cannot be tested yet: a split-half replay still scores 0 on both halves. Re-test once the train score is non-zero, about 7 Dec. Until then the holdout veto is the guard.
+**What the loop could improve (as of day 0; superseded the next morning by D-89):** with the fixed 14-day replay ladder and 7-day holdout, every trial scored 0.00 until about 22 scan days, and the 65 floor sat above every trip (best 61). See "Running now, 2026-11-24" for what changed.
+
+## Running now, 2026-11-24
+
+Every row below is a real run on the live system, with its result and the commit it left.
+
+| Loop step | Real run | Result | Commit |
+|---|---|---|---|
+| Daily scan | `scan` workflow, dispatched by `radar-scan-kick` at 10:18 UTC on 2026-11-23 | Ran and succeeded: 99.8% of 606 searches answered, not blocked. The repeat start at 22:04 UTC was skipped by the Calgary-date guard (`latest scan_date=2026-11-23`). | `285d0ad` (data scan 2026-11-23) |
+| Daily routine `radar-daily` | Started from this session at 04:46 UTC with the new prompt and code (session `cse_01Gg7wybvq2ccKJ7eS677L6z`) | Ran and succeeded in about 2.5 minutes: sections A, P, B, T, C, D and E, then delivery | `28ed4b4` (daily note 2026-11-24) |
+| Nightly tuning step (section T) | Run by that routine: `python scripts/tune_loop.py --date 2026-11-24` | Ran and succeeded with D-89. It started from a real train score of 27.90 (holdout 33.97, a 3-day holdout and 6-day replay ladders) and ran 16 trials. 2 trials improved the score: the good-fare line 25 → 30 (+1.43) and the day-off threshold 70 → 60 (+1.15). The rule kept neither: they won in 89.5% and 68% of the redraws, and 90% is needed. The other 14 changed no decision. | `28ed4b4` (`docs/tuning-log.md`, `data/tuning/runs.jsonl`) |
+| Daily improvement step (section C) | Run by that routine | Ran and succeeded: the top backlog item, as its first ever pull request. A same-day candidate no longer takes a lodging-check slot. Its test fails without the fix; all 184 tests pass on the branch (re-run here). | [WilliamEbong/spontaneous-travel-radar#6](https://github.com/WilliamEbong/spontaneous-travel-radar/pull/6), branch `radar/iter-2026-11-24` |
+
+**Why nothing was kept tonight, and why that is the rule working**
+
+These runs are on main's 15 days of history, using the merged code:
+- **No-op:** a change that does nothing never wins a redraw (0%).
+- **Noise:** 500 sham changes, each flipping as many random judgements as the good-fare move does, passed the keep rule 3 times (0.6%).
+- **The good-fare move:** it lost the redraws only narrowly (89.5% against the 90% needed). Each new scan day adds evidence, so it may pass on a coming night. Whether it does is up to the rule.
+
+**What happens next, with nothing for anyone to do**
+- **Today's scan** at 10:17 UTC (04:17 Calgary) uses the same config, because nothing was kept.
+- **The scheduled `radar-daily` run** at 14:30 UTC (08:30 Calgary) is the second run on this date:
+  - Section A reviews pull request #6 and merges it if it is clean.
+  - Section C is skipped, because a second run on the same date skips it.
+  - Section T prints "already ran 2026-11-24".
+  - It replaces the note with one that covers today's scan.
+- **The watchdog** checks each scheduled scan run from today's 10:17 UTC slot on. It fails, and GitHub emails, if a day passes without a daily note or a tuning night.
 
 ## Continuity: what could stop a loop, and who would see it
 

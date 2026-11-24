@@ -17,7 +17,7 @@ learning run (`mode: dry-run`, nothing alerts, everything is logged and shown) h
 radar tunes its own price judgment every night, autoresearch-style (`docs/TUNING-PLAN.md`). Going live
 with email stays William's decision.
 
-## Pending: branch `claude/overnight-fixes-bdabcb` (not pushed, not merged)
+## Landed 2026-11-23/24: the maintenance pass (PR 3), the watchdog (PR 4) and the loop that works now (PR 5)
 
 A maintenance pass from 2026-11-22/23 (D-84, D-86, D-87), merged with `origin/main` up to `b62304b`, 157 tests (129 on
 `main`). In short: guards on everything Google Flights, SerpApi and Open-Meteo send; atomic writes of the day's
@@ -29,10 +29,13 @@ UTC), `table.html` in the Pages push filter, and the weekly prompt's field names
 config loads 10x faster; graphify scope in `.graphifyignore`, the graph itself local in `graphify-out/` (not
 committed; after the merge run `/graphify . --update` in the main checkout).
 
-Self-tuning (D-82): it has run every day; nights 2026-11-22 and -23 kept nothing (train score 0, holdout 9.16 on the
-23rd). It can start moving about 2026-11-30, and then only `rolling_ladder.good`: the candidate side stays at 0 while
-no trip scores 65 (the floor) and the best so far is 56. D-87 keeps the floor (rare alerts worth booking on sight);
-revisit when real trips score near it.
+Self-tuning (D-82, D-89): since 2026-11-24 it judges the history that exists. The replay windows start small and grow,
+and the train score is real (27.90 on 15 days, against 0.00 before). A change is kept only if it wins by 1 point and in 90%
+of 1,000 redraws of the days. The candidate thresholds' floor follows the data, between 60 and 65 (it supersedes
+D-87(1)); the hit line of 80 and dry-run mode are unchanged. The daily improvement step now does the top open item of
+`docs/BACKLOG.md` when the data shows nothing more urgent; its first pull request was #6 on 2026-11-24. A watchdog
+(D-88) fails the scheduled scan run when a day passes without a daily note or a tuning night. Live evidence is in
+`LOOP-HEALTH.md`.
 
 `OVERNIGHT-CHANGES.md` on the branch opens with a plain-words summary, then every commit with how to undo it, the
 loop's health, what is still William's call, and the exact merge and rollback steps.
