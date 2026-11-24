@@ -225,3 +225,32 @@ def test_export_reads_history_up_to_the_scan_date_not_the_runner_clock(tmp_path,
     monkeypatch.setattr(radar.store, "date", Later)
     assert radar_main.main(ARGS) == 0
     assert "vancouver" in json.loads((tmp_path / "data/series.json").read_text())
+
+
+def test_same_day_candidates_take_no_lodging_slot(tmp_path, monkeypatch):
+    """Backlog 1: a same-day candidate gets no lodging check and takes none of the three slots, so the
+    overnight candidates still get all three checks."""
+    from dataclasses import replace
+
+    from radar.hotels import LodgingCheck
+    setup(tmp_path, monkeypatch)
+    p = tmp_path / "config/scoring.yaml"
+    p.write_text(p.read_text(encoding="utf-8").replace("candidate_threshold: 70", "candidate_threshold: 0"), encoding="utf-8")
+    r = tmp_path / "config/references.yaml"
+    r.write_text(r.read_text(encoding="utf-8").replace("good: ", "good: 9").replace("typical: ", "typical: 99"), encoding="utf-8")
+    real = radar_main.best_per_window
+
+    def same_day_vancouver(sc):
+        (win,) = real(sc)
+        if win.trip.city_key == "vancouver":   # every Vancouver winner becomes a same-day trip
+            win = replace(win, trip=replace(win.trip, nights=0, check_out=win.trip.check_in))
+        return [win]
+
+    monkeypatch.setattr(radar_main, "best_per_window", same_day_vancouver)
+    calls = []
+    monkeypatch.setattr(radar_main, "check_lodging", lambda *a, **k: calls.append(a[0].key) or LodgingCheck((), "no-key", 0))
+    assert radar_main.main(ARGS) == 0
+    latest = json.loads((tmp_path / "data/latest.json").read_text())
+    assert any(w["city"] == "vancouver" and w["score"] >= 0 for w in latest["windows"])   # Vancouver candidates existed
+    assert len(calls) == 3 and "vancouver" not in calls and latest["health"]["pass2_checks"] == 3
+    assert all(w["pass"] == 1 for w in latest["windows"] if w["city"] == "vancouver")

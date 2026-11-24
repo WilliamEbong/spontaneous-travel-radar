@@ -131,6 +131,9 @@ def scan(args) -> int:
     passes, cand_ids, checks, lookups = {}, [], 0, 0
     for x in sorted((x for x in winners if x.candidate), key=lambda x: (-x.score, x.total_cad)):
         c, wid = by_key[x.trip.city_key], x.trip.window_id
+        if x.trip.nights < 1:   # a same-day trip has no night to book: it takes no lodging-check slot (backlog 1)
+            print(f"candidate {c.key} {wid}: same-day trip, no lodging check", file=sys.stderr)
+            continue
         cid = candidate_id(today, c.key, wid)
         prev = previous_candidate(c.key, wid, today=today)   # today's own file counts: a re-run spends nothing
         if prev and not fare_dropped(x.trip.flights_cad_2pax, prev, s.realert_drop_pct):
