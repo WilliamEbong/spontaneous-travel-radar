@@ -9,7 +9,7 @@ Each item lists:
 
 Every item stays inside section C's allowed files; none touches anything on C's "Never" list. Add a new item only when it is real, with its "who notices" line, and keep the list ranked.
 
-## 1. Same-day trips must not take a lodging-check slot (open)
+## 1. Same-day trips must not take a lodging-check slot (done (iter 2026-11-24))
 
 **Who notices:** the scan, on any day a same-day trip qualifies as a candidate. That is now possible, because D-89 lets the candidate thresholds come down towards 60, and the history has 19 same-day trips, 6 of which were their weekend's best. `check_lodging` skips such a trip ("day trip", no lookups). But `scan` has already counted it as one of the 3 lodging checks of the day (`MAX_CANDIDATES_PER_SCAN`). D-66 does not count a skipped check as done, so it takes a slot again on every scan and can crowd out a real overnight candidate.
 
