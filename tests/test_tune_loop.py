@@ -220,11 +220,14 @@ def test_a_threshold_the_loop_set_stays_its_own_when_the_floor_rises(world):
     s, _, _ = world
     at60 = tl.with_values(s, {"dayoff.candidate_threshold": 60})
     risen = {**tl.SURFACE, "dayoff.candidate_threshold": (64, 80, 2)}
-    assert "dayoff.candidate_threshold" in tl.movable(at60, False, surface=risen)
+    own = tl.own_values([{"kept": [{"move": {"dayoff.candidate_threshold": 62}}]},
+                         {"kept": [{"move": {"dayoff.candidate_threshold": 60}}]}])   # the loop's latest kept value: 60
+    assert "dayoff.candidate_threshold" in tl.movable(at60, False, surface=risen, own=own)
     moves = [m for m in tl.neighbours(at60, ["dayoff.candidate_threshold"], risen)]
     assert moves == [{"dayoff.candidate_threshold": 62}]
-    by_hand = tl.with_values(s, {"dayoff.candidate_threshold": 50})
-    assert "dayoff.candidate_threshold" not in tl.movable(by_hand, False, surface=risen)
+    assert "dayoff.candidate_threshold" not in tl.movable(at60, False, surface=risen)              # never kept: by hand
+    at62 = tl.with_values(s, {"dayoff.candidate_threshold": 62})                                    # edited after the loop
+    assert "dayoff.candidate_threshold" not in tl.movable(at62, False, surface=risen, own=own)
 
 
 def test_labels_count_in_the_redraws_once_they_blend_in():
@@ -272,3 +275,13 @@ def test_the_redraws_count_against_the_trial_budget(world, monkeypatch):
                        proposals=[{"dayoff.candidate_threshold": 72}])
     (t,) = res["trials"]
     assert t["why"].startswith("over the") and not t["kept"] and tl.get(res["config"], "dayoff.candidate_threshold") == 70
+
+
+def test_a_day_with_only_labels_is_redrawn_too():
+    zero = {"tp": 0, "fp": 0, "fn": 0}
+    lab_day = {"deal": zero, "ladder": zero, "judgements": 0, "labels": {"tp": 1, "fp": 0, "fn": 0, "labels": 1}}
+    bad_day = {"deal": zero, "ladder": zero, "judgements": 0, "labels": {"tp": 0, "fp": 1, "fn": 0, "labels": 1}}
+    cur = {"by_day": {"2026-11-10": bad_day, "2026-11-11": bad_day}}
+    new = {"by_day": {"2026-11-10": lab_day, "2026-11-11": lab_day}}
+    assert tl.confidence(cur, new, 7) == 1.0     # better on every labels-only day: every redraw
+    assert tl.confidence(new, cur, 7) == 0.0

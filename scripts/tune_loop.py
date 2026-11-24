@@ -127,11 +127,23 @@ def valid(s: Scoring) -> bool:
     return rl["exceptional"] < rl["good"] < rl["typical"] and xs == sorted(set(xs)) and sum(s.weights.values()) == 100
 
 
-def _hand_bounds(key: str, surface: dict | None) -> tuple:
-    """The bounds a value must sit in to be the loop's own: a candidate threshold the loop set while the data floor
-    was lower stays its own when the floor rises (it may only move back up), never one set by hand below 60."""
+def _hand_bounds(key: str, surface: dict | None, own: dict | None = None, value=None) -> tuple:
+    """The bounds a value must sit in to be the loop's own. A candidate threshold the loop itself kept while the data
+    floor was lower (own: the values of the loop's last kept move per key) stays its own when the floor rises and
+    may only move back up; any other value outside the bounds was set by hand and is left alone."""
     lo, hi, _ = bounds(key, surface)
-    return (min(lo, CANDIDATE_FLOOR), hi) if key.endswith("candidate_threshold") else (lo, hi)
+    if key.endswith("candidate_threshold") and own and own.get(key) == value and value >= CANDIDATE_FLOOR:
+        return (min(lo, value), hi)
+    return (lo, hi)
+
+
+def own_values(runs: list[dict]) -> dict:
+    """{key: value} of the loop's most recent kept move for each key, from data/tuning/runs.jsonl."""
+    out = {}
+    for rec in runs:
+        for k in rec.get("kept") or []:
+            out.update(k["move"])
+    return out
 
 
 def _allowed(cur_v, v, lo, hi) -> bool:
@@ -139,11 +151,16 @@ def _allowed(cur_v, v, lo, hi) -> bool:
     return lo <= v <= hi or (cur_v < lo and cur_v < v <= hi) or (cur_v > hi and lo <= v < cur_v)
 
 
-def movable(s: Scoring, labels_on: bool, frozen=(), surface: dict | None = None) -> list[str]:
+def movable(s: Scoring, labels_on: bool, frozen=(), surface: dict | None = None, own: dict | None = None) -> list[str]:
     """The keys the loop may move tonight: the surface, plus the weights once William's taps count; never a frozen
     key, nor one William set outside its bounds by hand (his choice stands)."""
     keys = list(SURFACE) + (list(WEIGHTS) if labels_on else [])
-    return [k for k in keys if k not in frozen and _hand_bounds(k, surface)[0] <= get(s, k) <= _hand_bounds(k, surface)[1]]
+    out = []
+    for k in keys:
+        lo, hi = _hand_bounds(k, surface, own, get(s, k))
+        if k not in frozen and lo <= get(s, k) <= hi:
+            out.append(k)
+    return out
 
 
 def neighbours(s: Scoring, keys: list[str], surface: dict | None = None) -> list[dict]:
@@ -229,7 +246,7 @@ def confidence(cur: dict, new: dict, seed: int) -> float:
     """The share of REDRAWS redraws of the judged train days (with replacement, as many as there are) on which the
     trial still beats the current config (D-89). With few days one lucky day decides many redraws, so a small sample
     must win more consistently; a change that does nothing never wins one."""
-    days = [d for d, p in cur["by_day"].items() if p["judgements"]]
+    days = [d for d, p in cur["by_day"].items() if p["judgements"] or p.get("labels", {}).get("labels")]
     if not days:
         return 0.0
     rng, wins = random.Random(seed), 0
@@ -538,7 +555,7 @@ def main(argv=None) -> int:
     s0, refs, cities = load_world()
     rows = load_rows()
     surface = surface_for(rows, s0)
-    keys = movable(s0, len(labels) >= LABELS_MIN, cfg["frozen"], surface)
+    keys = movable(s0, len(labels) >= LABELS_MIN, cfg["frozen"], surface, own_values(read_runs()))
     proposals = []
     for t in a.tries:
         try:

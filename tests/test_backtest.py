@@ -133,3 +133,38 @@ def test_every_trial_is_scored_on_the_same_trips(world):
     a, b = judge(rows, s, refs, cities, min_days=6), judge(rows, short, refs, cities, min_days=6)
     assert {k for k, v in a.items() if v["counted"]} == {k for k, v in b.items() if v["counted"]} != set()
     assert evaluate(rows, s, refs, cities)["calls"].keys() == evaluate(rows, short, refs, cities)["calls"].keys()
+
+
+def test_the_json_report_prints(world, monkeypatch, capsys):
+    """Codex: the tuning-only map of calls has tuple keys and must stay out of `backtest.py --json`."""
+    import json
+
+    import scripts.backtest as bt
+    monkeypatch.setattr(bt, "load_rows", lambda **k: synthetic_history())
+    monkeypatch.setattr(bt, "load_labels", lambda *a, **k: [])
+    assert bt.main(["--json"]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["train"]["judgements"] > 0 and "calls" not in out
+
+
+def test_calls_are_the_trips_the_score_reads(world):
+    """Codex: a winner whose weekend has under 3 train scan days is not scored, so its call cannot stop a flat walk."""
+    s, refs, cities = world
+    from tests.conftest import history_row
+    rows = synthetic_history() + [history_row(d, "2027-02-19_fri-off", 120, 73) for d in ("2026-11-20", "2026-11-21")]
+    ev = evaluate(rows, s, refs, cities)
+    train = set(ev["by_day"])
+    assert not any(k[1] == "2027-02-19_fri-off" for k in ev["calls"])   # priced on 2 days only: not scored
+    from scripts.backtest import MIN_OBS, lows
+    low = lows([r for r in rows if r["scan_date"] in train])
+    assert ev["calls"] and all(low[k[:2]][1] >= MIN_OBS and k[2] in train for k in ev["calls"])
+
+
+def test_holiday_only_days_do_not_make_a_route_eligible(world):
+    """Codex: a route whose earlier days are only fares of excluded holiday windows has a static ladder for every
+    trial, so it is not counted either."""
+    s, refs, cities = world
+    hol = "2026-12-18_fri-off"   # inside ladder_exclude_ranges
+    rows = [{**r, "window_id": hol} if r["scan_date"] < "2026-11-17" else r for r in synthetic_history()]
+    j = judge(rows, s, refs, cities, min_days=8)
+    assert not any(v["counted"] for k, v in j.items() if k[2] < "2026-11-25")

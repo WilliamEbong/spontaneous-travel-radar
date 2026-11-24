@@ -79,7 +79,8 @@ def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict, min_days: int 
     by_route: dict[str, list] = {}
     for r in rows:
         by_route.setdefault(r["city"], []).append(r)
-    route_days = {c: sorted({r["scan_date"] for r in rs}) for c, rs in by_route.items()}
+    held_out = lambda r: any(a <= date.fromisoformat(r["window_id"][:10]) <= b for a, b in s.ladder_exclude_ranges)  # noqa: E731
+    route_days = {c: sorted({r["scan_date"] for r in rs if not held_out(r)}) for c, rs in by_route.items()}   # as the ladder counts them
     ladders, out = {}, {}
     for r in rows:
         if not all(r.get(k) is not None for k in NEEDED) or not r["winner"] or r["city"] not in cities:
@@ -203,7 +204,9 @@ def evaluate(rows: list[dict], s: Scoring, refs: dict, cities: dict, *, holdout_
     if blend:
         for d, p in out["by_day"].items():
             p["labels"] = label_part(labels, judged, {d})
-    out["calls"] = {k: (j["good"], j["candidate"]) for k, j in judged.items() if j["counted"] and k[2] in train_days}
+    labelled = {(lab["city"], lab["window_id"]) for lab in labels} if blend else set()
+    out["calls"] = {k: (j["good"], j["candidate"]) for k, j in judged.items() if k[2] in train_days and (
+        (j["counted"] and train_low.get(k[:2], (0, 0))[1] >= MIN_OBS) or k[:2] in labelled)}   # what the score reads
     return out
 
 
@@ -244,6 +247,7 @@ def main(argv=None) -> int:
     s, refs, cities = load_world(a.config, a.references)
     ev = evaluate(load_rows(until=a.until), s, refs, cities, holdout_days=a.holdout_days, labels=load_labels())
     ev["seconds"] = round(time.time() - t0, 1)
+    ev.pop("calls")   # the tuning loop's own map (tuple keys), not part of the report
     print(json.dumps(ev, indent=1) if a.json else report(ev))
     return 0
 
