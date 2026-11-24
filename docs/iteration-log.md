@@ -17,3 +17,4 @@ The routine appends here; see `routine/PROMPT-daily.md`.
 - 2026-11-21 | pass 3: none | tune: collecting 13/14 | finding: scan on time and healthy (100%), best score 56 (San Francisco); no fares at good or better all week | action: none | none
 - 2026-11-22 | pass 3: none | tune: 16 tried, none kept | finding: scan on time and healthy (100%), best score 50 (San Francisco); no fares at good or better all week | action: none | none
 - 2026-11-23 | pass 3: none | tune: 16 tried, none kept | finding: scan on time and healthy (99.8%), best score 61 (San Francisco, highest yet); first fares at exceptional vs rolling guides | action: none | none
+- 2026-11-24 | pass 3: none | tune: 16 tried, none kept | finding: today's scan not yet run at routine time (latest 2026-11-23, healthy) | action: opened #6 | https://github.com/WilliamEbong/spontaneous-travel-radar/pull/6
