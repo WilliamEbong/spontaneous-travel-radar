@@ -10,8 +10,8 @@ A session cron checks the repo after each of the next three mornings' runs, afte
 
 | Question | Answer | Evidence |
 |---|---|---|
-| Does it run unattended? | pending | |
-| Is the tuning step running correctly? | pending | |
+| Does it run unattended? | Yes on every run so far. The morning checks of 24 to 26 Nov confirm it over three days. | Scan, routine, tuning step and improvement step each ran on their own ("Running now, 2026-11-24") |
+| Is the tuning step running correctly? | Yes. It scores the real history (27.90), and its keep rule rejects no-ops and noise. | 2026-11-24 night; the placebo of 500 sham changes passed 0.6% |
 | Can it improve anything yet? | Yes, since D-89 (2026-11-24): the train score is real (27.90), every key can act, and a change is kept when the redraw rule says it is real | "Running now, 2026-11-24", below |
 | What can still stop it? | See "Continuity" | |
 
@@ -20,8 +20,8 @@ A session cron checks the repo after each of the next three mornings' runs, afte
 | Step | Result | Evidence |
 |---|---|---|
 | Same-day guard on a real run | **ran and succeeded** | The 22:04 UTC scheduled backup run on `b107ef9` printed `latest scan_date=2026-11-23` and skipped the Scan step. The 23 Nov scan was not repeated. |
-| `radar-scan-kick`, 04:17 Calgary | not due yet | Enabled, `17 10 * * *` UTC; next run 2026-11-24 10:17 UTC. |
-| `radar-daily`, 08:30 Calgary | not due yet | Enabled, `30 14 * * *` UTC; next run 2026-11-24 14:30 UTC. Its stored prompt reads `routine/PROMPT-daily.md`, which has no end date (D-82). The name "month one" is a label only. |
+| `radar-scan-kick`, 04:17 Calgary | enabled; its 2026-11-23 run started that day's scan | Enabled, `17 10 * * *` UTC; next run 2026-11-24 10:17 UTC. |
+| `radar-daily`, 08:30 Calgary | enabled; ran 2026-11-24 with the new behaviour (below) | Enabled, `30 14 * * *` UTC; next run 2026-11-24 14:30 UTC. Its stored prompt reads `routine/PROMPT-daily.md`, which has no end date (D-82). The name "month one" is a label only. |
 | Tuning nights so far | ran and succeeded, kept nothing | 22 Nov and 23 Nov ran 16 trials each, 0 kept, train score 0.00. Holdout was 9.16 on the 23rd. |
 | Daily improvement step | ran, chose "action: none" every day | No `radar/iter-*` pull request has been opened since the start. |
 
