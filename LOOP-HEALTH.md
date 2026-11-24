@@ -10,9 +10,9 @@ A session cron checks the repo after each of the next three mornings' runs, afte
 
 | Question | Answer | Evidence |
 |---|---|---|
-| Does it run unattended? | Yes on every run so far. The morning checks of 24 to 26 Nov confirm it over three days. | Scan, routine, tuning step and improvement step each ran on their own ("Running now, 2026-11-24") |
+| Does it run unattended? | The scheduler has started every run so far: `radar-scan-kick` and `radar-daily` ran on their own schedule every day from 2026-11-13 to 2026-11-23 (`docs/iteration-log.md`). The new behaviour (D-89, the backlog) ran once, at 04:46 UTC on 2026-11-24, started from this session; its first scheduled run is at 14:30 UTC the same day. The morning checks of 24 to 26 Nov record whether the scheduler runs it on its own. | iteration log; "Running now, 2026-11-24" |
 | Is the tuning step running correctly? | Yes. It scores the real history (27.90), and its keep rule rejects no-ops and noise. | 2026-11-24 night; the placebo of 500 sham changes passed 0.6% |
-| Can it improve anything yet? | Yes, since D-89 (2026-11-24): the train score is real (27.90), every key can act, and a change is kept when the redraw rule says it is real | "Running now, 2026-11-24", below |
+| Can it improve anything yet? | Yes, since D-89 (2026-11-24). The train score is real (27.90), and every key is evaluated. On the 15 days available, three keys moved the score; the window and the other keys change no decision yet. A change is kept when the redraw rule says it is real. | "Running now, 2026-11-24", below |
 | What can still stop it? | See "Continuity" | |
 
 ## Day 0: 2026-11-23, after the merge (PR 3, `b107ef9`)
@@ -35,7 +35,7 @@ Every row below is a real run on the live system, with its result and the commit
 |---|---|---|---|
 | Daily scan | `scan` workflow, dispatched by `radar-scan-kick` at 10:18 UTC on 2026-11-23 | Ran and succeeded: 99.8% of 606 searches answered, not blocked. The repeat start at 22:04 UTC was skipped by the Calgary-date guard (`latest scan_date=2026-11-23`). | `285d0ad` (data scan 2026-11-23) |
 | Daily routine `radar-daily` | Started from this session at 04:46 UTC with the new prompt and code (session `cse_01Gg7wybvq2ccKJ7eS677L6z`) | Ran and succeeded in about 2.5 minutes: sections A, P, B, T, C, D and E, then delivery | `28ed4b4` (daily note 2026-11-24) |
-| Nightly tuning step (section T) | Run by that routine: `python scripts/tune_loop.py --date 2026-11-24` | Ran and succeeded with D-89. It started from a real train score of 27.90 (holdout 33.97, a 3-day holdout and 6-day replay ladders) and ran 16 trials. 2 trials improved the score: the good-fare line 25 → 30 (+1.43) and the day-off threshold 70 → 60 (+1.15). The rule kept neither: they won in 89.5% and 68% of the redraws, and 90% is needed. The other 14 changed no decision. | `28ed4b4` (`docs/tuning-log.md`, `data/tuning/runs.jsonl`) |
+| Nightly tuning step (section T) | Run by that routine: `python scripts/tune_loop.py --date 2026-11-24` | Ran and succeeded with D-89. It started from a real train score of 27.90 (holdout 33.97, a 3-day holdout and 6-day replay ladders) and ran 16 trials. Three improved the score: the good-fare line 25 → 30 (+1.43), the day-off threshold 70 → 60 (+1.15) and the middle price step 0.75 → 0.85 (+1.15). The rule kept none of them: they won in 89.5%, 68% and 68% of the redraws, and 90% is needed. One trial made the score worse (good-fare line 25 → 20, −2.70), and 12 changed no decision. | `28ed4b4` (`docs/tuning-log.md`, `data/tuning/runs.jsonl`) |
 | Daily improvement step (section C) | Run by that routine | Ran and succeeded: the top backlog item, as its first ever pull request. A same-day candidate no longer takes a lodging-check slot. Its test fails without the fix; all 184 tests pass on the branch (re-run here). | [WilliamEbong/spontaneous-travel-radar#6](https://github.com/WilliamEbong/spontaneous-travel-radar/pull/6), branch `radar/iter-2026-11-24` |
 
 **Why nothing was kept tonight, and why that is the rule working**
