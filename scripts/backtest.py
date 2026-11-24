@@ -29,7 +29,8 @@ from radar.store import read_history, rolling_flights  # noqa: E402
 NEAR = 1.10          # near the eventual low: at most 10% above the lowest winner fare that weekend ever showed
 MIN_OBS = 3          # a weekend counts once it has been priced on at least 3 scan days
 BETA = 0.5           # F0.5: a flag that proved right weighs twice a low that was caught
-HOLDOUT_DAYS = 7     # the most recent scan days: reported, never used to pick a trial
+HOLDOUT_DAYS = 7     # the most recent scan days, at full size: reported, never used to pick a trial
+REPLAY_MIN_DAYS = 5  # the fewest earlier scan days a replayed rolling ladder is built from while history is short (D-89)
 LABELS_MIN = 30      # book/skip taps in data/labels.jsonl before they blend into the score
 NEEDED = ("winner", "share", "total_cad", "nights", "score", "price_pts", "components", "inputs", "out_arr", "back_dep", "trip_class")
 
@@ -55,9 +56,22 @@ def settings(s: Scoring) -> dict:
             "candidate_threshold": {k: v["candidate_threshold"] for k, v in s.trip_classes.items()}}
 
 
-def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict) -> dict[tuple, dict]:
-    """Every v2 winner judged again under s: {(city, window_id, scan_date): {price_pp, good, score, candidate}}.
-    Only the price judgment moves: the other components are the logged ones, scaled when a weight changes."""
+def windows(n_days: int, s: Scoring) -> tuple[int, int]:
+    """(holdout days, replay ladder minimum days) for a history of n_days scan days (D-89). Both start small and
+    grow to the full design as days accumulate: the holdout is a quarter of the days, 3 to HOLDOUT_DAYS; a replayed
+    route ladder needs half the train days of earlier fares, REPLAY_MIN_DAYS to the live rolling_min_days. From
+    about 35 days both are at full size and the replay judges every day exactly as the scan did."""
+    holdout = min(HOLDOUT_DAYS, max(3, n_days // 4))
+    return holdout, min(s.rolling_min_days, max(REPLAY_MIN_DAYS, (n_days - holdout) // 2))
+
+
+def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict, min_days: int | None = None) -> dict[tuple, dict]:
+    """Every v2 winner judged again under s: {(city, window_id, scan_date): {price_pp, good, score, candidate,
+    counted}}. Only the price judgment moves: the other components are the logged ones, scaled when a weight
+    changes. min_days: the replay's rolling-ladder minimum (default s.rolling_min_days, which reproduces the scan).
+    counted: False for a judgement made on a route's static ladder in rolling mode; no trial moves those, and
+    every future day is judged on a rolling ladder, so the score leaves them out (D-89)."""
+    s_lad = s if min_days is None else replace(s, rolling_min_days=min_days)
     by_route: dict[str, list] = {}
     for r in rows:
         by_route.setdefault(r["city"], []).append(r)
@@ -67,7 +81,7 @@ def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict) -> dict[tuple,
             continue
         k = (r["city"], r["scan_date"])
         if k not in ladders:   # from rows before this scan day only (rolling_flights), so no judgement sees its future
-            ladders[k] = rolling_flights(by_route[r["city"]], date.fromisoformat(r["scan_date"]), s, refs[r["city"]].flights)
+            ladders[k] = rolling_flights(by_route[r["city"]], date.fromisoformat(r["scan_date"]), s_lad, refs[r["city"]].flights)
         lad = ladders[k]
         check_in = hotel_dates(SimpleNamespace(arr=datetime.fromisoformat(r["out_arr"])),
                                SimpleNamespace(dep=datetime.fromisoformat(r["back_dep"])))[0]
@@ -81,6 +95,7 @@ def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict) -> dict[tuple,
         out[(r["city"], r["window_id"], r["scan_date"])] = {
             "price_pp": r["price_pp"], "good": r["price_pp"] <= lad["good"], "score": score,
             "candidate": is_candidate(r["price_pp"], score, lad["good"], s.trip_classes[r["trip_class"]]["candidate_threshold"]),
+            "counted": s.ladder_mode != "rolling" or lad is not refs[r["city"]].flights,
         }
     return out
 
@@ -113,7 +128,7 @@ def part(judged: dict, low: dict, days: set) -> dict:
     n = near_n = good_n = cand_n = 0
     for (city, wid, day), j in judged.items():
         lo = low.get((city, wid))
-        if day not in days or lo is None or lo[1] < MIN_OBS:
+        if day not in days or lo is None or lo[1] < MIN_OBS or not j.get("counted", True):
             continue
         near = j["price_pp"] <= NEAR * lo[0]
         n, near_n, good_n, cand_n = n + 1, near_n + near, good_n + j["good"], cand_n + j["candidate"]
@@ -146,15 +161,20 @@ def label_part(labels: list[dict], judged: dict, days: set) -> dict:
     return {"score": round(100 * f_half(tp, fp, fn), 2), **_term(tp, fp, fn), "labels": n}
 
 
-def evaluate(rows: list[dict], s: Scoring, refs: dict, cities: dict, *, holdout_days: int = HOLDOUT_DAYS,
-             labels: list[dict] = ()) -> dict:
+def evaluate(rows: list[dict], s: Scoring, refs: dict, cities: dict, *, holdout_days: int | None = None,
+             min_days: int | None = None, labels: list[dict] = ()) -> dict:
     """The score of config s on the history, with its parts and inputs. Train = every scan day but the last
     holdout_days, scored as if the history ended there (its lows use train rows only); holdout = the last days,
-    scored against everything known. Trials are picked on train alone, so the holdout never reaches selection."""
+    scored against everything known. Trials are picked on train alone, so the holdout never reaches selection.
+    holdout_days and min_days (the replay's ladder minimum) default to windows() for the days available.
+    by_day: each train day's part on its own, for the keep rule's redraws of the days (scripts/tune_loop.py)."""
     days = sorted({r["scan_date"] for r in rows})
+    auto_h, auto_m = windows(len(days), s)
+    holdout_days = auto_h if holdout_days is None else holdout_days
+    min_days = auto_m if min_days is None else min_days
     cut = max(0, len(days) - holdout_days)
     train_days, hold_days = set(days[:cut]), set(days[cut:])
-    judged = judge(rows, s, refs, cities)
+    judged = judge(rows, s, refs, cities, min_days=min_days)
     blend = len(labels) >= LABELS_MIN
     out = {"mode": "blend" if blend else "hindsight"}
     for name, d, low in (("train", train_days, lows([r for r in rows if r["scan_date"] in train_days])),
@@ -168,8 +188,11 @@ def evaluate(rows: list[dict], s: Scoring, refs: dict, cities: dict, *, holdout_
     span = lambda d: [min(d), max(d)] if d else None  # noqa: E731
     out["data"] = {"scan_days": len(days), "span": span(days), "train_days": span(train_days),
                    "holdout_days": span(hold_days), "rows": len(rows), "labels": len(labels)}
-    out["rules"] = {"near": NEAR, "min_obs": MIN_OBS, "beta": BETA, "holdout_days": holdout_days}
+    out["rules"] = {"near": NEAR, "min_obs": MIN_OBS, "beta": BETA, "holdout_days": holdout_days,
+                    "replay_min_days": min_days}
     out["settings"] = settings(s)
+    train_low = lows([r for r in rows if r["scan_date"] in train_days])
+    out["by_day"] = {d: part(judged, train_low, {d}) for d in sorted(train_days)}
     return out
 
 
@@ -203,7 +226,7 @@ def main(argv=None) -> int:
     ap.add_argument("--config", help="default config/scoring.yaml")
     ap.add_argument("--references", default="config/references.yaml")
     ap.add_argument("--until", help="replay the history as it stood on this scan day (YYYY-MM-DD)")
-    ap.add_argument("--holdout-days", type=int, default=HOLDOUT_DAYS)
+    ap.add_argument("--holdout-days", type=int, help="default: scaled to the days available (windows)")
     ap.add_argument("--json", action="store_true", help="the full breakdown")
     a = ap.parse_args(argv)
     t0 = time.time()

@@ -65,16 +65,26 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
   F0.5 leans on precision: a flag that proved wrong costs four times a low that was missed, because William wants
   rare calls he can trust.
 - **Score** = 50 x (deal + ladder), 0 to 100, higher is better.
-- **Holdout**: the most recent 7 scan days. **Train**: every earlier scan day, scored as if the history ended on the
-  last train day (its lows and its 3-day rule use train rows only). Nothing from the holdout days, neither their
-  judgements nor their fares, reaches the train score. The holdout score judges the last 7 days against the lows of
-  all data. Trials are kept or reverted on the train score alone; the holdout can only veto a whole night (c).
+- **Holdout**: the most recent scan days: a quarter of the history, at least 3 and at most 7 (D-89). **Train**: every
+  earlier scan day, scored as if the history ended on the last train day (its lows and its 3-day rule use train rows
+  only). Nothing from the holdout days, neither their judgements nor their fares, reaches the train score. The holdout
+  score judges the last days against the lows of all data. Trials are kept or reverted on the train score alone; the
+  holdout can only veto a whole night (c).
+- **Replay ladders while history is short** (D-89): a replayed route ladder is built from as few as half the train
+  days of earlier fares (at least 5, at most the live `rolling_min_days`, 14), so the train days are judged the way
+  every future day will be, on a rolling ladder, instead of on the static ladders the scan used in its first two weeks.
+  In rolling mode a judgement made on a static ladder does not count: no trial moves it. From about 35 scan days both
+  windows are at full size and the replay judges every day exactly as the scan did.
 - **Guardrails** (train): the share of judged trips called good or better must stay within 5% to 30%, the share sent
   for a closer look within 0.5% to 3% (a few a week across all routes). A trial may not move either share further
   outside its band than the current config has it, so it cannot win by flagging everything or nothing; a config
   already outside a band may only move toward it.
-- **Noise margin**: a trial is kept only when it beats the current train score by 1.0 point or more. Smaller moves
-  are a few judgements flipping, which the data cannot tell from noise.
+- **Noise margin**: a trial is kept only when it beats the current train score by 1.0 point or more, and still beats
+  it in at least 90% of 1,000 redraws of the judged train days (drawn with replacement, as many as there are; D-89).
+  Smaller or less steady wins are a few judgements flipping, which the data cannot tell from noise. With few days one
+  lucky day decides many redraws, so a small sample must win more steadily; a change that does nothing wins none.
+  On the real history of 2026-11-23, 500 sham changes that flipped as many random judgements as a real move passed
+  this rule 3 times (0.6%).
 - **Labels** (once `data/labels.jsonl`, `{ts, city, window_id, price_pp, label: "book"|"skip"}` from a future
   dashboard tap, has 30 or more rows): a labels term, F0.5 on "book" with "sent for a closer look" as the
   prediction, each tap joined to the winner judged for its city and window on the latest scan day on or before the
@@ -92,10 +102,8 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
 ## (c) The nightly trial loop: `scripts/tune_loop.py`
 
 - **Start guard**: fewer than 14 scan days in `data/history/` (about 2026-11-22 if every scan lands): it prints
-  `collecting, N of 14 days` and writes nothing. Expect the score to sit at 0 for about a week after that: the rolling
-  ladders need 14 days before a judgement's own day and the train set excludes the last 7, so train judgements use the
-  static ladders, which call nothing good today, until about 22 scan days (around 2026-11-30). Every trial is
-  reverted until then; that is correct.
+  `collecting, N of 14 days` and writes nothing. From then on the train score is real (D-89: 27.90 on 2026-11-23 with
+  15 days), where the fixed 14-day ladder and 7-day holdout used to hold it at 0 until about 22 days.
 - **The editable surface** (`python scripts/tune_loop.py --surface` prints it with the current values), one key one
   step per trial, within William's bounds:
 
@@ -107,7 +115,7 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
   | `price_curve.share_0` (full points at or under) | 0.50 to 0.70 | 0.05 |
   | `price_curve.share_1` (the middle step) | 0.65 to 0.85 | 0.05 |
   | `price_curve.share_2` (no points) | 0.95 to 1.05 | 0.05 |
-  | `dayoff.candidate_threshold`, `weekend.candidate_threshold` | 65 to 80 | 2 |
+  | `dayoff.candidate_threshold`, `weekend.candidate_threshold` | 65 to 80, the lower bound following the data (D-89): 4 under the best score logged on the train days when that is below 69, never under 60 | 2 |
   | the five `weights`, only once 30 labels exist: two traded by 2 points, the total stays 100 | price 40-50, time 15-25, convenience 5-15, city 10-20, weather 5-15 | 2 |
 
   The price-curve shares stay in rising order and the ladder percentiles above `exceptional`. A key William set
@@ -118,8 +126,10 @@ One judgement = one logged winner (the trip the radar shows for a city-weekend o
   `config/references.yaml`, `cities.yaml`, `interests.yaml`, `days_off.yaml`, code.
 - **A night**: `trials_per_night` (16 in `config/tuning.yaml`, 10 to 20) trials. The routine's `--try` proposals go
   first (refused if off the surface, out of bounds or more than one step); then one-step moves from the current config, the least-tried
-  key first, rotated by the date. Each trial replays the whole history and is kept when the train score is at least
-  1.0 above the current one with both guardrails holding and the replay under 2 minutes; otherwise it is reverted.
+  key first, rotated by the date. A menu step that moves no train decision takes the next step the same way, up to the
+  key's bound (D-89), so a threshold can cross the empty band between 70 and where the trips are. Each trial replays
+  the whole history and is kept when the train score is at least 1.0 above the current one, in 90% of the redraws,
+  with both guardrails holding and the replay under 2 minutes; otherwise it is reverted.
   The next trial starts from the current config (hill climbing). A trial over 2 minutes ends the night.
 - **Holdout veto**: if the night's final holdout score is more than 1.0 below its starting one, the whole night is
   undone and nothing changes. This is the only use of the holdout.
