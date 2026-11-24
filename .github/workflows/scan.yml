@@ -96,4 +96,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # a run that waited in the scan queue checks today's records, not the ones it was queued with
       - run: python3 scripts/watchdog.py
