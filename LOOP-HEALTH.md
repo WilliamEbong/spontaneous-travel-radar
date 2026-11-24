@@ -71,3 +71,18 @@ These runs are on main's 15 days of history, using the merged code:
 ## Daily checks
 
 (Day 1, 2 and 3 entries are added below by the morning checks.)
+
+### Day 1: 2026-11-24, checked at 15:28 UTC (09:28 Calgary)
+
+| Step | Result | Evidence | Commit |
+|---|---|---|---|
+| Daily scan (04:17 Calgary) | Ran and succeeded, started once | `radar-scan-kick` fired at 10:18 UTC (session `cse_01Gg7wydz2ZnjxhfmHE1m7qG`) and pushed the scan request. `scan-kick` run 45373509452 dispatched one scan: run 45373519141, 10:18 to 11:23 UTC, every step green. 642 of 642 planned searches answered (100%), no page errors, not blocked. | `161f8e7` (request), `5ceca13` (data) |
+| Scheduled backup slots | Did not run yet | No scheduled slot had fired by 15:28 UTC. From 19 to 23 Nov GitHub fired one a day, between 17:36 and 22:04 UTC. When it fires, the Calgary-date guard skips the scan, because today's data is in (proven on day 0). | |
+| Watchdog | Did not run yet | It runs only on scheduled scan runs, so it waits for the same slot. On today's dispatched run and push run it shows "skipped", as designed. Run by hand on today's main, `scripts/watchdog.py` prints `loops ok`. Day 2 records its first scheduled run. | |
+| `radar-daily`, scheduled (08:30 Calgary) | Ran and succeeded, on its own | Session `cse_01Gg7wyeJ4XDNcCb6B9qU4y2`, fired by the schedule at 14:39 UTC (about 9 minutes after 14:30, as on every day before). **A:** a fresh reviewer found nothing wrong with PR #6; the run re-ran the suite on the branch (184 passed) and saw the new test fail against main's code, then squash-merged #6 at 14:41 UTC. **T:** printed `already ran 2026-11-24`. **C:** no new change, as a second run on the date. It replaced the note with one that covers today's scan and added a "second run" line to the iteration log. | `f443ab7` (#6), `8d9295c` (note) |
+| Tuning night 2026-11-24 | Ran and succeeded, once | One record in `data/tuning/runs.jsonl`; the second run did not add another. Train 27.90, holdout 33.97 (3-day holdout, replay ladders from 6 days). 16 trials, none kept: the good-fare line 25 → 30 gained 1.43 in 89.5% of 1,000 redraws; the day-off threshold 70 → 60 and the middle price step 0.75 → 0.85 each gained 1.15 in 68.0%; 90% is needed. 25 → 20 lost 2.70, and 12 changed no decision. | `28ed4b4` |
+| Tests on main after #6 | Ran and succeeded | 184 passed; 185 with today's fix. | |
+
+**Fixed today.** The routine's Delivery step ran `git add data/digests data/research hits ...`. `data/research` appears only with the first researched candidate and has never existed. Git stops on a missing path and adds nothing, so both runs today failed there with `fatal: pathspec 'data/research' did not match any files` and retried without it. The line dates from 2026-11-09, so every run hit it. The step now names only folders that exist and adds `data/research` once it appears. A new test, which failed before the change, checks that every path in that add exists. Commit `6b6cefa`.
+
+**Seen, nothing to do.** The 04:46 UTC session was still watching PR #6. When #6 merged at 14:41 UTC it woke for four seconds, reported the merge and changed nothing.

@@ -189,8 +189,8 @@ Append one line to `docs/iteration-log.md`:
 
 ## Delivery
 `python -c "from radar.export import write_digests_index; write_digests_index()"`, then
-`git add data/digests data/research hits docs/iteration-log.md docs/tuning-log.md` (and `git add data/tuning`
-once that folder exists) `&& git commit -m "docs: daily note <date>"`,
+`git add data/digests data/tuning hits docs/iteration-log.md docs/tuning-log.md` (and `git add data/research`
+once that folder exists: the first researched candidate makes it) `&& git commit -m "docs: daily note <date>"`,
 `git pull --rebase -q origin main && git push origin main`. If the push fails, email the note to
 williamebong@gmail.com (Gmail connector) with the subject `Travel Radar daily <date>`, adding the
 iteration log line at the end. Push or email, never both.

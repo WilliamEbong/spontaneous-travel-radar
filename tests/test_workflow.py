@@ -45,3 +45,12 @@ def test_scheduled_runs_watch_the_daily_routine():
     job = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["watchdog"]
     assert job["if"] == "github.event_name == 'schedule'" and "needs" not in job
     assert job["steps"][-1]["run"] == "python3 scripts/watchdog.py"
+
+
+def test_the_daily_note_commit_names_only_paths_that_exist():
+    """`git add` with a missing path adds nothing and fails, so the commit after it never runs. `data/research` (made
+    by the first researched candidate) did that on every radar-daily run, and the agent had to retry without it."""
+    root = WORKFLOW.parents[2]
+    delivery = (root / "routine" / "PROMPT-daily.md").read_text(encoding="utf-8").split("## Delivery", 1)[1]
+    paths = re.search(r"`git add ([^`]+)`", delivery).group(1).split()
+    assert [p for p in paths if not (root / p).exists()] == []
