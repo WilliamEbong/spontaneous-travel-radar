@@ -38,3 +38,10 @@ def test_every_page_redeploys_the_site_when_pushed():
     on = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))[True]   # YAML 1.1 reads the key `on` as true
     pages = {p.name for p in WORKFLOW.parents[2].glob("*.html")}
     assert pages and pages <= set(on["push"]["paths"])
+
+
+def test_scheduled_runs_watch_the_daily_routine():
+    """The routine has no alert of its own; the scheduled scan runs the watchdog in a job of its own (never blocking the scan)."""
+    job = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["watchdog"]
+    assert job["if"] == "github.event_name == 'schedule'" and "needs" not in job
+    assert job["steps"][-1]["run"] == "python3 scripts/watchdog.py"
