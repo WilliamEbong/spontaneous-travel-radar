@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import pytest
 
-from scripts.backtest import evaluate, judge, load_world
+from scripts.backtest import evaluate, judge, load_world, windows
 from tests.conftest import history_row, synthetic_history
 
 W1, W2 = "2027-01-15_fri-off", "2027-01-22_fri-off"
@@ -15,8 +15,15 @@ def world():
     return load_world()
 
 
-def test_metric_on_a_hand_built_fixture(world):
+@pytest.fixture(scope="module")
+def static_world(world):
+    """The metric on fixed ladders (Vancouver's static ladder, good 150): what these hand-built cases are about."""
     s, refs, cities = world
+    return replace(s, ladder_mode="static"), refs, cities
+
+
+def test_metric_on_a_hand_built_fixture(static_world):
+    s, refs, cities = static_world
     rows = [history_row("2026-11-09", W1, 100, 73), history_row("2026-11-10", W1, 105, 60),
             history_row("2026-11-11", W1, 130, 60),
             history_row("2026-11-10", W2, 100, 73), history_row("2026-11-11", W2, 100, 73)]   # 2 scan days: not judged
@@ -32,8 +39,8 @@ def test_metric_on_a_hand_built_fixture(world):
     assert ev["holdout"]["judgements"] == 0 and ev["mode"] == "hindsight"
 
 
-def test_labels_blend_in_at_thirty(world):
-    s, refs, cities = world
+def test_labels_blend_in_at_thirty(static_world):
+    s, refs, cities = static_world
     rows = [history_row("2026-11-09", W1, 100, 73), history_row("2026-11-10", W1, 105, 60),
             history_row("2026-11-11", W1, 130, 60)]
     base = evaluate(rows, s, refs, cities, holdout_days=0)["score"]
@@ -72,17 +79,92 @@ def test_replay_starts_from_the_logged_score_not_the_rounded_components(world):
 def test_holdout_never_reaches_the_train_score(world):
     s, refs, cities = world
     rows = synthetic_history()
-    last7 = sorted({r["scan_date"] for r in rows})[-7:]
-    moved = [{**r, "price_pp": 1} if r["scan_date"] in last7 else r for r in rows]   # every holdout fare changes
+    hold = sorted({r["scan_date"] for r in rows})[-windows(21, s)[0]:]
+    moved = [{**r, "price_pp": 1} if r["scan_date"] in hold else r for r in rows]   # every holdout fare changes
     a, b = evaluate(rows, s, refs, cities), evaluate(moved, s, refs, cities)
-    assert a["train"] == b["train"] and a["holdout"] != b["holdout"]
-    assert a["data"]["train_days"] == ["2026-11-09", "2026-11-22"] and a["data"]["holdout_days"] == ["2026-11-23", "2026-11-29"]
+    assert a["train"] == b["train"] and a["holdout"] != b["holdout"] and a["by_day"] == b["by_day"]
+    assert a["data"]["train_days"] == ["2026-11-09", "2026-11-24"] and a["data"]["holdout_days"] == ["2026-11-25", "2026-11-29"]
 
 
-def test_threshold_change_moves_the_deal_term(world):
-    s, refs, cities = world
+def test_threshold_change_moves_the_deal_term(static_world):
+    s, refs, cities = static_world
     rows = synthetic_history()
     up = replace(s, trip_classes={**s.trip_classes, "dayoff": {**s.trip_classes["dayoff"], "candidate_threshold": 72}})
     a, b = evaluate(rows, s, refs, cities), evaluate(rows, up, refs, cities)
     assert a["train"]["deal"]["precision"] < 0.6 and b["train"]["deal"]["precision"] == 1.0   # about half were wrong at 70
     assert b["score"] > a["score"] + 1
+
+
+def test_windows_start_small_and_grow_to_the_full_design(world):
+    """D-89: the holdout is a quarter of the days (3 to 7); a replayed route ladder needs half the train days of
+    earlier fares (5 to the live 14). From about 35 days the replay judges every day exactly as the scan did."""
+    s, _, _ = world
+    assert [windows(n, s) for n in (3, 15, 21, 28, 34, 35, 90)] == [(3, 5), (3, 6), (5, 8), (7, 10), (7, 13), (7, 14), (7, 14)]
+
+
+def test_only_rolling_judgements_count_in_rolling_mode(world):
+    """D-89: a judgement made on a route's static ladder (too few earlier days) is left out in rolling mode, where no
+    trial moves it and no future day looks like it; in static mode every judgement counts."""
+    s, refs, cities = world
+    rows = synthetic_history()                          # 21 days: replay ladders from 8 earlier days, so from 11-17
+    j = judge(rows, s, refs, cities, min_days=8)
+    assert {k[2] for k, v in j.items() if v["counted"]} == {f"2026-11-{d}" for d in range(17, 30)}
+    assert all(v["counted"] for v in judge(rows, replace(s, ladder_mode="static"), refs, cities).values())
+    ev = evaluate(rows, s, refs, cities)
+    assert ev["rules"]["replay_min_days"] == 8 and ev["train"]["judgements"] == 8 * 4 and ev["train"]["score"] > 0
+    assert sorted(ev["by_day"]) == [f"2026-11-{d:02d}" for d in range(9, 25)]
+    assert sum(p["judgements"] for p in ev["by_day"].values()) == ev["train"]["judgements"]
+
+
+def test_the_scan_rule_is_still_reproduced_at_full_size(world):
+    """With min_days at the live rolling_min_days the replay's ladders are the scan's: nothing changes for a
+    history of 35 days or more."""
+    s, refs, cities = world
+    rows = synthetic_history()
+    assert judge(rows, s, refs, cities) == judge(rows, s, refs, cities, min_days=s.rolling_min_days)
+
+
+def test_every_trial_is_scored_on_the_same_trips(world):
+    """Codex: a shorter rolling window must not win by dropping trips. Whether a judgement counts depends on the scan
+    days alone; with a gap in the history the shorter window falls back to the static ladder on the same trips."""
+    s, refs, cities = world
+    rows = [r for r in synthetic_history(days=21) if not "2026-11-12" <= r["scan_date"] <= "2026-11-18"]   # a week missing
+    short = replace(s, rolling_window_days=5)
+    a, b = judge(rows, s, refs, cities, min_days=6), judge(rows, short, refs, cities, min_days=6)
+    assert {k for k, v in a.items() if v["counted"]} == {k for k, v in b.items() if v["counted"]} != set()
+    assert evaluate(rows, s, refs, cities)["calls"].keys() == evaluate(rows, short, refs, cities)["calls"].keys()
+
+
+def test_the_json_report_prints(world, monkeypatch, capsys):
+    """Codex: the tuning-only map of calls has tuple keys and must stay out of `backtest.py --json`."""
+    import json
+
+    import scripts.backtest as bt
+    monkeypatch.setattr(bt, "load_rows", lambda **k: synthetic_history())
+    monkeypatch.setattr(bt, "load_labels", lambda *a, **k: [])
+    assert bt.main(["--json"]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert out["train"]["judgements"] > 0 and "calls" not in out
+
+
+def test_calls_are_the_trips_the_score_reads(world):
+    """Codex: a winner whose weekend has under 3 train scan days is not scored, so its call cannot stop a flat walk."""
+    s, refs, cities = world
+    from tests.conftest import history_row
+    rows = synthetic_history() + [history_row(d, "2027-02-19_fri-off", 120, 73) for d in ("2026-11-20", "2026-11-21")]
+    ev = evaluate(rows, s, refs, cities)
+    train = set(ev["by_day"])
+    assert not any(k[1] == "2027-02-19_fri-off" for k in ev["calls"])   # priced on 2 days only: not scored
+    from scripts.backtest import MIN_OBS, lows
+    low = lows([r for r in rows if r["scan_date"] in train])
+    assert ev["calls"] and all(low[k[:2]][1] >= MIN_OBS and k[2] in train for k in ev["calls"])
+
+
+def test_holiday_only_days_do_not_make_a_route_eligible(world):
+    """Codex: a route whose earlier days are only fares of excluded holiday windows has a static ladder for every
+    trial, so it is not counted either."""
+    s, refs, cities = world
+    hol = "2026-12-18_fri-off"   # inside ladder_exclude_ranges
+    rows = [{**r, "window_id": hol} if r["scan_date"] < "2026-11-17" else r for r in synthetic_history()]
+    j = judge(rows, s, refs, cities, min_days=8)
+    assert not any(v["counted"] for k, v in j.items() if k[2] < "2026-11-25")

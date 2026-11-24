@@ -6,7 +6,8 @@
 
 Autoresearch's shape: a fixed harness (scripts/backtest.py), one editable surface (SURFACE, inside
 config/scoring.yaml), one number (the hindsight price score on the train days), a fixed budget per trial (2 minutes),
-keep a change when the number beats the current one by MARGIN without crossing a guardrail, revert it otherwise.
+keep a change when the number beats the current one by MARGIN, still beats it in CONFIDENCE of REDRAWS redraws of the
+train days, and crosses no guardrail; revert it otherwise (D-89: the redraws make a small sample harder to win on).
 It works from whatever history is on disk and never assumes today's scan has landed. A night writes
 docs/tuning-log.md (every trial), data/tuning/runs.jsonl (every score with its inputs and parts) and, when something
 was kept, config/scoring.yaml; the routine commits them (auto_apply in config/tuning.yaml).
@@ -15,6 +16,7 @@ import argparse
 import hashlib
 import json
 import os
+import random
 import re
 import subprocess
 import sys
@@ -28,10 +30,17 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from radar.config import Scoring, load_scoring  # noqa: E402
-from scripts.backtest import LABELS_MIN, evaluate, load_labels, load_rows, load_world, settings  # noqa: E402
+from scripts.backtest import LABELS_MIN, evaluate, f_half, load_labels, load_rows, load_world, settings, windows  # noqa: E402
 
 MIN_DAYS = 14          # scan days in data/history before the loop starts (the ladders' own minimum)
 MARGIN = 1.0           # points on the 0-100 score a trial must win by; less is noise (a few judgements flipping)
+CONFIDENCE = 0.90      # ... and in this share of REDRAWS redraws of the train days (D-89): a few days rarely pass it
+REDRAWS = 1000
+# The candidate thresholds' lower bound follows the data (D-89): a few points under the best score logged on the train
+# days, so the loop can reach the trips that exist, never under CANDIDATE_FLOOR and never over William's 65. 60 is
+# the lowest pass-1 score from which a hit is still possible: 80 hit line - 10 what's-on points - 10 for real lodging
+# cheaper than the estimate (the most a cheaper room has been worth on any logged winner: 11.3 points; median 1.9).
+CANDIDATE_FLOOR, CANDIDATE_BELOW_BEST = 60, 4
 TRIAL_SECONDS = 120    # the fixed budget per trial
 GUARDRAILS = {"good_rate": (0.05, 0.30), "candidate_rate": (0.005, 0.03)}   # never flag everything, never nothing
 GUARD_WORDS = {"good_rate": "trips called good or better", "candidate_rate": "trips sent for a closer look"}
@@ -60,8 +69,25 @@ PLAIN = {
 CONFIG, TUNING, LOG, RUNS, HISTORY = "config/scoring.yaml", "config/tuning.yaml", "docs/tuning-log.md", "data/tuning/runs.jsonl", "data/history"
 
 
-def bounds(key: str) -> tuple:
-    return SURFACE.get(key) or WEIGHTS[key]
+def bounds(key: str, surface: dict | None = None) -> tuple:
+    return (surface or SURFACE).get(key) or WEIGHTS[key]
+
+
+def surface_for(rows: list[dict], s: Scoring) -> dict:
+    """Tonight's surface: SURFACE with each candidate threshold's lower bound following the data (D-89). The best
+    score comes from the train days only, so the holdout never shapes what may be tried."""
+    days = sorted({r["scan_date"] for r in rows})
+    train = set(days[:len(days) - windows(len(days), s)[0]])
+    best = max((r["score"] for r in rows if r.get("winner") and r["scan_date"] in train and r.get("score") is not None),
+               default=None)
+    surf = dict(SURFACE)
+    for key in ("dayoff.candidate_threshold", "weekend.candidate_threshold"):
+        lo, hi, step = SURFACE[key]
+        if best is not None and best - CANDIDATE_BELOW_BEST < lo:
+            lo = max(CANDIDATE_FLOOR, best - CANDIDATE_BELOW_BEST)
+            lo += (hi - lo) % step   # on the grid the menu walks from the top bound
+        surf[key] = (lo, hi, step)
+    return surf
 
 
 def get(s: Scoring, key: str):
@@ -101,19 +127,49 @@ def valid(s: Scoring) -> bool:
     return rl["exceptional"] < rl["good"] < rl["typical"] and xs == sorted(set(xs)) and sum(s.weights.values()) == 100
 
 
-def movable(s: Scoring, labels_on: bool, frozen=()) -> list[str]:
+def _hand_bounds(key: str, surface: dict | None, own: dict | None = None, value=None) -> tuple:
+    """The bounds a value must sit in to be the loop's own. A candidate threshold the loop itself kept while the data
+    floor was lower (own: the values of the loop's last kept move per key) stays its own when the floor rises and
+    may only move back up; any other value outside the bounds was set by hand and is left alone."""
+    lo, hi, _ = bounds(key, surface)
+    if key.endswith("candidate_threshold") and own and own.get(key) == value and value >= CANDIDATE_FLOOR:
+        return (min(lo, value), hi)
+    return (lo, hi)
+
+
+def own_values(runs: list[dict]) -> dict:
+    """{key: value} of the loop's most recent kept move for each key, from data/tuning/runs.jsonl."""
+    out = {}
+    for rec in runs:
+        for k in rec.get("kept") or []:
+            out.update(k["move"])
+    return out
+
+
+def _allowed(cur_v, v, lo, hi) -> bool:
+    """Inside the bounds, or a step from outside them towards them."""
+    return lo <= v <= hi or (cur_v < lo and cur_v < v <= hi) or (cur_v > hi and lo <= v < cur_v)
+
+
+def movable(s: Scoring, labels_on: bool, frozen=(), surface: dict | None = None, own: dict | None = None) -> list[str]:
     """The keys the loop may move tonight: the surface, plus the weights once William's taps count; never a frozen
     key, nor one William set outside its bounds by hand (his choice stands)."""
     keys = list(SURFACE) + (list(WEIGHTS) if labels_on else [])
-    return [k for k in keys if k not in frozen and bounds(k)[0] <= get(s, k) <= bounds(k)[1]]
+    out = []
+    for k in keys:
+        lo, hi = _hand_bounds(k, surface, own, get(s, k))
+        if k not in frozen and lo <= get(s, k) <= hi:
+            out.append(k)
+    return out
 
 
-def neighbours(s: Scoring, keys: list[str]) -> list[dict]:
+def neighbours(s: Scoring, keys: list[str], surface: dict | None = None) -> list[dict]:
     """Every one-step move from s: one key up or down, or two weights traded (the total stays 100)."""
     moves = []
     for key in (k for k in keys if k in SURFACE):
-        lo, hi, step = SURFACE[key]
-        moves += [{key: v} for v in (round(get(s, key) - step, 2), round(get(s, key) + step, 2)) if lo <= v <= hi]
+        lo, hi, step = bounds(key, surface)
+        moves += [{key: v} for v in (round(get(s, key) - step, 2), round(get(s, key) + step, 2))
+                  if _allowed(get(s, key), v, lo, hi)]
     wk = [k for k in keys if k in WEIGHTS]
     for a in wk:
         for b in wk:
@@ -123,7 +179,7 @@ def neighbours(s: Scoring, keys: list[str]) -> list[dict]:
     return [m for m in moves if valid(with_values(s, m))]
 
 
-def parse_try(text: str, s: Scoring, keys: list[str]) -> dict:
+def parse_try(text: str, s: Scoring, keys: list[str], surface: dict | None = None) -> dict:
     """The routine's own proposal, "key=value[,key=value]", held to the same surface and bounds as the menu."""
     move = {}
     for part in text.split(","):
@@ -131,10 +187,10 @@ def parse_try(text: str, s: Scoring, keys: list[str]) -> dict:
         key = key.strip()
         if key not in keys:
             raise ValueError(f"{key!r} is not on tonight's surface ({', '.join(keys)})")
-        lo, hi, step = bounds(key)
+        lo, hi, step = bounds(key, surface)
         v = float(raw)
         v = int(v) if isinstance(step, int) and v == int(v) else round(v, 2)
-        if not lo <= v <= hi or (isinstance(step, int) and not isinstance(v, int)):
+        if not _allowed(get(s, key), v, lo, hi) or (isinstance(step, int) and not isinstance(v, int)):
             raise ValueError(f"{key}={raw.strip()} is outside {lo} to {hi}")
         move[key] = v
     if not valid(with_values(s, move)):
@@ -173,20 +229,56 @@ def _trial_view(ev: dict) -> dict:
     return {"score": ev["score"], "train": ev["train"], "holdout": ev["holdout"]}
 
 
+def _score_of(by_day: dict, days: list) -> float:
+    """The train score of a redraw of the days: the hindsight score, blended half and half with the labels' once
+    they count, as evaluate() does."""
+    c = {"deal": [0, 0, 0], "ladder": [0, 0, 0], "labels": [0, 0, 0]}
+    for d in days:
+        for term, v in c.items():
+            if term in by_day[d]:
+                for i, k in enumerate(("tp", "fp", "fn")):
+                    v[i] += by_day[d][term][k]
+    hindsight = 50 * (f_half(*c["deal"]) + f_half(*c["ladder"]))
+    return (hindsight + 100 * f_half(*c["labels"])) / 2 if any("labels" in by_day[d] for d in days) else hindsight
+
+
+def confidence(cur: dict, new: dict, seed: int) -> float:
+    """The share of REDRAWS redraws of the judged train days (with replacement, as many as there are) on which the
+    trial still beats the current config (D-89). With few days one lucky day decides many redraws, so a small sample
+    must win more consistently; a change that does nothing never wins one."""
+    days = [d for d, p in cur["by_day"].items() if p["judgements"] or p.get("labels", {}).get("labels")]
+    if not days:
+        return 0.0
+    rng, wins = random.Random(seed), 0
+    for _ in range(REDRAWS):
+        pick = [rng.choice(days) for _ in days]
+        wins += _score_of(new["by_day"], pick) > _score_of(cur["by_day"], pick) + 1e-9
+    return wins / REDRAWS
+
+
+def _same_calls(a: dict, b: dict) -> bool:
+    """No train decision moved: every counted train trip has the same good-or-better call and closer look."""
+    if "calls" in a and "calls" in b:
+        return a["calls"] == b["calls"]
+    return all(a["train"][t][k] == b["train"][t][k] for t in ("deal", "ladder") for k in ("tp", "fp", "fn"))
+
+
 def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: list[str], labels=(),
-              proposals=()) -> dict:
+              proposals=(), surface: dict | None = None) -> dict:
     """One night: proposals first, then one-step moves from the current config in a date-rotated order. Each trial
-    is judged on the train days only; the holdout can only veto the whole night at the end."""
+    is judged on the train days only; the holdout can only veto the whole night at the end. A menu step that moves
+    no train decision takes the next step the same way, up to its bound (D-89): values in between change nothing, so
+    the trial is the smallest move that does something."""
     ev = lambda s: evaluate(rows, s, refs, cities, labels=labels)  # noqa: E731
     cur, cur_ev = s0, ev(s0)
     start, seen, trials, pending, tries = cur_ev, {key_of(s0)}, [], list(proposals), {}
     while len(trials) < budget:
         if pending:
             move, source = pending.pop(0), "routine"
-            if move not in neighbours(cur, keys):   # D-82: one step from tonight's current config, like the menu
+            if move not in neighbours(cur, keys, surface):   # D-82: one step from tonight's current config, like the menu
                 continue
         else:
-            fresh = [m for m in neighbours(cur, keys) if key_of(with_values(cur, m)) not in seen]
+            fresh = [m for m in neighbours(cur, keys, surface) if key_of(with_values(cur, m)) not in seen]
             if not fresh:
                 break
             least = min(tries.get(tuple(sorted(m)), 0) for m in fresh)   # spread the night over the keys
@@ -197,15 +289,35 @@ def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: 
         seen.add(key_of(cand))
         t0 = time.time()
         new = ev(cand)
-        secs = round(time.time() - t0, 2)
-        why = guard(new["train"], cur_ev["train"])
-        if secs > TRIAL_SECONDS:
-            why = f"over the {TRIAL_SECONDS}-second budget"
+        (key, v), = move.items() if len(move) == 1 else ((None, None),)
+        while source == "menu" and key in SURFACE and _same_calls(new, cur_ev):   # a flat stretch: step on
+            lo, hi, step = bounds(key, surface)
+            nxt = round(v + (step if v > get(cur, key) else -step), 2)
+            if (not _allowed(get(cur, key), nxt, lo, hi) or not valid(with_values(cur, {key: nxt}))
+                    or time.time() - t0 > TRIAL_SECONDS):
+                break
+            move, v = {key: nxt}, nxt
+            cand = with_values(cur, move)
+            seen.add(key_of(cand))
+            new = ev(cand)
+        why, conf = guard(new["train"], cur_ev["train"]), None
+        if not why and _same_calls(new, cur_ev):
+            why = "changes no decision" + (" up to its bound" if source == "menu" and key in SURFACE else "")
+            if source == "routine":   # one step only for a proposal; the menu may still walk past it tonight
+                seen.discard(key_of(cand))
         elif not why and new["score"] < cur_ev["score"] + MARGIN:
             why = f"not better by {MARGIN:g}"
+        elif not why:
+            conf = confidence(cur_ev, new, day.toordinal())
+            if conf < CONFIDENCE:
+                why = f"better by {new['score'] - cur_ev['score']:.2f} but in only {conf:.1%} of {REDRAWS} redraws of the days (needs {CONFIDENCE:.0%})"
+        secs = round(time.time() - t0, 2)   # the replays, the walk and the redraws all count
+        if secs > TRIAL_SECONDS:
+            why = f"over the {TRIAL_SECONDS}-second budget"
         trials.append({"n": len(trials) + 1, "source": source, "change": describe(move, cur), "move": move,
                        "was": {k: get(cur, k) for k in move}, "before": _trial_view(cur_ev), "after": _trial_view(new),
-                       "kept": not why, "why": why or f"better by {new['score'] - cur_ev['score']:.2f}", "seconds": secs})
+                       "kept": not why, "why": why or f"better by {new['score'] - cur_ev['score']:.2f} in {conf:.1%} of {REDRAWS} redraws",
+                       "confidence": conf, "seconds": secs})
         if not why:
             cur, cur_ev = cand, new
         if secs > TRIAL_SECONDS:
@@ -275,8 +387,8 @@ LOG_HEAD = """# Tuning log
 
 Every trial of the nightly self-tuning loop (`scripts/tune_loop.py`, `docs/TUNING-PLAN.md`, D-82), newest last.
 Score: the hindsight price score on the train days, 0 to 100, higher is better; a trial is kept only when it wins by
-1 point or more without crossing a guardrail. Holdout: the same score on the last 7 scan days, never used to pick a
-trial (it can only veto a whole night). Parts: deal and ladder F0.5 (candidates, good-or-better calls), the share of
+1 point or more, still wins in 90% of 1,000 redraws of the days, and crosses no guardrail (D-89). Holdout: the same
+score on the last scan days (a quarter of them, 3 to 7), never used to pick a trial (it can only veto a whole night). Parts: deal and ladder F0.5 (candidates, good-or-better calls), the share of
 judged trips called good or better and sent for a closer look. Undo a kept change: revert its `tune:` commit.
 
 | date | # | change | score | holdout | parts after | result |
@@ -395,18 +507,18 @@ def summary(days: int = 7, end: date | None = None) -> str:
     a, b = week[0]["start"], week[-1]["final"]
     lines.append(f"Hindsight score (did its good-fare and closer-look calls land near each weekend's lowest price; "
                  f"0 to 100, higher is better): {a['score']:.0f} "
-                 f"on {_day(week[0]['date'])}, {b['score']:.0f} on {_day(week[-1]['date'])}; on the most recent week, "
+                 f"on {_day(week[0]['date'])}, {b['score']:.0f} on {_day(week[-1]['date'])}; on the most recent days, "
                  f"which it never learns from: {a['holdout']['score']:.0f} then {b['holdout']['score']:.0f}.")
     if any(r["vetoed"] for r in week):
-        lines.append("A night's changes were undone because they did worse on the most recent week.")
+        lines.append("A night's changes were undone because they did worse on the most recent days.")
     return "\n".join(lines)
 
 
-def surface_text(s: Scoring, labels_on: bool, frozen) -> str:
-    keys = movable(s, labels_on, frozen)
+def surface_text(s: Scoring, labels_on: bool, frozen, surface: dict | None = None, own: dict | None = None) -> str:
+    keys = movable(s, labels_on, frozen, surface, own)
     out = []
     for k in list(SURFACE) + list(WEIGHTS):
-        lo, hi, step = bounds(k)
+        lo, hi, step = bounds(k, surface)
         status = ("movable" if k in keys else "frozen (config/tuning.yaml)" if k in frozen else
                   f"locked until data/labels.jsonl has {LABELS_MIN} rows" if k in WEIGHTS and not labels_on else
                   "left alone: set outside its bounds by hand")
@@ -429,7 +541,8 @@ def main(argv=None) -> int:
         return 0
     cfg, labels = load_tuning(), load_labels()
     if a.surface:
-        print(surface_text(load_scoring(), len(labels) >= LABELS_MIN, cfg["frozen"]))
+        s = load_scoring()
+        print(surface_text(s, len(labels) >= LABELS_MIN, cfg["frozen"], surface_for(load_rows(), s), own_values(read_runs())))
         return 0
     day = day or date.today()
     n = scan_days()
@@ -440,15 +553,17 @@ def main(argv=None) -> int:
         print(f"already ran {day}")
         return 0
     s0, refs, cities = load_world()
-    keys = movable(s0, len(labels) >= LABELS_MIN, cfg["frozen"])
+    rows = load_rows()
+    surface = surface_for(rows, s0)
+    keys = movable(s0, len(labels) >= LABELS_MIN, cfg["frozen"], surface, own_values(read_runs()))
     proposals = []
     for t in a.tries:
         try:
-            proposals.append(parse_try(t, s0, keys))
+            proposals.append(parse_try(t, s0, keys, surface))
         except ValueError as e:
             print(f"refused --try {t}: {e}")
-    res = run_night(load_rows(), s0, refs, cities, day=day, budget=cfg["trials_per_night"], keys=keys, labels=labels,
-                    proposals=proposals)
+    res = run_night(rows, s0, refs, cities, day=day, budget=cfg["trials_per_night"], keys=keys, labels=labels,
+                    proposals=proposals, surface=surface)
     changes = {k: get(res["config"], k) for k in list(SURFACE) + list(WEIGHTS) if get(res["config"], k) != get(s0, k)}
     error = ""
     if changes:
