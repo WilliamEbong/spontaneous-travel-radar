@@ -127,11 +127,23 @@ def valid(s: Scoring) -> bool:
     return rl["exceptional"] < rl["good"] < rl["typical"] and xs == sorted(set(xs)) and sum(s.weights.values()) == 100
 
 
+def _hand_bounds(key: str, surface: dict | None) -> tuple:
+    """The bounds a value must sit in to be the loop's own: a candidate threshold the loop set while the data floor
+    was lower stays its own when the floor rises (it may only move back up), never one set by hand below 60."""
+    lo, hi, _ = bounds(key, surface)
+    return (min(lo, CANDIDATE_FLOOR), hi) if key.endswith("candidate_threshold") else (lo, hi)
+
+
+def _allowed(cur_v, v, lo, hi) -> bool:
+    """Inside the bounds, or a step from outside them towards them."""
+    return lo <= v <= hi or (cur_v < lo and cur_v < v <= hi) or (cur_v > hi and lo <= v < cur_v)
+
+
 def movable(s: Scoring, labels_on: bool, frozen=(), surface: dict | None = None) -> list[str]:
     """The keys the loop may move tonight: the surface, plus the weights once William's taps count; never a frozen
     key, nor one William set outside its bounds by hand (his choice stands)."""
     keys = list(SURFACE) + (list(WEIGHTS) if labels_on else [])
-    return [k for k in keys if k not in frozen and bounds(k, surface)[0] <= get(s, k) <= bounds(k, surface)[1]]
+    return [k for k in keys if k not in frozen and _hand_bounds(k, surface)[0] <= get(s, k) <= _hand_bounds(k, surface)[1]]
 
 
 def neighbours(s: Scoring, keys: list[str], surface: dict | None = None) -> list[dict]:
@@ -139,7 +151,8 @@ def neighbours(s: Scoring, keys: list[str], surface: dict | None = None) -> list
     moves = []
     for key in (k for k in keys if k in SURFACE):
         lo, hi, step = bounds(key, surface)
-        moves += [{key: v} for v in (round(get(s, key) - step, 2), round(get(s, key) + step, 2)) if lo <= v <= hi]
+        moves += [{key: v} for v in (round(get(s, key) - step, 2), round(get(s, key) + step, 2))
+                  if _allowed(get(s, key), v, lo, hi)]
     wk = [k for k in keys if k in WEIGHTS]
     for a in wk:
         for b in wk:
@@ -199,13 +212,17 @@ def _trial_view(ev: dict) -> dict:
     return {"score": ev["score"], "train": ev["train"], "holdout": ev["holdout"]}
 
 
-def _hindsight(by_day: dict, days: list) -> float:
-    c = {"deal": [0, 0, 0], "ladder": [0, 0, 0]}
+def _score_of(by_day: dict, days: list) -> float:
+    """The train score of a redraw of the days: the hindsight score, blended half and half with the labels' once
+    they count, as evaluate() does."""
+    c = {"deal": [0, 0, 0], "ladder": [0, 0, 0], "labels": [0, 0, 0]}
     for d in days:
         for term, v in c.items():
-            for i, k in enumerate(("tp", "fp", "fn")):
-                v[i] += by_day[d][term][k]
-    return 50 * (f_half(*c["deal"]) + f_half(*c["ladder"]))
+            if term in by_day[d]:
+                for i, k in enumerate(("tp", "fp", "fn")):
+                    v[i] += by_day[d][term][k]
+    hindsight = 50 * (f_half(*c["deal"]) + f_half(*c["ladder"]))
+    return (hindsight + 100 * f_half(*c["labels"])) / 2 if any("labels" in by_day[d] for d in days) else hindsight
 
 
 def confidence(cur: dict, new: dict, seed: int) -> float:
@@ -218,12 +235,14 @@ def confidence(cur: dict, new: dict, seed: int) -> float:
     rng, wins = random.Random(seed), 0
     for _ in range(REDRAWS):
         pick = [rng.choice(days) for _ in days]
-        wins += _hindsight(new["by_day"], pick) > _hindsight(cur["by_day"], pick) + 1e-9
+        wins += _score_of(new["by_day"], pick) > _score_of(cur["by_day"], pick) + 1e-9
     return wins / REDRAWS
 
 
 def _same_calls(a: dict, b: dict) -> bool:
-    """No train decision moved: the same good-or-better calls and closer looks, right and wrong."""
+    """No train decision moved: every counted train trip has the same good-or-better call and closer look."""
+    if "calls" in a and "calls" in b:
+        return a["calls"] == b["calls"]
     return all(a["train"][t][k] == b["train"][t][k] for t in ("deal", "ladder") for k in ("tp", "fp", "fn"))
 
 
@@ -257,24 +276,27 @@ def run_night(rows, s0: Scoring, refs, cities, *, day: date, budget: int, keys: 
         while source == "menu" and key in SURFACE and _same_calls(new, cur_ev):   # a flat stretch: step on
             lo, hi, step = bounds(key, surface)
             nxt = round(v + (step if v > get(cur, key) else -step), 2)
-            if not lo <= nxt <= hi or not valid(with_values(cur, {key: nxt})):
+            if (not _allowed(get(cur, key), nxt, lo, hi) or not valid(with_values(cur, {key: nxt}))
+                    or time.time() - t0 > TRIAL_SECONDS):
                 break
             move, v = {key: nxt}, nxt
             cand = with_values(cur, move)
             seen.add(key_of(cand))
             new = ev(cand)
-        secs = round(time.time() - t0, 2)
         why, conf = guard(new["train"], cur_ev["train"]), None
-        if secs > TRIAL_SECONDS:
-            why = f"over the {TRIAL_SECONDS}-second budget"
-        elif not why and _same_calls(new, cur_ev):
+        if not why and _same_calls(new, cur_ev):
             why = "changes no decision" + (" up to its bound" if source == "menu" and key in SURFACE else "")
+            if source == "routine":   # one step only for a proposal; the menu may still walk past it tonight
+                seen.discard(key_of(cand))
         elif not why and new["score"] < cur_ev["score"] + MARGIN:
             why = f"not better by {MARGIN:g}"
         elif not why:
             conf = confidence(cur_ev, new, day.toordinal())
             if conf < CONFIDENCE:
                 why = f"better by {new['score'] - cur_ev['score']:.2f} but in only {conf:.1%} of {REDRAWS} redraws of the days (needs {CONFIDENCE:.0%})"
+        secs = round(time.time() - t0, 2)   # the replays, the walk and the redraws all count
+        if secs > TRIAL_SECONDS:
+            why = f"over the {TRIAL_SECONDS}-second budget"
         trials.append({"n": len(trials) + 1, "source": source, "change": describe(move, cur), "move": move,
                        "was": {k: get(cur, k) for k in move}, "before": _trial_view(cur_ev), "after": _trial_view(new),
                        "kept": not why, "why": why or f"better by {new['score'] - cur_ev['score']:.2f} in {conf:.1%} of {REDRAWS} redraws",

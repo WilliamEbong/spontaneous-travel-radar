@@ -212,3 +212,63 @@ def test_a_rolling_night_scores_what_the_future_will_judge(tmp_path, monkeypatch
     assert tl.main(["--date", "2026-11-30"]) == 0
     run = json.loads((tmp_path / "data/tuning/runs.jsonl").read_text(encoding="utf-8"))
     assert run["start"]["score"] > 0 and run["rules"]["holdout_days"] == 5 and run["rules"]["replay_min_days"] == 8
+
+
+def test_a_threshold_the_loop_set_stays_its_own_when_the_floor_rises(world):
+    """Codex: a 60 kept while the floor was 60 must stay movable when better scores raise the floor to 64; it may
+    only go back up. A value set by hand under 60 is still William's and left alone."""
+    s, _, _ = world
+    at60 = tl.with_values(s, {"dayoff.candidate_threshold": 60})
+    risen = {**tl.SURFACE, "dayoff.candidate_threshold": (64, 80, 2)}
+    assert "dayoff.candidate_threshold" in tl.movable(at60, False, surface=risen)
+    moves = [m for m in tl.neighbours(at60, ["dayoff.candidate_threshold"], risen)]
+    assert moves == [{"dayoff.candidate_threshold": 62}]
+    by_hand = tl.with_values(s, {"dayoff.candidate_threshold": 50})
+    assert "dayoff.candidate_threshold" not in tl.movable(by_hand, False, surface=risen)
+
+
+def test_labels_count_in_the_redraws_once_they_blend_in():
+    """Codex: with 30 or more labels the train score is half labels; a change that only gets the taps right must be
+    able to win the redraws."""
+    zero = {"tp": 0, "fp": 0, "fn": 0}
+    day = lambda lab: {"deal": zero, "ladder": {"tp": 2, "fp": 1, "fn": 2}, "judgements": 5, "labels": lab}  # noqa: E731
+    days = [f"2026-11-{d}" for d in range(10, 16)]
+    cur = {"by_day": {d: day({"tp": 0, "fp": 1, "fn": 1}) for d in days}}
+    new = {"by_day": {d: day({"tp": 1, "fp": 0, "fn": 0}) for d in days}}
+    assert tl.confidence(cur, new, 7) == 1.0
+
+
+def test_swapped_calls_with_equal_counts_are_a_change():
+    a = {"train": {"deal": {"tp": 1, "fp": 0, "fn": 0}, "ladder": {"tp": 1, "fp": 0, "fn": 0}},
+         "calls": {("vancouver", "w", "d"): (True, True), ("chicago", "w", "d"): (False, False)}}
+    b = {**a, "calls": {("vancouver", "w", "d"): (False, False), ("chicago", "w", "d"): (True, True)}}
+    assert not tl._same_calls(a, b) and tl._same_calls(a, dict(a))
+
+
+def test_the_menu_walks_past_a_routine_proposal_that_changed_nothing(world):
+    """Codex: the routine's 60 -> 62 changes nothing and stays one step; the menu may still walk 62 ... 72."""
+    s, refs, cities = world
+    low = tl.with_values(s, {"dayoff.candidate_threshold": 60})
+    surface = {**tl.SURFACE, "dayoff.candidate_threshold": (60, 80, 2)}
+    res = tl.run_night(synthetic_history(), low, refs, cities, day=NIGHT, budget=2, keys=["dayoff.candidate_threshold"],
+                       proposals=[{"dayoff.candidate_threshold": 62}], surface=surface)
+    first, second = res["trials"]
+    assert first["source"] == "routine" and first["why"] == "changes no decision" and first["move"] == {"dayoff.candidate_threshold": 62}
+    assert second["source"] == "menu" and second["move"] == {"dayoff.candidate_threshold": 72} and second["kept"]
+
+
+def test_the_redraws_count_against_the_trial_budget(world, monkeypatch):
+    """Codex: the clock stopped before the 1,000 redraws, so a trial whose redraws ran past 2 minutes was kept."""
+    s, refs, cities = world
+    clock = [0.0]
+    real = tl.confidence
+
+    def slow(cur, new, seed):
+        clock[0] += tl.TRIAL_SECONDS + 1   # the redraws alone take longer than the budget
+        return real(cur, new, seed)
+    monkeypatch.setattr(tl.time, "time", lambda: clock[0])
+    monkeypatch.setattr(tl, "confidence", slow)
+    res = tl.run_night(synthetic_history(), s, refs, cities, day=NIGHT, budget=4, keys=keys(s),
+                       proposals=[{"dayoff.candidate_threshold": 72}])
+    (t,) = res["trials"]
+    assert t["why"].startswith("over the") and not t["kept"] and tl.get(res["config"], "dayoff.candidate_threshold") == 70

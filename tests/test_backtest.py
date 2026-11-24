@@ -122,3 +122,14 @@ def test_the_scan_rule_is_still_reproduced_at_full_size(world):
     s, refs, cities = world
     rows = synthetic_history()
     assert judge(rows, s, refs, cities) == judge(rows, s, refs, cities, min_days=s.rolling_min_days)
+
+
+def test_every_trial_is_scored_on_the_same_trips(world):
+    """Codex: a shorter rolling window must not win by dropping trips. Whether a judgement counts depends on the scan
+    days alone; with a gap in the history the shorter window falls back to the static ladder on the same trips."""
+    s, refs, cities = world
+    rows = [r for r in synthetic_history(days=21) if not "2026-11-12" <= r["scan_date"] <= "2026-11-18"]   # a week missing
+    short = replace(s, rolling_window_days=5)
+    a, b = judge(rows, s, refs, cities, min_days=6), judge(rows, short, refs, cities, min_days=6)
+    assert {k for k, v in a.items() if v["counted"]} == {k for k, v in b.items() if v["counted"]} != set()
+    assert evaluate(rows, s, refs, cities)["calls"].keys() == evaluate(rows, short, refs, cities)["calls"].keys()

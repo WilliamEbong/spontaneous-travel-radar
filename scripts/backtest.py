@@ -12,6 +12,7 @@ the lowest fare each weekend went on to show, and the script prints the hindsigh
 """
 import argparse
 import json
+from bisect import bisect_left
 import sys
 import time
 from dataclasses import replace
@@ -69,12 +70,16 @@ def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict, min_days: int 
     """Every v2 winner judged again under s: {(city, window_id, scan_date): {price_pp, good, score, candidate,
     counted}}. Only the price judgment moves: the other components are the logged ones, scaled when a weight
     changes. min_days: the replay's rolling-ladder minimum (default s.rolling_min_days, which reproduces the scan).
-    counted: False for a judgement made on a route's static ladder in rolling mode; no trial moves those, and
-    every future day is judged on a rolling ladder, so the score leaves them out (D-89)."""
+    counted: False, in rolling mode, for a route that had fewer than min_days earlier scan days that day; no trial
+    moves those, and every future day has more, so the score leaves them out (D-89). It depends on the scan days
+    alone, never on a trial's settings, so every trial is scored on the same trips (a shorter window that falls back
+    to the static ladder is judged on it, as the scan would)."""
     s_lad = s if min_days is None else replace(s, rolling_min_days=min_days)
+    need = s_lad.rolling_min_days
     by_route: dict[str, list] = {}
     for r in rows:
         by_route.setdefault(r["city"], []).append(r)
+    route_days = {c: sorted({r["scan_date"] for r in rs}) for c, rs in by_route.items()}
     ladders, out = {}, {}
     for r in rows:
         if not all(r.get(k) is not None for k in NEEDED) or not r["winner"] or r["city"] not in cities:
@@ -95,7 +100,7 @@ def judge(rows: list[dict], s: Scoring, refs: dict, cities: dict, min_days: int 
         out[(r["city"], r["window_id"], r["scan_date"])] = {
             "price_pp": r["price_pp"], "good": r["price_pp"] <= lad["good"], "score": score,
             "candidate": is_candidate(r["price_pp"], score, lad["good"], s.trip_classes[r["trip_class"]]["candidate_threshold"]),
-            "counted": s.ladder_mode != "rolling" or lad is not refs[r["city"]].flights,
+            "counted": s.ladder_mode != "rolling" or bisect_left(route_days[r["city"]], r["scan_date"]) >= need,
         }
     return out
 
@@ -167,7 +172,9 @@ def evaluate(rows: list[dict], s: Scoring, refs: dict, cities: dict, *, holdout_
     holdout_days, scored as if the history ended there (its lows use train rows only); holdout = the last days,
     scored against everything known. Trials are picked on train alone, so the holdout never reaches selection.
     holdout_days and min_days (the replay's ladder minimum) default to windows() for the days available.
-    by_day: each train day's part on its own, for the keep rule's redraws of the days (scripts/tune_loop.py)."""
+    by_day: each train day's part on its own (with its labels part once they blend in), for the keep rule's
+    redraws of the days; calls: each counted train judgement's (good, candidate), to tell whether a trial moved any
+    decision (scripts/tune_loop.py)."""
     days = sorted({r["scan_date"] for r in rows})
     auto_h, auto_m = windows(len(days), s)
     holdout_days = auto_h if holdout_days is None else holdout_days
@@ -193,6 +200,10 @@ def evaluate(rows: list[dict], s: Scoring, refs: dict, cities: dict, *, holdout_
     out["settings"] = settings(s)
     train_low = lows([r for r in rows if r["scan_date"] in train_days])
     out["by_day"] = {d: part(judged, train_low, {d}) for d in sorted(train_days)}
+    if blend:
+        for d, p in out["by_day"].items():
+            p["labels"] = label_part(labels, judged, {d})
+    out["calls"] = {k: (j["good"], j["candidate"]) for k, j in judged.items() if j["counted"] and k[2] in train_days}
     return out
 
 
