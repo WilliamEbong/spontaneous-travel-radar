@@ -190,7 +190,7 @@ def parse_try(text: str, s: Scoring, keys: list[str], surface: dict | None = Non
         lo, hi, step = bounds(key, surface)
         v = float(raw)
         v = int(v) if isinstance(step, int) and v == int(v) else round(v, 2)
-        if not lo <= v <= hi or (isinstance(step, int) and not isinstance(v, int)):
+        if not _allowed(get(s, key), v, lo, hi) or (isinstance(step, int) and not isinstance(v, int)):
             raise ValueError(f"{key}={raw.strip()} is outside {lo} to {hi}")
         move[key] = v
     if not valid(with_values(s, move)):
@@ -514,8 +514,8 @@ def summary(days: int = 7, end: date | None = None) -> str:
     return "\n".join(lines)
 
 
-def surface_text(s: Scoring, labels_on: bool, frozen, surface: dict | None = None) -> str:
-    keys = movable(s, labels_on, frozen, surface)
+def surface_text(s: Scoring, labels_on: bool, frozen, surface: dict | None = None, own: dict | None = None) -> str:
+    keys = movable(s, labels_on, frozen, surface, own)
     out = []
     for k in list(SURFACE) + list(WEIGHTS):
         lo, hi, step = bounds(k, surface)
@@ -542,7 +542,7 @@ def main(argv=None) -> int:
     cfg, labels = load_tuning(), load_labels()
     if a.surface:
         s = load_scoring()
-        print(surface_text(s, len(labels) >= LABELS_MIN, cfg["frozen"], surface_for(load_rows(), s)))
+        print(surface_text(s, len(labels) >= LABELS_MIN, cfg["frozen"], surface_for(load_rows(), s), own_values(read_runs())))
         return 0
     day = day or date.today()
     n = scan_days()

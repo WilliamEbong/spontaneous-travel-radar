@@ -285,3 +285,15 @@ def test_a_day_with_only_labels_is_redrawn_too():
     new = {"by_day": {"2026-11-10": lab_day, "2026-11-11": lab_day}}
     assert tl.confidence(cur, new, 7) == 1.0     # better on every labels-only day: every redraw
     assert tl.confidence(new, cur, 7) == 0.0
+
+
+def test_the_routine_may_propose_the_recovery_step(world):
+    """Codex: after the floor rose above the loop's own 60, the menu may step back up to 62, and so may --try."""
+    s, _, _ = world
+    at60 = tl.with_values(s, {"dayoff.candidate_threshold": 60})
+    risen = {**tl.SURFACE, "dayoff.candidate_threshold": (64, 80, 2)}
+    assert tl.parse_try("dayoff.candidate_threshold=62", at60, ["dayoff.candidate_threshold"], risen) == {"dayoff.candidate_threshold": 62}
+    with pytest.raises(ValueError, match="outside"):
+        tl.parse_try("dayoff.candidate_threshold=58", at60, ["dayoff.candidate_threshold"], risen)
+    text = tl.surface_text(at60, False, [], risen, own={"dayoff.candidate_threshold": 60})
+    assert "dayoff.candidate_threshold = 60  bounds 64 to 80, step 2: movable" in text
