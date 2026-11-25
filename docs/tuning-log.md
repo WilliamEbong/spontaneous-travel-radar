@@ -59,3 +59,20 @@ judged trips called good or better and sent for a closer look. Undo a kept chang
 | 2026-11-24 | 15 | price_curve.share_2 1.00 → 1.05 | 27.90 → 27.90 | 33.97 → 33.97 | deal 0.00, ladder 0.56, good 11%, closer look 0.0%, n 542 | reverted: changes no decision up to its bound |
 | 2026-11-24 | 16 | dayoff.candidate_threshold 70 → 80 | 27.90 → 27.90 | 33.97 → 33.97 | deal 0.00, ladder 0.56, good 11%, closer look 0.0%, n 542 | reverted: changes no decision up to its bound |
 | 2026-11-24 | night | 16 trials, 0 kept: no change | 27.90 → 27.90 | 33.97 → 33.97 | hindsight, 15 scan days 2026-11-09 to 2026-11-23 | |
+| 2026-11-25 | 1 | price_curve.share_1 0.75 → 0.85 | 29.24 → 31.03 | 42.38 → 60.50 | deal 0.04, ladder 0.58, good 13%, closer look 0.3%, n 669 | kept: better by 1.79 in 90.6% of 1000 redraws |
+| 2026-11-25 | 2 | rolling_ladder.typical 50 → 55 | 31.03 → 34.33 | 60.50 → 65.62 | deal 0.10, ladder 0.58, good 13%, closer look 0.9%, n 669 | reverted: better by 3.30 but in only 65.1% of 1000 redraws of the days (needs 90%) |
+| 2026-11-25 | 3 | rolling_ladder.good 25 → 30 | 31.03 → 32.56 | 60.50 → 61.83 | deal 0.04, ladder 0.62, good 17%, closer look 0.3%, n 669 | kept: better by 1.53 in 92.2% of 1000 redraws |
+| 2026-11-25 | 4 | price_curve.share_2 1.00 → 1.05 | 32.56 → 32.56 | 61.83 → 61.83 | deal 0.04, ladder 0.62, good 17%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
+| 2026-11-25 | 5 | rolling_window_days 60 → 90 | 32.56 → 32.56 | 61.83 → 61.83 | deal 0.04, ladder 0.62, good 17%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
+| 2026-11-25 | 6 | price_curve.share_0 0.60 → 0.65 | 32.56 → 35.85 | 61.83 → 67.94 | deal 0.10, ladder 0.62, good 17%, closer look 0.9%, n 669 | reverted: better by 3.29 but in only 65.1% of 1000 redraws of the days (needs 90%) |
+| 2026-11-25 | 7 | dayoff.candidate_threshold 70 → 72 | 32.56 → 30.77 | 61.83 → 56.01 | deal 0.00, ladder 0.62, good 17%, closer look 0.0%, n 669 | reverted: guardrail: trips sent for a closer look 0.0%, band 0.5% to 3.0% |
+| 2026-11-25 | 8 | weekend.candidate_threshold 70 → 80 | 32.56 → 32.56 | 61.83 → 61.83 | deal 0.04, ladder 0.62, good 17%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
+| 2026-11-25 | 9 | rolling_ladder.typical 50 → 45 | 32.56 → 31.68 | 61.83 → 58.37 | deal 0.02, ladder 0.62, good 17%, closer look 0.1%, n 669 | reverted: guardrail: trips sent for a closer look 0.1%, band 0.5% to 3.0% |
+| 2026-11-25 | 10 | price_curve.share_1 0.85 → 0.80 | 32.56 → 30.77 | 61.83 → 51.53 | deal 0.00, ladder 0.62, good 17%, closer look 0.0%, n 669 | reverted: guardrail: trips sent for a closer look 0.0%, band 0.5% to 3.0% |
+| 2026-11-25 | 11 | rolling_window_days 60 → 30 | 32.56 → 32.56 | 61.83 → 61.83 | deal 0.04, ladder 0.62, good 17%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
+| 2026-11-25 | 12 | rolling_ladder.good 30 → 35 | 32.56 → 34.58 | 61.83 → 62.40 | deal 0.04, ladder 0.66, good 21%, closer look 0.3%, n 669 | kept: better by 2.02 in 100.0% of 1000 redraws |
+| 2026-11-25 | 13 | price_curve.share_0 0.60 → 0.65 | 34.58 → 37.88 | 62.40 → 68.51 | deal 0.10, ladder 0.66, good 21%, closer look 0.9%, n 669 | reverted: better by 3.30 but in only 65.1% of 1000 redraws of the days (needs 90%) |
+| 2026-11-25 | 14 | price_curve.share_2 1.00 → 1.05 | 34.58 → 34.58 | 62.40 → 62.40 | deal 0.04, ladder 0.66, good 21%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
+| 2026-11-25 | 15 | dayoff.candidate_threshold 70 → 72 | 34.58 → 32.79 | 62.40 → 56.58 | deal 0.00, ladder 0.66, good 21%, closer look 0.0%, n 669 | reverted: guardrail: trips sent for a closer look 0.0%, band 0.5% to 3.0% |
+| 2026-11-25 | 16 | weekend.candidate_threshold 70 → 80 | 34.58 → 34.58 | 62.40 → 62.40 | deal 0.04, ladder 0.66, good 21%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
+| 2026-11-25 | night | 16 trials, 3 kept: live on main | 29.24 → 34.58 | 42.38 → 62.40 | hindsight, 17 scan days 2026-11-09 to 2026-11-25 | |
