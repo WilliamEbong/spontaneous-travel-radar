@@ -217,14 +217,16 @@ def convenience_line(i: dict, fringe: bool, room: bool) -> str:
 
 
 def breakdown(inputs: dict, components: dict, *, total_cad: float, typical_cad: float, share: float,
-              fringe: bool = False, lodging: str | None = None, events: tuple[float, str] | None = None) -> list[dict]:
+              fringe: bool = False, lodging: str | None = None, events: tuple[float, str] | None = None,
+              room: bool = False) -> list[dict]:
     """Ordered rows {key, label, points, max, input}; the points are the components as computed, so they sum to the
-    score. Works on plain numbers (inputs as score_trip stores them) so pass 2 and pass 3 can build theirs too."""
+    score. Works on plain numbers (inputs as score_trip stores them) so pass 2 and pass 3 can build theirs too.
+    `room` is True only once real lodging was chosen: a lodging line alone may say nothing was found (D-78)."""
     w = inputs["weights"]
     lines = {
         "price": price_line(total_cad, typical_cad, share),
         "time": time_line(inputs),
-        "convenience": convenience_line(inputs, fringe, lodging is not None),
+        "convenience": convenience_line(inputs, fringe, room),
         "city": f"{inputs['city_name']}, rank {inputs['rank']}/10",
         "weather": weather_line(Weather(**inputs["weather"])),
     }
