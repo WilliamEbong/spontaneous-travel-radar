@@ -50,8 +50,9 @@ words. `host: offline` means a test run on recorded fares, never a real scan.
 ## Storage plan (what is kept, where, how big)
 
 - Per scan day, committed to the repo: `data/history/<date>.jsonl` (every logged trip: fares, times,
-  the five components, their inputs, score, pass; about 300 rows, ~250 KB) and `data/history/<date>.csv`
-  (the same rows flattened for a spreadsheet, ~150 KB). Nothing is ever overwritten except a same-day
+  the five components, their inputs, score, pass; 65 to 227 rows, 87 to 305 KB a day, measured 2026-11-26
+  over 2026-11-20 to 2026-11-26) and `data/history/<date>.csv` (the same rows flattened for a spreadsheet,
+  35 to 122 KB a day, same measurement). Nothing is ever overwritten except a same-day
   re-run, which replaces that day's files (D-19).
 - Current state: `data/latest.json` (what the dashboard shows, with `breakdown` on every row),
   `data/series.json` (30-day price lines per city and class), `data/weekly-summary.json`.
