@@ -1,0 +1,448 @@
+{
+ "id": "2026-11-26_vancouver_2027-01-22_fri-off",
+ "scan_date": "2026-11-26",
+ "created": "2026-11-26T11:19:43+00:00",
+ "mode": "dry-run",
+ "stage": "near_miss",
+ "status": "dropped",
+ "drop_reason": "pass-2 score 66 cannot reach the hit line 80 even with 10 what's-on points",
+ "is_hit": false,
+ "city": "vancouver",
+ "city_name": "Vancouver",
+ "window_id": "2027-01-22_fri-off",
+ "trip_class": "dayoff",
+ "class_label": "Needs a day off",
+ "hit_threshold": 80,
+ "dates": {
+  "check_in": "2027-01-22",
+  "check_out": "2027-01-23",
+  "nights": 1
+ },
+ "flights": {
+  "out": {
+   "from": "YYC",
+   "to": "YVR",
+   "dep": "2027-01-22T07:25:00-06:00",
+   "arr": "2027-01-22T08:10:00-07:00",
+   "airlines": [
+    "F8"
+   ],
+   "flight_numbers": [
+    "F8 805"
+   ],
+   "stops": 0,
+   "layover_min": 0,
+   "duration_min": 105,
+   "price_cad_2pax": 242
+  },
+  "back": {
+   "from": "YVR",
+   "to": "YYC",
+   "dep": "2027-01-23T18:55:00-07:00",
+   "arr": "2027-01-23T21:25:00-06:00",
+   "airlines": [
+    "F8"
+   ],
+   "flight_numbers": [
+    "F8 802"
+   ],
+   "stops": 0,
+   "layover_min": 0,
+   "duration_min": 90,
+   "price_cad_2pax": 224
+  },
+  "cad_2pax": 466,
+  "price_pp": 233
+ },
+ "ladder": {
+  "label": "exceptional",
+  "exceptional": 248,
+  "good": 269,
+  "typical": 299,
+  "confidence": "high",
+  "nonstop": "year-round"
+ },
+ "typical_cad": 910.55,
+ "transfers_cad": 40,
+ "conv_pts": 10,
+ "hours_on_ground": 20.2,
+ "airport_to_core_min": 25,
+ "weather": {
+  "score": 4.1,
+  "source": "normals"
+ },
+ "inputs": {
+  "weights": {
+   "price": 45,
+   "time": 20,
+   "convenience": 10,
+   "city": 15,
+   "weather": 10
+  },
+  "hours": 20.2,
+  "max_hours": 31,
+  "sleep_h": 10,
+  "overhead_h": 4.5,
+  "stops": [
+   0,
+   0
+  ],
+  "layover_min": 0,
+  "airport_to_core_min": 25,
+  "car_needed": false,
+  "night_arrival": false,
+  "convenience_parts": [
+   "non-stop both ways (10)",
+   "airport 25 min from downtown",
+   "no car needed",
+   "lands 08:10"
+  ],
+  "city_name": "Vancouver",
+  "rank": 8,
+  "nights": 1,
+  "weather": {
+   "score": 4.133333333333335,
+   "source": "normals",
+   "highs": [
+    6.9,
+    6.9,
+    6.9
+   ],
+   "precip": [
+    63.33333333333333,
+    63.33333333333333,
+    63.33333333333333
+   ],
+   "months": [
+    "January"
+   ],
+   "days": [],
+   "codes": []
+  },
+  "flights_ladder": {
+   "exceptional": 248,
+   "good": 269,
+   "typical": 299
+  }
+ },
+ "pass1": {
+  "score": 70,
+  "components": {
+   "price": 30.84,
+   "time": 13.06,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 4.13
+  },
+  "lodging_cad": 201.45,
+  "lodging_source": "estimate",
+  "total_cad": 707.45,
+  "share": 0.7769,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 30.84,
+    "max": 45,
+    "input": "complete trip $707 for two, 78% of what this route normally costs (~$911)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 13.06,
+    "max": 20,
+    "input": "20 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 25 min from downtown \u00b7 no car needed \u00b7 lands 08:10"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Vancouver, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.13,
+    "max": 10,
+    "input": "January normals: highs 7 \u00b0C, rain on 19 of 30 days"
+   }
+  ]
+ },
+ "pass2": {
+  "searches": 2,
+  "skipped": null,
+  "options": [
+   {
+    "kind": "rental",
+    "name": "Block House",
+    "link": "",
+    "total": 250.0,
+    "currency": "CAD",
+    "total_cad": 250,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 210,
+    "rating": 4.65,
+    "stars": null,
+    "km": 1.3,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Sleeps 2, 1 bedroom",
+    "trip_score": 66,
+    "trip_total_cad": 756
+   },
+   {
+    "kind": "rental",
+    "name": "Keefer House",
+    "link": "https://www.hotels.com/Hotel.h113080002.Hotel-Information?mdpcid=HCOM.META.HPA.WEB-ORGANIC.VR",
+    "total": 313.0,
+    "currency": "CAD",
+    "total_cad": 313,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 263,
+    "rating": 4.8,
+    "stars": null,
+    "km": 1.4,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Sleeps 2, 1 bedroom",
+    "trip_score": 56,
+    "trip_total_cad": 819
+   },
+   {
+    "kind": "rental",
+    "name": "Cozy Gastown condo with a view!",
+    "link": "https://www.booking.com/hotel/ca/cozy-gastown-condo-with-a-view.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-14880443&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-14880443_grp-3_gendate-20261123",
+    "total": 362.0,
+    "currency": "CAD",
+    "total_cad": 362,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 322,
+    "rating": 4.6,
+    "stars": null,
+    "km": 0.9,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 4",
+    "trip_score": 47,
+    "trip_total_cad": 868
+   },
+   {
+    "kind": "rental",
+    "name": "Stunning ocean (sound of waves)",
+    "link": "https://www.booking.com/hotel/ca/stunning-ocean-sound-of-waves-vancouver1.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-10600600&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-10600600_grp-0_gendate-20261123",
+    "total": 433.0,
+    "currency": "CAD",
+    "total_cad": 433,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 391,
+    "rating": 4.45,
+    "stars": null,
+    "km": 1.2,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 5",
+    "trip_score": 38,
+    "trip_total_cad": 939
+   },
+   {
+    "kind": "rental",
+    "name": "Downtown Vancouver Mountain View Condo Canada Place, Cruise Ship, BC Place Roger",
+    "link": "https://www.vrbo.com/pdp/lo/126509152?MDPCID=VRBO-META.HPA.WEB-ORGANIC.VR",
+    "total": 448.0,
+    "currency": "CAD",
+    "total_cad": 448,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 378,
+    "rating": 5.0,
+    "stars": null,
+    "km": 0.9,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 4",
+    "trip_score": 38,
+    "trip_total_cad": 954
+   },
+   {
+    "kind": "rental",
+    "name": "King Bed Apartment with A/C, Pool & Free Parking",
+    "link": "https://urbanoasisvancouver.my.futurestay.com/properties/20077",
+    "total": 468.0,
+    "currency": "CAD",
+    "total_cad": 468,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 419,
+    "rating": 4.72,
+    "stars": null,
+    "km": 1.1,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 4",
+    "trip_score": 37,
+    "trip_total_cad": 974
+   },
+   {
+    "kind": "rental",
+    "name": "Elevated Downtown Living, Panoramic Water Views",
+    "link": "https://www.booking.com/hotel/ca/elevated-downtown-living-panoramic-water-views.en-gb.html?aid=2068758&utm_source=seogooglelocal&utm_medium=description&utm_term=hotel-17574755&utm_campaign=en-gb&label=seogooglelocal-link-imagesaow-hotel-17574755_grp-3_gendate-20261123",
+    "total": 515.0,
+    "currency": "CAD",
+    "total_cad": 515,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 416,
+    "rating": 4.5,
+    "stars": null,
+    "km": 0.9,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 5",
+    "trip_score": 35,
+    "trip_total_cad": 1021
+   },
+   {
+    "kind": "rental",
+    "name": "Luxury Condo in Yaletown steps from the ocean",
+    "link": "",
+    "total": 516.0,
+    "currency": "CAD",
+    "total_cad": 516,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 460,
+    "rating": 4.61,
+    "stars": null,
+    "km": 1.3,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 6",
+    "trip_score": 35,
+    "trip_total_cad": 1022
+   }
+  ],
+  "chosen": 0,
+  "components": {
+   "price": 26.58,
+   "time": 13.06,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 4.13
+  },
+  "score": 66,
+  "total_cad": 756,
+  "share": 0.8303,
+  "lodging_cad": 250,
+  "lodging_source": "rental",
+  "fringe": false,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 26.58,
+    "max": 45,
+    "input": "complete trip $756 for two, 83% of what this route normally costs (~$911)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 13.06,
+    "max": 20,
+    "input": "20 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 25 min from downtown \u00b7 no car needed \u00b7 lands 08:10 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Vancouver, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.13,
+    "max": 10,
+    "input": "January normals: highs 7 \u00b0C, rain on 19 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Block House, rental, $250 a night all-in, total $250"
+   }
+  ]
+ },
+ "pass3": null,
+ "final_score": null,
+ "score": 66,
+ "total_cad": 756,
+ "breakdown": [
+  {
+   "key": "price",
+   "label": "Price",
+   "points": 26.58,
+   "max": 45,
+   "input": "complete trip $756 for two, 83% of what this route normally costs (~$911)"
+  },
+  {
+   "key": "time",
+   "label": "Time there",
+   "points": 13.06,
+   "max": 20,
+   "input": "20 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+  },
+  {
+   "key": "convenience",
+   "label": "Convenience",
+   "points": 10.0,
+   "max": 10,
+   "input": "non-stop both ways (10) \u00b7 airport 25 min from downtown \u00b7 no car needed \u00b7 lands 08:10 \u00b7 central room"
+  },
+  {
+   "key": "city",
+   "label": "City",
+   "points": 12.0,
+   "max": 15,
+   "input": "Vancouver, rank 8/10"
+  },
+  {
+   "key": "weather",
+   "label": "Weather",
+   "points": 4.13,
+   "max": 10,
+   "input": "January normals: highs 7 \u00b0C, rain on 19 of 30 days"
+  },
+  {
+   "key": "lodging",
+   "label": "Lodging",
+   "points": null,
+   "max": null,
+   "input": "Block House, rental, $250 a night all-in, total $250"
+  }
+ ],
+ "links": {
+  "google_flights": "https://www.google.com/travel/flights?q=Flights%20to%20YVR%20from%20YYC%20on%202027-01-22%20through%202027-01-23",
+  "google_hotels": "https://www.google.com/travel/search?q=hotels%20in%20Downtown%20Vancouver%2C%20Vancouver%202027-01-22%20to%202027-01-23",
+  "airbnb": "https://www.airbnb.ca/s/Downtown%20Vancouver%2C%20Vancouver/homes?checkin=2027-01-22&checkout=2027-01-23&adults=2"
+ }
+}

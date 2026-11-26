@@ -1,1 +1,146 @@
-[]
+[
+ {
+  "id": "2026-11-26_new_york_2027-01-23_mon-off",
+  "city": "new_york",
+  "city_name": "New York",
+  "window_id": "2027-01-23_mon-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "candidate",
+  "status": "awaiting_pass3",
+  "is_hit": false,
+  "scan_date": "2026-11-26",
+  "pass": 2,
+  "score_p1": 70,
+  "score_p2": 70,
+  "events_pts": null,
+  "final_score": null,
+  "score": 70,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 1281,
+  "price_pp": 640,
+  "ladder": "exceptional",
+  "total_cad": 1795.24,
+  "lodging_source": "estimate",
+  "drop_reason": null,
+  "created": "2026-11-26T11:19:46+00:00",
+  "path_json": "hits/candidates/2026-11-26_new_york_2027-01-23_mon-off.json",
+  "path_md": "hits/candidates/2026-11-26_new_york_2027-01-23_mon-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 35.65,
+    "max": 45,
+    "input": "complete trip $1,795 for two, 72% of what this route normally costs (~$2,504)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 9.41,
+    "max": 20,
+    "input": "15 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "nothing acceptable within 6 km; the route's good room rate stands in ($422 for 2 nights)"
+   }
+  ]
+ },
+ {
+  "id": "2026-11-26_vancouver_2027-01-22_fri-off",
+  "city": "vancouver",
+  "city_name": "Vancouver",
+  "window_id": "2027-01-22_fri-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "near_miss",
+  "status": "dropped",
+  "is_hit": false,
+  "scan_date": "2026-11-26",
+  "pass": 2,
+  "score_p1": 70,
+  "score_p2": 66,
+  "events_pts": null,
+  "final_score": null,
+  "score": 66,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 466,
+  "price_pp": 233,
+  "ladder": "exceptional",
+  "total_cad": 756,
+  "lodging_source": "rental",
+  "drop_reason": "pass-2 score 66 cannot reach the hit line 80 even with 10 what's-on points",
+  "created": "2026-11-26T11:19:43+00:00",
+  "path_json": "hits/candidates/2026-11-26_vancouver_2027-01-22_fri-off.json",
+  "path_md": "hits/candidates/2026-11-26_vancouver_2027-01-22_fri-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 26.58,
+    "max": 45,
+    "input": "complete trip $756 for two, 83% of what this route normally costs (~$911)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 13.06,
+    "max": 20,
+    "input": "20 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 25 min from downtown \u00b7 no car needed \u00b7 lands 08:10 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Vancouver, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.13,
+    "max": 10,
+    "input": "January normals: highs 7 \u00b0C, rain on 19 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Block House, rental, $250 a night all-in, total $250"
+   }
+  ]
+ }
+]
