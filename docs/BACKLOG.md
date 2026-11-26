@@ -17,7 +17,7 @@ Every item stays inside section C's allowed files; none touches anything on C's 
 
 **Done when:** a test in `tests/test_main_offline.py` shows a same-day candidate takes no slot, while an overnight candidate still gets its check. `python -m pytest -q` passes.
 
-## 2. The breakdown says "central room" when pass 2 found no room (open)
+## 2. The breakdown says "central room" when pass 2 found no room (done (iter 2026-11-25))
 
 **Who notices:** William, reading a candidate's brief on a day when pass 2 found nothing acceptable within 6 km. The convenience line then ends "… · central room", while the lodging line says "nothing acceptable within 6 km" (D-78: the room part is added only once pass 2 has found one).
 

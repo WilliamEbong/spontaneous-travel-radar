@@ -70,7 +70,7 @@ def pass2(x: Scored, city: City, check: LodgingCheck, s: Scoring) -> dict:
     if opts:
         best, r = opts[0], opts[0]["result"]
         bd = breakdown(x.inputs, r["components"], total_cad=r["total_cad"], typical_cad=x.typical_cad, share=r["share"],
-                       fringe=best["fringe"], lodging=lodging_line(best, nights, x.lodging_cad))
+                       fringe=best["fringe"], lodging=lodging_line(best, nights, x.lodging_cad), room=True)
         return {**out, "chosen": 0, **r, "lodging_source": best["kind"], "fringe": best["fringe"], "breakdown": bd}
     bd = breakdown(x.inputs, components_dict(x), total_cad=x.total_cad, typical_cad=x.typical_cad, share=x.share,
                    lodging=lodging_line(None, nights, x.lodging_cad))
@@ -199,7 +199,8 @@ def finalize(cid: str, research_path, s: Scoring, interests: dict, *, root=ROOT)
     events_line = f"+{events:g}: {on or 'nothing that passes the Calgary test'}"
     has_inputs = bool((cand.get("inputs") or {}).get("convenience_parts"))   # False: a file from before D-75 or the time rule
     bd = breakdown(cand["inputs"], base["components"], total_cad=base["total_cad"], typical_cad=cand["typical_cad"], share=base["share"],
-                   fringe=fringe, lodging=lodging, events=(events, events_line)) if has_inputs else None
+                   fringe=fringe, lodging=lodging, events=(events, events_line),
+                   room=base["lodging_source"] != "estimate") if has_inputs else None
     cls = s.trip_classes[cand["trip_class"]]
     why = None
     if base["lodging_source"] == "estimate":

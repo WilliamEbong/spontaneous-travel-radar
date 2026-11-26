@@ -143,6 +143,17 @@ def test_no_lodging_keeps_the_pass1_numbers(scored_vancouver):
     assert p2["chosen"] is None and p2["score"] == scored_vancouver.score and p2["lodging_source"] == "estimate" and p2["skipped"] == "quota"
 
 
+def test_convenience_line_names_a_room_only_when_one_was_chosen():
+    """Backlog 2: when pass 2 finds nothing, the convenience line must not end with "central room"."""
+    x = _nyc_nonstop()
+    conv = lambda p2: next(r["input"] for r in p2["breakdown"] if r["key"] == "convenience")
+    lodging = lambda p2: next(r["input"] for r in p2["breakdown"] if r["key"] == "lodging")
+    none = pass2(x, city("new_york"), LodgingCheck((), None, 2), S)
+    assert "room" not in conv(none) and "nothing acceptable within 6 km" in lodging(none)
+    found = pass2(x, city("new_york"), LodgingCheck((_opt("hotel", 650, 1.2, "Central hotel"),), None, 2), S)
+    assert conv(found).endswith(" · central room")
+
+
 def test_candidate_file_status_and_dedupe(tmp_path):
     x, c = _nyc_nonstop(), city("new_york")
     p2 = pass2(x, c, LodgingCheck((_opt("hotel", 650, 1.2, "Central [hotel](https://evil.example) **now**"),), None, 0), S)  # cached: 0 lookups
