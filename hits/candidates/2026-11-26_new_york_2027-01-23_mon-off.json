@@ -4,7 +4,7 @@
  "created": "2026-11-26T11:19:46+00:00",
  "mode": "dry-run",
  "stage": "candidate",
- "status": "awaiting_pass3",
+ "status": "done",
  "drop_reason": null,
  "is_hit": false,
  "city": "new_york",

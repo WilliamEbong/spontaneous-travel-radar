@@ -1,0 +1,416 @@
+{
+ "id": "2026-11-26_new_york_2027-01-23_mon-off",
+ "scan_date": "2026-11-26",
+ "created": "2026-11-26T14:41:43+00:00",
+ "mode": "dry-run",
+ "stage": "near_miss",
+ "status": "done",
+ "drop_reason": "no real lodging found (no hotel or rental within 6 km, no Airbnb total for these dates)",
+ "is_hit": false,
+ "city": "new_york",
+ "city_name": "New York",
+ "window_id": "2027-01-23_mon-off",
+ "trip_class": "dayoff",
+ "class_label": "Needs a day off",
+ "hit_threshold": 80,
+ "dates": {
+  "check_in": "2027-01-23",
+  "check_out": "2027-01-25",
+  "nights": 2
+ },
+ "flights": {
+  "out": {
+   "from": "YYC",
+   "to": "EWR",
+   "dep": "2027-01-23T07:15:00-06:00",
+   "arr": "2027-01-23T15:49:00-05:00",
+   "airlines": [
+    "DL"
+   ],
+   "flight_numbers": [
+    "DL 4072",
+    "DL 2033"
+   ],
+   "stops": 1,
+   "layover_min": 40,
+   "duration_min": 454,
+   "price_cad_2pax": 643
+  },
+  "back": {
+   "from": "EWR",
+   "to": "YYC",
+   "dep": "2027-01-25T06:54:00-05:00",
+   "arr": "2027-01-25T13:46:00-06:00",
+   "airlines": [
+    "AA"
+   ],
+   "flight_numbers": [
+    "AA 1187",
+    "AA 2060"
+   ],
+   "stops": 1,
+   "layover_min": 58,
+   "duration_min": 472,
+   "price_cad_2pax": 638
+  },
+  "cad_2pax": 1281,
+  "price_pp": 640
+ },
+ "ladder": {
+  "label": "exceptional",
+  "exceptional": 712,
+  "good": 816,
+  "typical": 930,
+  "confidence": "high",
+  "nonstop": "year-round"
+ },
+ "typical_cad": 2504.16,
+ "transfers_cad": 92,
+ "conv_pts": 5,
+ "hours_on_ground": 14.6,
+ "airport_to_core_min": 45,
+ "weather": {
+  "score": 4.5,
+  "source": "normals"
+ },
+ "inputs": {
+  "weights": {
+   "price": 45,
+   "time": 20,
+   "convenience": 10,
+   "city": 15,
+   "weather": 10
+  },
+  "hours": 14.6,
+  "max_hours": 31,
+  "sleep_h": 10,
+  "overhead_h": 4.5,
+  "stops": [
+   1,
+   1
+  ],
+  "layover_min": 58,
+  "airport_to_core_min": 45,
+  "car_needed": false,
+  "night_arrival": false,
+  "convenience_parts": [
+   "one stop each way, 58-min layover (5)",
+   "airport 45 min from downtown",
+   "no car needed",
+   "lands 15:49"
+  ],
+  "city_name": "New York",
+  "rank": 10,
+  "nights": 2,
+  "weather": {
+   "score": 4.466666666666668,
+   "source": "normals",
+   "highs": [
+    3.9,
+    3.9,
+    3.9
+   ],
+   "precip": [
+    36.666666666666664,
+    36.666666666666664,
+    36.666666666666664
+   ],
+   "months": [
+    "January"
+   ],
+   "days": [],
+   "codes": []
+  },
+  "flights_ladder": {
+   "exceptional": 712,
+   "good": 816,
+   "typical": 930
+  }
+ },
+ "pass1": {
+  "score": 70,
+  "components": {
+   "price": 35.65,
+   "time": 9.41,
+   "convenience": 5.0,
+   "city": 15.0,
+   "weather": 4.47
+  },
+  "lodging_cad": 422.24,
+  "lodging_source": "estimate",
+  "total_cad": 1795.24,
+  "share": 0.7169,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 35.65,
+    "max": 45,
+    "input": "complete trip $1,795 for two, 72% of what this route normally costs (~$2,504)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 9.41,
+    "max": 20,
+    "input": "15 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   }
+  ]
+ },
+ "pass2": {
+  "searches": 2,
+  "skipped": null,
+  "options": [],
+  "chosen": null,
+  "components": {
+   "price": 35.65,
+   "time": 9.41,
+   "convenience": 5.0,
+   "city": 15.0,
+   "weather": 4.47
+  },
+  "score": 70,
+  "total_cad": 1795.24,
+  "share": 0.7169,
+  "lodging_cad": 422.24,
+  "lodging_source": "estimate",
+  "fringe": false,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 35.65,
+    "max": 45,
+    "input": "complete trip $1,795 for two, 72% of what this route normally costs (~$2,504)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 9.41,
+    "max": 20,
+    "input": "15 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "nothing acceptable within 6 km; the route's good room rate stands in ($422 for 2 nights)"
+   }
+  ]
+ },
+ "pass3": {
+  "events_pts": 4.6,
+  "items": [
+   {
+    "name": "Gerald Clayton at the Village Vanguard",
+    "date": "2027-01-24",
+    "url": "https://avanzert.com/concert/gerald-clayton-village-vanguard-2027-01-24/",
+    "uniqueness": 3,
+    "fit": 1,
+    "price_cad": 63,
+    "famous": false,
+    "reason": "Jazz pianist in the most legendary jazz basement in the world; listed for Sun 24 Jan (cover estimated at about US$45).",
+    "affordability": 0.0,
+    "points": 0.0
+   },
+   {
+    "name": "Studio Museum in Harlem: 'Dreams of This Future' (Peggy Cooper Cafritz collection) and 'Geometries'",
+    "url": "https://studiomuseum.org/",
+    "uniqueness": 3,
+    "fit": 1,
+    "price_cad": 0,
+    "famous": false,
+    "reason": "Black contemporary art in the museum's new Harlem building; both shows on view through February 2027 (admission estimated free).",
+    "affordability": 1.0,
+    "points": 3.0
+   },
+   {
+    "name": "Brooklyn Flea + Smorgasburg winter market",
+    "uniqueness": 2,
+    "fit": 0.8,
+    "price_cad": 0,
+    "famous": false,
+    "reason": "Indoor vintage and food market, usually every Saturday and Sunday November to March; 2027 venue not yet announced.",
+    "affordability": 1.0,
+    "points": 1.6
+   }
+  ],
+  "negatives": [
+   "Deep winter: January highs around 4 C, rain or snow on about 11 of 30 days.",
+   "NYC Winter Jazzfest's Manhattan marathon is 15 Jan 2027, the week before; it is missed.",
+   "Restaurant Week and Broadway Week 2027 dates not announced yet (usually late January to February).",
+   "Some event sites were outside this session's network, so the search was thinner than usual."
+  ],
+  "airbnb": {
+   "hint": "Airbnb not reachable"
+  },
+  "airbnb_used": false,
+  "research": "data/research/new_york-2027-01-23_mon-off.json",
+  "researched": "2026-11-26",
+  "components": {
+   "price": 35.65,
+   "time": 9.41,
+   "convenience": 5.0,
+   "city": 15.0,
+   "weather": 4.47
+  },
+  "score": 70,
+  "total_cad": 1795.24,
+  "share": 0.7169,
+  "lodging_cad": 422.24,
+  "lodging_source": "estimate",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 35.65,
+    "max": 45,
+    "input": "complete trip $1,795 for two, 72% of what this route normally costs (~$2,504)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 9.41,
+    "max": 20,
+    "input": "15 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "nothing acceptable within 6 km; the route's good room rate stands in ($422 for 2 nights)"
+   },
+   {
+    "key": "whats_on",
+    "label": "What's on",
+    "points": 4.6,
+    "max": 10,
+    "input": "+4.6: Studio Museum in Harlem: 'Dreams of This Future' (Peggy Cooper Cafritz collection) and 'Geometries' (+3), Brooklyn Flea + Smorgasburg winter market (+1.6)"
+   }
+  ]
+ },
+ "final_score": 75,
+ "score": 75,
+ "total_cad": 1795.24,
+ "breakdown": [
+  {
+   "key": "price",
+   "label": "Price",
+   "points": 35.65,
+   "max": 45,
+   "input": "complete trip $1,795 for two, 72% of what this route normally costs (~$2,504)"
+  },
+  {
+   "key": "time",
+   "label": "Time there",
+   "points": 9.41,
+   "max": 20,
+   "input": "15 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+  },
+  {
+   "key": "convenience",
+   "label": "Convenience",
+   "points": 5.0,
+   "max": 10,
+   "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49"
+  },
+  {
+   "key": "city",
+   "label": "City",
+   "points": 15.0,
+   "max": 15,
+   "input": "New York, rank 10/10"
+  },
+  {
+   "key": "weather",
+   "label": "Weather",
+   "points": 4.47,
+   "max": 10,
+   "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+  },
+  {
+   "key": "lodging",
+   "label": "Lodging",
+   "points": null,
+   "max": null,
+   "input": "nothing acceptable within 6 km; the route's good room rate stands in ($422 for 2 nights)"
+  },
+  {
+   "key": "whats_on",
+   "label": "What's on",
+   "points": 4.6,
+   "max": 10,
+   "input": "+4.6: Studio Museum in Harlem: 'Dreams of This Future' (Peggy Cooper Cafritz collection) and 'Geometries' (+3), Brooklyn Flea + Smorgasburg winter market (+1.6)"
+  }
+ ],
+ "links": {
+  "google_flights": "https://www.google.com/travel/flights?q=Flights%20to%20EWR%20from%20YYC%20on%202027-01-23%20through%202027-01-25",
+  "google_hotels": "https://www.google.com/travel/search?q=hotels%20in%20Midtown%20Manhattan%2C%20New%20York%202027-01-23%20to%202027-01-25",
+  "airbnb": "https://www.airbnb.ca/s/Midtown%20Manhattan%2C%20New%20York/homes?checkin=2027-01-23&checkout=2027-01-25&adults=2"
+ }
+}

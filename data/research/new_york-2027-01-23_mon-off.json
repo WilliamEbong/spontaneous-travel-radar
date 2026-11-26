@@ -1,0 +1,17 @@
+{
+ "city": "new_york",
+ "window_id": "2027-01-23_mon-off",
+ "researched": "2026-11-26",
+ "items": [
+  {"name": "Gerald Clayton at the Village Vanguard", "date": "2027-01-24", "url": "https://avanzert.com/concert/gerald-clayton-village-vanguard-2027-01-24/", "uniqueness": 3, "fit": 1, "price_cad": 63, "famous": false, "reason": "Jazz pianist in the most legendary jazz basement in the world; listed for Sun 24 Jan (cover estimated at about US$45)."},
+  {"name": "Studio Museum in Harlem: 'Dreams of This Future' (Peggy Cooper Cafritz collection) and 'Geometries'", "url": "https://studiomuseum.org/", "uniqueness": 3, "fit": 1, "price_cad": 0, "famous": false, "reason": "Black contemporary art in the museum's new Harlem building; both shows on view through February 2027 (admission estimated free)."},
+  {"name": "Brooklyn Flea + Smorgasburg winter market", "uniqueness": 2, "fit": 0.8, "price_cad": 0, "famous": false, "reason": "Indoor vintage and food market, usually every Saturday and Sunday November to March; 2027 venue not yet announced."}
+ ],
+ "negatives": [
+  "Deep winter: January highs around 4 C, rain or snow on about 11 of 30 days.",
+  "NYC Winter Jazzfest's Manhattan marathon is 15 Jan 2027, the week before; it is missed.",
+  "Restaurant Week and Broadway Week 2027 dates not announced yet (usually late January to February).",
+  "Some event sites were outside this session's network, so the search was thinner than usual."
+ ],
+ "airbnb": {"hint": "Airbnb not reachable"}
+}

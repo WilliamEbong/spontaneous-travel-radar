@@ -6,26 +6,26 @@
   "window_id": "2027-01-23_mon-off",
   "trip_class": "dayoff",
   "mode": "dry-run",
-  "stage": "candidate",
-  "status": "awaiting_pass3",
+  "stage": "near_miss",
+  "status": "done",
   "is_hit": false,
   "scan_date": "2026-11-26",
-  "pass": 2,
+  "pass": 3,
   "score_p1": 70,
   "score_p2": 70,
-  "events_pts": null,
-  "final_score": null,
-  "score": 70,
+  "events_pts": 4.6,
+  "final_score": 75,
+  "score": 75,
   "hit_threshold": 80,
   "flights_cad_2pax": 1281,
   "price_pp": 640,
   "ladder": "exceptional",
   "total_cad": 1795.24,
   "lodging_source": "estimate",
-  "drop_reason": null,
-  "created": "2026-11-26T11:19:46+00:00",
-  "path_json": "hits/candidates/2026-11-26_new_york_2027-01-23_mon-off.json",
-  "path_md": "hits/candidates/2026-11-26_new_york_2027-01-23_mon-off.md",
+  "drop_reason": "no real lodging found (no hotel or rental within 6 km, no Airbnb total for these dates)",
+  "created": "2026-11-26T14:41:43+00:00",
+  "path_json": "hits/near-miss/2026-11-26_new_york_2027-01-23_mon-off.json",
+  "path_md": "hits/near-miss/2026-11-26_new_york_2027-01-23_mon-off.md",
   "breakdown": [
    {
     "key": "price",
@@ -46,7 +46,7 @@
     "label": "Convenience",
     "points": 5.0,
     "max": 10,
-    "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49 \u00b7 central room"
+    "input": "one stop each way, 58-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 15:49"
    },
    {
     "key": "city",
@@ -68,6 +68,13 @@
     "points": null,
     "max": null,
     "input": "nothing acceptable within 6 km; the route's good room rate stands in ($422 for 2 nights)"
+   },
+   {
+    "key": "whats_on",
+    "label": "What's on",
+    "points": 4.6,
+    "max": 10,
+    "input": "+4.6: Studio Museum in Harlem: 'Dreams of This Future' (Peggy Cooper Cafritz collection) and 'Geometries' (+3), Brooklyn Flea + Smorgasburg winter market (+1.6)"
    }
   ]
  },

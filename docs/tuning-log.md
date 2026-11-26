@@ -76,3 +76,18 @@ judged trips called good or better and sent for a closer look. Undo a kept chang
 | 2026-11-25 | 15 | dayoff.candidate_threshold 70 → 72 | 34.58 → 32.79 | 62.40 → 56.58 | deal 0.00, ladder 0.66, good 21%, closer look 0.0%, n 669 | reverted: guardrail: trips sent for a closer look 0.0%, band 0.5% to 3.0% |
 | 2026-11-25 | 16 | weekend.candidate_threshold 70 → 80 | 34.58 → 34.58 | 62.40 → 62.40 | deal 0.04, ladder 0.66, good 21%, closer look 0.3%, n 669 | reverted: changes no decision up to its bound |
 | 2026-11-25 | night | 16 trials, 3 kept: live on main | 29.24 → 34.58 | 42.38 → 62.40 | hindsight, 17 scan days 2026-11-09 to 2026-11-25 | |
+| 2026-11-26 | 1 | rolling_window_days 60 → 90 | 35.08 → 35.08 | 60.37 → 60.37 | deal 0.04, ladder 0.66, good 22%, closer look 0.3%, n 592 | reverted: changes no decision up to its bound |
+| 2026-11-26 | 2 | rolling_ladder.typical 50 → 55 | 35.08 → 38.57 | 60.37 → 65.36 | deal 0.11, ladder 0.66, good 22%, closer look 1.0%, n 592 | reverted: better by 3.49 but in only 67.9% of 1000 redraws of the days (needs 90%) |
+| 2026-11-26 | 3 | dayoff.candidate_threshold 70 → 68 | 35.08 → 38.57 | 60.37 → 67.47 | deal 0.11, ladder 0.66, good 22%, closer look 1.0%, n 592 | reverted: better by 3.49 but in only 67.9% of 1000 redraws of the days (needs 90%) |
+| 2026-11-26 | 4 | price_curve.share_0 0.60 → 0.65 | 35.08 → 38.57 | 60.37 → 66.22 | deal 0.11, ladder 0.66, good 22%, closer look 1.0%, n 592 | reverted: better by 3.49 but in only 67.9% of 1000 redraws of the days (needs 90%) |
+| 2026-11-26 | 5 | price_curve.share_2 1.00 → 0.95 | 35.08 → 35.08 | 60.37 → 60.37 | deal 0.04, ladder 0.66, good 22%, closer look 0.3%, n 592 | reverted: changes no decision up to its bound |
+| 2026-11-26 | 6 | weekend.candidate_threshold 70 → 62 | 35.08 → 36.88 | 60.37 → 60.92 | deal 0.07, ladder 0.66, good 22%, closer look 0.7%, n 592 | reverted: better by 1.80 but in only 65.1% of 1000 redraws of the days (needs 90%) |
+| 2026-11-26 | 7 | rolling_ladder.good 35 → 30 | 35.08 → 33.12 | 60.37 → 60.17 | deal 0.04, ladder 0.62, good 18%, closer look 0.3%, n 592 | reverted: not better by 1 |
+| 2026-11-26 | 8 | price_curve.share_1 0.85 → 0.80 | 35.08 → 33.16 | 60.37 → 50.08 | deal 0.00, ladder 0.66, good 22%, closer look 0.0%, n 592 | reverted: guardrail: trips sent for a closer look 0.0%, band 0.5% to 3.0% |
+| 2026-11-26 | 9 | price_curve.share_0 0.60 → 0.55 | 35.08 → 34.13 | 60.37 → 56.08 | deal 0.02, ladder 0.66, good 22%, closer look 0.2%, n 592 | reverted: guardrail: trips sent for a closer look 0.2%, band 0.5% to 3.0% |
+| 2026-11-26 | 10 | rolling_window_days 60 → 30 | 35.08 → 35.08 | 60.37 → 60.37 | deal 0.04, ladder 0.66, good 22%, closer look 0.3%, n 592 | reverted: changes no decision up to its bound |
+| 2026-11-26 | 11 | dayoff.candidate_threshold 70 → 72 | 35.08 → 33.16 | 60.37 → 53.99 | deal 0.00, ladder 0.66, good 22%, closer look 0.0%, n 592 | reverted: guardrail: trips sent for a closer look 0.0%, band 0.5% to 3.0% |
+| 2026-11-26 | 12 | weekend.candidate_threshold 70 → 80 | 35.08 → 35.08 | 60.37 → 60.37 | deal 0.04, ladder 0.66, good 22%, closer look 0.3%, n 592 | reverted: changes no decision up to its bound |
+| 2026-11-26 | 13 | rolling_ladder.typical 50 → 45 | 35.08 → 34.13 | 60.37 → 56.08 | deal 0.02, ladder 0.66, good 22%, closer look 0.2%, n 592 | reverted: guardrail: trips sent for a closer look 0.2%, band 0.5% to 3.0% |
+| 2026-11-26 | 14 | price_curve.share_2 1.00 → 1.05 | 35.08 → 35.08 | 60.37 → 60.37 | deal 0.04, ladder 0.66, good 22%, closer look 0.3%, n 592 | reverted: changes no decision up to its bound |
+| 2026-11-26 | night | 14 trials, 0 kept: no change | 35.08 → 35.08 | 60.37 → 60.37 | hindsight, 18 scan days 2026-11-09 to 2026-11-26 | |
