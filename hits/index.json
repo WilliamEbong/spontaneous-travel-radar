@@ -1,5 +1,84 @@
 [
  {
+  "id": "2026-11-27_toronto_2027-01-29_fri-off",
+  "city": "toronto",
+  "city_name": "Toronto",
+  "window_id": "2027-01-29_fri-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "near_miss",
+  "status": "done",
+  "is_hit": false,
+  "scan_date": "2026-11-27",
+  "pass": 3,
+  "score_p1": 72,
+  "score_p2": 72,
+  "events_pts": 6.6,
+  "final_score": 79,
+  "score": 79,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 756,
+  "price_pp": 378,
+  "ladder": "exceptional",
+  "total_cad": 968,
+  "lodging_source": "hotel",
+  "drop_reason": "final 79 is under the hit line 80",
+  "created": "2026-11-27T14:41:40+00:00",
+  "path_json": "hits/near-miss/2026-11-27_toronto_2027-01-29_fri-off.json",
+  "path_md": "hits/near-miss/2026-11-27_toronto_2027-01-29_fri-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 32.45,
+    "max": 45,
+    "input": "complete trip $968 for two, 76% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 15.43,
+    "max": 20,
+    "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 2.1,
+    "max": 10,
+    "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Novotel Toronto Centre, hotel, $160 a night all-in, total $160"
+   },
+   {
+    "key": "whats_on",
+    "label": "What's on",
+    "points": 6.6,
+    "max": 10,
+    "input": "+6.6: AGO: Dawoud Bey, Material Histories, Living Landscapes (+3), AGO: Sunday Best: The Power & The Glory of Black Style (+2.4), Winterlicious opening weekend (+0.72), Bang On A Can All-Stars: Reich and Glass at 90, Koerner Hall (+0.48)"
+   }
+  ]
+ },
+ {
   "id": "2026-11-27_new_york_2027-01-09_mon-off",
   "city": "new_york",
   "city_name": "New York",
@@ -140,78 +219,6 @@
     "points": null,
     "max": null,
     "input": "One King West Hotel & Residence, hotel, $197 a night all-in, total $197 (Google: 31% less than usual)"
-   }
-  ]
- },
- {
-  "id": "2026-11-27_toronto_2027-01-29_fri-off",
-  "city": "toronto",
-  "city_name": "Toronto",
-  "window_id": "2027-01-29_fri-off",
-  "trip_class": "dayoff",
-  "mode": "dry-run",
-  "stage": "candidate",
-  "status": "awaiting_pass3",
-  "is_hit": false,
-  "scan_date": "2026-11-27",
-  "pass": 2,
-  "score_p1": 72,
-  "score_p2": 72,
-  "events_pts": null,
-  "final_score": null,
-  "score": 72,
-  "hit_threshold": 80,
-  "flights_cad_2pax": 756,
-  "price_pp": 378,
-  "ladder": "exceptional",
-  "total_cad": 968,
-  "lodging_source": "hotel",
-  "drop_reason": null,
-  "created": "2026-11-27T11:29:55+00:00",
-  "path_json": "hits/candidates/2026-11-27_toronto_2027-01-29_fri-off.json",
-  "path_md": "hits/candidates/2026-11-27_toronto_2027-01-29_fri-off.md",
-  "breakdown": [
-   {
-    "key": "price",
-    "label": "Price",
-    "points": 32.45,
-    "max": 45,
-    "input": "complete trip $968 for two, 76% of what this route normally costs (~$1,279)"
-   },
-   {
-    "key": "time",
-    "label": "Time there",
-    "points": 15.43,
-    "max": 20,
-    "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
-   },
-   {
-    "key": "convenience",
-    "label": "Convenience",
-    "points": 10.0,
-    "max": 10,
-    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
-   },
-   {
-    "key": "city",
-    "label": "City",
-    "points": 12.0,
-    "max": 15,
-    "input": "Toronto, rank 8/10"
-   },
-   {
-    "key": "weather",
-    "label": "Weather",
-    "points": 2.1,
-    "max": 10,
-    "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
-   },
-   {
-    "key": "lodging",
-    "label": "Lodging",
-    "points": null,
-    "max": null,
-    "input": "Novotel Toronto Centre, hotel, $160 a night all-in, total $160"
    }
   ]
  },

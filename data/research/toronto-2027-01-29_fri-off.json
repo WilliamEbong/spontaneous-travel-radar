@@ -1,0 +1,17 @@
+{
+ "city": "toronto",
+ "window_id": "2027-01-29_fri-off",
+ "researched": "2026-11-27",
+ "items": [
+  {"name": "AGO: Sunday Best: The Power & The Glory of Black Style", "url": "https://ago.ca/exhibitions/sunday-best", "uniqueness": 3, "fit": 1, "price_cad": 30, "famous": false, "reason": "Black style and self-fashioning from the 1880s to today, curated by the AGO before it goes to Philadelphia; on view 7 Oct 2026 to 28 Feb 2027 (adult admission estimated about $30)."},
+  {"name": "Winterlicious opening weekend", "date": "2027-01-29", "url": "https://www.toronto.ca/explore-enjoy/festivals-events/winterlicious/", "uniqueness": 2, "fit": 0.6, "price_cad": 45, "famous": false, "reason": "The city's prix-fixe restaurant festival starts 29 Jan 2027 (runs to 11 Feb); a set dinner at a place you would not normally get into, about $45 a head estimated."},
+  {"name": "Bang On A Can All-Stars: Reich and Glass at 90, Koerner Hall", "date": "2027-01-29", "url": "https://www.rcmusic.com/concert/bang-on-a-can-all-stars-reich-and-glass-at-90-441601", "uniqueness": 2, "fit": 0.3, "price_cad": 21, "famous": false, "reason": "Friday 8 pm, minimalist new music in one of Canada's best concert halls; outside his core genres, tickets from $21."},
+  {"name": "AGO: Dawoud Bey, Material Histories, Living Landscapes", "url": "https://ago.ca/press-release/dawoud-bey-returns-toronto-installation-exploring-landscapes-black-diasporic-history", "uniqueness": 3, "fit": 1, "price_cad": 0, "famous": false, "reason": "Photographer's installation on landscapes of Black diasporic history, on view until spring 2027; same ticket as Sunday Best, so no extra cost."}
+ ],
+ "negatives": [
+  "Deep winter: January highs around -1 C, snow or rain on about 16 of 30 days.",
+  "No hip-hop, R&B, jazz or Afrobeats show found for 28 to 30 Jan yet; club and jazz-bar calendars (The Rex and others) are not posted that far ahead.",
+  "Airbnb could not be checked from this session."
+ ],
+ "airbnb": {"hint": "Airbnb not reachable"}
+}

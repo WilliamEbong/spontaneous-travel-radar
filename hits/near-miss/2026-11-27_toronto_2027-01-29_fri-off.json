@@ -1,0 +1,579 @@
+{
+ "id": "2026-11-27_toronto_2027-01-29_fri-off",
+ "scan_date": "2026-11-27",
+ "created": "2026-11-27T14:41:40+00:00",
+ "mode": "dry-run",
+ "stage": "near_miss",
+ "status": "done",
+ "drop_reason": "final 79 is under the hit line 80",
+ "is_hit": false,
+ "city": "toronto",
+ "city_name": "Toronto",
+ "window_id": "2027-01-29_fri-off",
+ "trip_class": "dayoff",
+ "class_label": "Needs a day off",
+ "hit_threshold": 80,
+ "dates": {
+  "check_in": "2027-01-29",
+  "check_out": "2027-01-30",
+  "nights": 1
+ },
+ "flights": {
+  "out": {
+   "from": "YYC",
+   "to": "YYZ",
+   "dep": "2027-01-29T01:45:00-06:00",
+   "arr": "2027-01-29T06:40:00-05:00",
+   "airlines": [
+    "F8"
+   ],
+   "flight_numbers": [
+    "F8 628"
+   ],
+   "stops": 0,
+   "layover_min": 0,
+   "duration_min": 235,
+   "price_cad_2pax": 369
+  },
+  "back": {
+   "from": "YYZ",
+   "to": "YYC",
+   "dep": "2027-01-30T21:05:00-05:00",
+   "arr": "2027-01-31T00:45:00-06:00",
+   "airlines": [
+    "F8"
+   ],
+   "flight_numbers": [
+    "F8 629"
+   ],
+   "stops": 0,
+   "layover_min": 0,
+   "duration_min": 280,
+   "price_cad_2pax": 387
+  },
+  "cad_2pax": 756,
+  "price_pp": 378
+ },
+ "ladder": {
+  "label": "exceptional",
+  "exceptional": 390,
+  "good": 456,
+  "typical": 510,
+  "confidence": "high",
+  "nonstop": "year-round"
+ },
+ "typical_cad": 1279.0,
+ "transfers_cad": 52,
+ "conv_pts": 10,
+ "hours_on_ground": 23.9,
+ "airport_to_core_min": 30,
+ "weather": {
+  "score": 2.1,
+  "source": "normals"
+ },
+ "inputs": {
+  "weights": {
+   "price": 45,
+   "time": 20,
+   "convenience": 10,
+   "city": 15,
+   "weather": 10
+  },
+  "hours": 23.9,
+  "max_hours": 31,
+  "sleep_h": 10,
+  "overhead_h": 4.5,
+  "stops": [
+   0,
+   0
+  ],
+  "layover_min": 0,
+  "airport_to_core_min": 30,
+  "car_needed": false,
+  "night_arrival": false,
+  "convenience_parts": [
+   "non-stop both ways (10)",
+   "airport 30 min from downtown",
+   "no car needed",
+   "lands 06:40"
+  ],
+  "city_name": "Toronto",
+  "rank": 8,
+  "nights": 1,
+  "weather": {
+   "score": 2.0999999999999996,
+   "source": "normals",
+   "highs": [
+    -0.7,
+    -0.7,
+    -0.7
+   ],
+   "precip": [
+    53.333333333333336,
+    53.333333333333336,
+    53.333333333333336
+   ],
+   "months": [
+    "January"
+   ],
+   "days": [],
+   "codes": []
+  },
+  "flights_ladder": {
+   "exceptional": 390,
+   "good": 456,
+   "typical": 510
+  }
+ },
+ "pass1": {
+  "score": 72,
+  "components": {
+   "price": 32.75,
+   "time": 15.43,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 2.1
+  },
+  "lodging_cad": 155.25,
+  "lodging_source": "estimate",
+  "total_cad": 963.25,
+  "share": 0.7531,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 32.75,
+    "max": 45,
+    "input": "complete trip $963 for two, 75% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 15.43,
+    "max": 20,
+    "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 2.1,
+    "max": 10,
+    "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
+   }
+  ]
+ },
+ "pass2": {
+  "searches": 2,
+  "skipped": null,
+  "options": [
+   {
+    "kind": "hotel",
+    "name": "Novotel Toronto Centre",
+    "link": "https://all.accor.com/lien_externe.svlt?goto=fiche_hotel&code_hotel=0931&merchantid=seo-maps-CA-0931&sourceid=aw-cen&utm_medium=seo%20maps&utm_source=google%20Maps&utm_campaign=seo%20maps",
+    "total": 160.0,
+    "currency": "CAD",
+    "total_cad": 160,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 131,
+    "rating": 4.3,
+    "stars": 4,
+    "km": 1.0,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 72,
+    "trip_total_cad": 968
+   },
+   {
+    "kind": "rental",
+    "name": "Home in Downtown - Double Room",
+    "link": "",
+    "total": 164.0,
+    "currency": "CAD",
+    "total_cad": 164,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 164,
+    "rating": 5.0,
+    "stars": null,
+    "km": 1.6,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire house, Sleeps 2",
+    "trip_score": 72,
+    "trip_total_cad": 972
+   },
+   {
+    "kind": "hotel",
+    "name": "The Anndore House - JDV by Hyatt",
+    "link": "https://www.hyatt.com/jdv-by-hyatt/en-US/torjd-the-anndore-house?src=corp_lclb_google_seo_torjd&utm_source=google&utm_medium=organic&utm_campaign=lmr",
+    "total": 196.0,
+    "currency": "CAD",
+    "total_cad": 196,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 165,
+    "rating": 4.5,
+    "stars": 4,
+    "km": 1.7,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 70,
+    "trip_total_cad": 1004
+   },
+   {
+    "kind": "rental",
+    "name": "Spacious Room with Ensuite Bathroom near Subway, Koreatown UofT - Superior Queen Room",
+    "link": "",
+    "total": 199.0,
+    "currency": "CAD",
+    "total_cad": 199,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 199,
+    "rating": 4.9,
+    "stars": null,
+    "km": 2.8,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire house, Sleeps 2",
+    "trip_score": 70,
+    "trip_total_cad": 1007
+   },
+   {
+    "kind": "rental",
+    "name": "Dragon Gate Inn - Deluxe 2 Queen Beds",
+    "link": "https://www.freecancellations.com/search/F2giQ1NRTCEAXFIBVVhYTQ8KVko1TF0R?lat=43.65172&lng=-79.4076&language=en",
+    "total": 200.0,
+    "currency": "CAD",
+    "total_cad": 200,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 200,
+    "rating": 4.9,
+    "stars": null,
+    "km": 2.0,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Sleeps 6, 15 bedrooms",
+    "trip_score": 69,
+    "trip_total_cad": 1008
+   },
+   {
+    "kind": "rental",
+    "name": "Dragon Gate Inn - Superior Studio (2 Adults)",
+    "link": "https://www.bluepillow.com/search/5a84ed357c00cb0e042452b5?dest=bkng&cat=Apartment&p_id=589df5667c00cb10c8da5770&language=en",
+    "total": 201.0,
+    "currency": "CAD",
+    "total_cad": 201,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 201,
+    "rating": 4.9,
+    "stars": null,
+    "km": 2.0,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 6",
+    "trip_score": 69,
+    "trip_total_cad": 1009
+   },
+   {
+    "kind": "hotel",
+    "name": "TOOR Hotel - JDV by Hyatt",
+    "link": "https://www.hyatt.com/jdv-by-hyatt/en-US/torzt-jdv-toor-hotel?src=corp_lclb_google_seo_torzt&utm_source=google&utm_medium=organic&utm_campaign=lmr",
+    "total": 205.0,
+    "currency": "CAD",
+    "total_cad": 205,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 171,
+    "rating": 4.4,
+    "stars": 4,
+    "km": 0.8,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "4:00 PM",
+    "trip_score": 69,
+    "trip_total_cad": 1013
+   },
+   {
+    "kind": "rental",
+    "name": "Gabby's Place Downtown Core - Superior Suite",
+    "link": "https://www.bluepillow.com/search/6398fca2c551970d3c76108f?dest=bkng&cat=House&p_id=589df5667c00cb10c8da5770&language=en",
+    "total": 225.0,
+    "currency": "CAD",
+    "total_cad": 225,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 225,
+    "rating": 5.0,
+    "stars": null,
+    "km": 1.3,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire house, Sleeps 2",
+    "trip_score": 68,
+    "trip_total_cad": 1033
+   }
+  ],
+  "chosen": 0,
+  "components": {
+   "price": 32.45,
+   "time": 15.43,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 2.1
+  },
+  "score": 72,
+  "total_cad": 968,
+  "share": 0.7568,
+  "lodging_cad": 160,
+  "lodging_source": "hotel",
+  "fringe": false,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 32.45,
+    "max": 45,
+    "input": "complete trip $968 for two, 76% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 15.43,
+    "max": 20,
+    "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 2.1,
+    "max": 10,
+    "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Novotel Toronto Centre, hotel, $160 a night all-in, total $160"
+   }
+  ]
+ },
+ "pass3": {
+  "events_pts": 6.6,
+  "items": [
+   {
+    "name": "AGO: Sunday Best: The Power & The Glory of Black Style",
+    "url": "https://ago.ca/exhibitions/sunday-best",
+    "uniqueness": 3,
+    "fit": 1,
+    "price_cad": 30,
+    "famous": false,
+    "reason": "Black style and self-fashioning from the 1880s to today, curated by the AGO before it goes to Philadelphia; on view 7 Oct 2026 to 28 Feb 2027 (adult admission estimated about $30).",
+    "affordability": 0.8,
+    "points": 2.4
+   },
+   {
+    "name": "Winterlicious opening weekend",
+    "date": "2027-01-29",
+    "url": "https://www.toronto.ca/explore-enjoy/festivals-events/winterlicious/",
+    "uniqueness": 2,
+    "fit": 0.6,
+    "price_cad": 45,
+    "famous": false,
+    "reason": "The city's prix-fixe restaurant festival starts 29 Jan 2027 (runs to 11 Feb); a set dinner at a place you would not normally get into, about $45 a head estimated.",
+    "affordability": 0.6,
+    "points": 0.72
+   },
+   {
+    "name": "Bang On A Can All-Stars: Reich and Glass at 90, Koerner Hall",
+    "date": "2027-01-29",
+    "url": "https://www.rcmusic.com/concert/bang-on-a-can-all-stars-reich-and-glass-at-90-441601",
+    "uniqueness": 2,
+    "fit": 0.3,
+    "price_cad": 21,
+    "famous": false,
+    "reason": "Friday 8 pm, minimalist new music in one of Canada's best concert halls; outside his core genres, tickets from $21.",
+    "affordability": 0.8,
+    "points": 0.48
+   },
+   {
+    "name": "AGO: Dawoud Bey, Material Histories, Living Landscapes",
+    "url": "https://ago.ca/press-release/dawoud-bey-returns-toronto-installation-exploring-landscapes-black-diasporic-history",
+    "uniqueness": 3,
+    "fit": 1,
+    "price_cad": 0,
+    "famous": false,
+    "reason": "Photographer's installation on landscapes of Black diasporic history, on view until spring 2027; same ticket as Sunday Best, so no extra cost.",
+    "affordability": 1.0,
+    "points": 3.0
+   }
+  ],
+  "negatives": [
+   "Deep winter: January highs around -1 C, snow or rain on about 16 of 30 days.",
+   "No hip-hop, R&B, jazz or Afrobeats show found for 28 to 30 Jan yet; club and jazz-bar calendars (The Rex and others) are not posted that far ahead.",
+   "Airbnb could not be checked from this session."
+  ],
+  "airbnb": {
+   "hint": "Airbnb not reachable"
+  },
+  "airbnb_used": false,
+  "research": "data/research/toronto-2027-01-29_fri-off.json",
+  "researched": "2026-11-27",
+  "components": {
+   "price": 32.45,
+   "time": 15.43,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 2.1
+  },
+  "score": 72,
+  "total_cad": 968,
+  "share": 0.7568,
+  "lodging_cad": 160,
+  "lodging_source": "hotel",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 32.45,
+    "max": 45,
+    "input": "complete trip $968 for two, 76% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 15.43,
+    "max": 20,
+    "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 2.1,
+    "max": 10,
+    "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Novotel Toronto Centre, hotel, $160 a night all-in, total $160"
+   },
+   {
+    "key": "whats_on",
+    "label": "What's on",
+    "points": 6.6,
+    "max": 10,
+    "input": "+6.6: AGO: Dawoud Bey, Material Histories, Living Landscapes (+3), AGO: Sunday Best: The Power & The Glory of Black Style (+2.4), Winterlicious opening weekend (+0.72), Bang On A Can All-Stars: Reich and Glass at 90, Koerner Hall (+0.48)"
+   }
+  ]
+ },
+ "final_score": 79,
+ "score": 79,
+ "total_cad": 968,
+ "breakdown": [
+  {
+   "key": "price",
+   "label": "Price",
+   "points": 32.45,
+   "max": 45,
+   "input": "complete trip $968 for two, 76% of what this route normally costs (~$1,279)"
+  },
+  {
+   "key": "time",
+   "label": "Time there",
+   "points": 15.43,
+   "max": 20,
+   "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+  },
+  {
+   "key": "convenience",
+   "label": "Convenience",
+   "points": 10.0,
+   "max": 10,
+   "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+  },
+  {
+   "key": "city",
+   "label": "City",
+   "points": 12.0,
+   "max": 15,
+   "input": "Toronto, rank 8/10"
+  },
+  {
+   "key": "weather",
+   "label": "Weather",
+   "points": 2.1,
+   "max": 10,
+   "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
+  },
+  {
+   "key": "lodging",
+   "label": "Lodging",
+   "points": null,
+   "max": null,
+   "input": "Novotel Toronto Centre, hotel, $160 a night all-in, total $160"
+  },
+  {
+   "key": "whats_on",
+   "label": "What's on",
+   "points": 6.6,
+   "max": 10,
+   "input": "+6.6: AGO: Dawoud Bey, Material Histories, Living Landscapes (+3), AGO: Sunday Best: The Power & The Glory of Black Style (+2.4), Winterlicious opening weekend (+0.72), Bang On A Can All-Stars: Reich and Glass at 90, Koerner Hall (+0.48)"
+  }
+ ],
+ "links": {
+  "google_flights": "https://www.google.com/travel/flights?q=Flights%20to%20YYZ%20from%20YYC%20on%202027-01-29%20through%202027-01-30",
+  "google_hotels": "https://www.google.com/travel/search?q=hotels%20in%20Downtown%20Toronto%2C%20Toronto%202027-01-29%20to%202027-01-30",
+  "airbnb": "https://www.airbnb.ca/s/Downtown%20Toronto%2C%20Toronto/homes?checkin=2027-01-29&checkout=2027-01-30&adults=2"
+ }
+}

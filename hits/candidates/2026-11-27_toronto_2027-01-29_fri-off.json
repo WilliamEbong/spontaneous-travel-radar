@@ -4,7 +4,7 @@
  "created": "2026-11-27T11:29:55+00:00",
  "mode": "dry-run",
  "stage": "candidate",
- "status": "awaiting_pass3",
+ "status": "done",
  "drop_reason": null,
  "is_hit": false,
  "city": "toronto",
