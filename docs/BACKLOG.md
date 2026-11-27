@@ -25,7 +25,7 @@ Every item stays inside section C's allowed files; none touches anything on C's 
 
 **Done when:** a test in `tests/test_hotels_hits.py` shows the line has no "central room" when `LodgingCheck((), None, 2)` finds nothing, and keeps it when a room is chosen.
 
-## 3. `docs/ASK.md`: the storage numbers are out of date (open)
+## 3. `docs/ASK.md`: the storage numbers are out of date (done (iter 2026-11-26))
 
 **Who notices:** an ASK session telling William how big the history is. ASK.md says each day is "about 300 rows, ~250 KB". Recent days are 65 to 227 rows and 87 to 378 KB.
 
