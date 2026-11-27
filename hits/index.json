@@ -1,5 +1,221 @@
 [
  {
+  "id": "2026-11-27_new_york_2027-01-09_mon-off",
+  "city": "new_york",
+  "city_name": "New York",
+  "window_id": "2027-01-09_mon-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "near_miss",
+  "status": "dropped",
+  "is_hit": false,
+  "scan_date": "2026-11-27",
+  "pass": 2,
+  "score_p1": 71,
+  "score_p2": 68,
+  "events_pts": null,
+  "final_score": null,
+  "score": 68,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 1337,
+  "price_pp": 668,
+  "ladder": "exceptional",
+  "total_cad": 1930.2,
+  "lodging_source": "hotel",
+  "drop_reason": "pass-2 score 68 cannot reach the hit line 80 even with 10 what's-on points",
+  "created": "2026-11-27T11:30:01+00:00",
+  "path_json": "hits/candidates/2026-11-27_new_york_2027-01-09_mon-off.json",
+  "path_md": "hits/candidates/2026-11-27_new_york_2027-01-09_mon-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 30.13,
+    "max": 45,
+    "input": "complete trip $1,930 for two, 79% of what this route normally costs (~$2,456)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 13.47,
+    "max": 20,
+    "input": "21 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 88-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 09:31 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "The Renwick Hotel, hotel, $251 a night all-in, total $501"
+   }
+  ]
+ },
+ {
+  "id": "2026-11-27_toronto_2027-03-13_mon-off",
+  "city": "toronto",
+  "city_name": "Toronto",
+  "window_id": "2027-03-13_mon-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "near_miss",
+  "status": "dropped",
+  "is_hit": false,
+  "scan_date": "2026-11-27",
+  "pass": 2,
+  "score_p1": 71,
+  "score_p2": 69,
+  "events_pts": null,
+  "final_score": null,
+  "score": 69,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 801,
+  "price_pp": 400,
+  "ladder": "good",
+  "total_cad": 1050,
+  "lodging_source": "hotel",
+  "drop_reason": "pass-2 score 69 cannot reach the hit line 80 even with 10 what's-on points",
+  "created": "2026-11-27T11:29:57+00:00",
+  "path_json": "hits/candidates/2026-11-27_toronto_2027-03-13_mon-off.json",
+  "path_md": "hits/candidates/2026-11-27_toronto_2027-03-13_mon-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 27.32,
+    "max": 45,
+    "input": "complete trip $1,050 for two, 82% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 14.78,
+    "max": 20,
+    "input": "23 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.4,
+    "max": 10,
+    "input": "March normals: highs 5 \u00b0C, rain on 13 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "One King West Hotel & Residence, hotel, $197 a night all-in, total $197 (Google: 31% less than usual)"
+   }
+  ]
+ },
+ {
+  "id": "2026-11-27_toronto_2027-01-29_fri-off",
+  "city": "toronto",
+  "city_name": "Toronto",
+  "window_id": "2027-01-29_fri-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "candidate",
+  "status": "awaiting_pass3",
+  "is_hit": false,
+  "scan_date": "2026-11-27",
+  "pass": 2,
+  "score_p1": 72,
+  "score_p2": 72,
+  "events_pts": null,
+  "final_score": null,
+  "score": 72,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 756,
+  "price_pp": 378,
+  "ladder": "exceptional",
+  "total_cad": 968,
+  "lodging_source": "hotel",
+  "drop_reason": null,
+  "created": "2026-11-27T11:29:55+00:00",
+  "path_json": "hits/candidates/2026-11-27_toronto_2027-01-29_fri-off.json",
+  "path_md": "hits/candidates/2026-11-27_toronto_2027-01-29_fri-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 32.45,
+    "max": 45,
+    "input": "complete trip $968 for two, 76% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 15.43,
+    "max": 20,
+    "input": "24 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 2.1,
+    "max": 10,
+    "input": "January normals: highs \u22121 \u00b0C, rain on 16 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Novotel Toronto Centre, hotel, $160 a night all-in, total $160"
+   }
+  ]
+ },
+ {
   "id": "2026-11-26_new_york_2027-01-23_mon-off",
   "city": "new_york",
   "city_name": "New York",

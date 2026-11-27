@@ -1,0 +1,451 @@
+{
+ "id": "2026-11-27_new_york_2027-01-09_mon-off",
+ "scan_date": "2026-11-27",
+ "created": "2026-11-27T11:30:01+00:00",
+ "mode": "dry-run",
+ "stage": "near_miss",
+ "status": "dropped",
+ "drop_reason": "pass-2 score 68 cannot reach the hit line 80 even with 10 what's-on points",
+ "is_hit": false,
+ "city": "new_york",
+ "city_name": "New York",
+ "window_id": "2027-01-09_mon-off",
+ "trip_class": "dayoff",
+ "class_label": "Needs a day off",
+ "hit_threshold": 80,
+ "dates": {
+  "check_in": "2027-01-09",
+  "check_out": "2027-01-11",
+  "nights": 2
+ },
+ "flights": {
+  "out": {
+   "from": "YYC",
+   "to": "EWR",
+   "dep": "2027-01-09T01:20:00-06:00",
+   "arr": "2027-01-09T09:31:00-05:00",
+   "airlines": [
+    "AC",
+    "UA"
+   ],
+   "flight_numbers": [
+    "AC 156",
+    "UA 3435"
+   ],
+   "stops": 1,
+   "layover_min": 88,
+   "duration_min": 431,
+   "price_cad_2pax": 698
+  },
+  "back": {
+   "from": "EWR",
+   "to": "YYC",
+   "dep": "2027-01-11T06:54:00-05:00",
+   "arr": "2027-01-11T13:46:00-06:00",
+   "airlines": [
+    "AA"
+   ],
+   "flight_numbers": [
+    "AA 1187",
+    "AA 2060"
+   ],
+   "stops": 1,
+   "layover_min": 58,
+   "duration_min": 472,
+   "price_cad_2pax": 639
+  },
+  "cad_2pax": 1337,
+  "price_pp": 668
+ },
+ "ladder": {
+  "label": "exceptional",
+  "exceptional": 712,
+  "good": 815,
+  "typical": 906,
+  "confidence": "high",
+  "nonstop": "year-round"
+ },
+ "typical_cad": 2456.16,
+ "transfers_cad": 92,
+ "conv_pts": 5,
+ "hours_on_ground": 20.9,
+ "airport_to_core_min": 45,
+ "weather": {
+  "score": 4.5,
+  "source": "normals"
+ },
+ "inputs": {
+  "weights": {
+   "price": 45,
+   "time": 20,
+   "convenience": 10,
+   "city": 15,
+   "weather": 10
+  },
+  "hours": 20.9,
+  "max_hours": 31,
+  "sleep_h": 10,
+  "overhead_h": 4.5,
+  "stops": [
+   1,
+   1
+  ],
+  "layover_min": 88,
+  "airport_to_core_min": 45,
+  "car_needed": false,
+  "night_arrival": false,
+  "convenience_parts": [
+   "one stop each way, 88-min layover (5)",
+   "airport 45 min from downtown",
+   "no car needed",
+   "lands 09:31"
+  ],
+  "city_name": "New York",
+  "rank": 10,
+  "nights": 2,
+  "weather": {
+   "score": 4.466666666666668,
+   "source": "normals",
+   "highs": [
+    3.9,
+    3.9,
+    3.9
+   ],
+   "precip": [
+    36.666666666666664,
+    36.666666666666664,
+    36.666666666666664
+   ],
+   "months": [
+    "January"
+   ],
+   "days": [],
+   "codes": []
+  },
+  "flights_ladder": {
+   "exceptional": 712,
+   "good": 815,
+   "typical": 906
+  }
+ },
+ "pass1": {
+  "score": 71,
+  "components": {
+   "price": 32.7,
+   "time": 13.47,
+   "convenience": 5.0,
+   "city": 15.0,
+   "weather": 4.47
+  },
+  "lodging_cad": 422.24,
+  "lodging_source": "estimate",
+  "total_cad": 1851.24,
+  "share": 0.7537,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 32.7,
+    "max": 45,
+    "input": "complete trip $1,851 for two, 75% of what this route normally costs (~$2,456)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 13.47,
+    "max": 20,
+    "input": "21 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 88-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 09:31"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   }
+  ]
+ },
+ "pass2": {
+  "searches": 2,
+  "skipped": null,
+  "options": [
+   {
+    "kind": "hotel",
+    "name": "The Renwick Hotel",
+    "link": "https://therenwick.com/",
+    "total": 358.0,
+    "currency": "USD",
+    "total_cad": 501.2,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 153,
+    "rating": 4.3,
+    "stars": 4,
+    "km": 2.0,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 68,
+    "trip_total_cad": 1930.2
+   },
+   {
+    "kind": "hotel",
+    "name": "Blue Angel Hotel NYC, an Ascend Collection Hotel",
+    "link": "https://www.choicehotels.com/new-york/new-york/ascend-hotels/ny842?mc=llgoxxpx",
+    "total": 347.0,
+    "currency": "USD",
+    "total_cad": 485.8,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 151,
+    "rating": 4.3,
+    "stars": 4,
+    "km": 3.2,
+    "fringe": true,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 66,
+    "trip_total_cad": 1914.8
+   },
+   {
+    "kind": "hotel",
+    "name": "Fitzpatrick Grand Central",
+    "link": "http://www.fitzpatrickhotels.com/",
+    "total": 449.0,
+    "currency": "USD",
+    "total_cad": 628.6,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 193,
+    "rating": 4.3,
+    "stars": 4,
+    "km": 2.3,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 64,
+    "trip_total_cad": 2057.6
+   },
+   {
+    "kind": "hotel",
+    "name": "Kixby hotel",
+    "link": "https://www.kixby.com/?utm_source=local-directories&utm_medium=organic&utm_campaign=travelclick-localconnect",
+    "total": 458.0,
+    "currency": "USD",
+    "total_cad": 641.2,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 197,
+    "rating": 4.5,
+    "stars": 4,
+    "km": 1.6,
+    "fringe": false,
+    "deal": "15% less than usual",
+    "deal_label": "Deal",
+    "detail": "4:00 PM",
+    "trip_score": 64,
+    "trip_total_cad": 2070.2
+   },
+   {
+    "kind": "hotel",
+    "name": "Hotel NH Collection New York Madison Avenue",
+    "link": "https://www.nh-hotels.com/en/hotel/nh-collection-new-york-madison-avenue?utm_campaign=local-gmb&utm_medium=organic_search&utm_source=google_gmb",
+    "total": 462.0,
+    "currency": "USD",
+    "total_cad": 646.8,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 198,
+    "rating": 4.4,
+    "stars": 4,
+    "km": 1.8,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 63,
+    "trip_total_cad": 2075.8
+   },
+   {
+    "kind": "rental",
+    "name": "NoMad Hotel by Flatiron & 5th Avenue",
+    "link": "",
+    "total": 479.0,
+    "currency": "USD",
+    "total_cad": 670.6,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 208,
+    "rating": 4.94,
+    "stars": null,
+    "km": 0.9,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 2",
+    "trip_score": 62,
+    "trip_total_cad": 2099.6
+   },
+   {
+    "kind": "rental",
+    "name": "Queen Studio Near Father Duffy Square NYC",
+    "link": "https://luxurybookings.ae/?hfylisting=175144",
+    "total": 481.0,
+    "currency": "USD",
+    "total_cad": 673.4,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 240,
+    "rating": 5.0,
+    "stars": null,
+    "km": 2.8,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 2",
+    "trip_score": 62,
+    "trip_total_cad": 2102.4
+   },
+   {
+    "kind": "rental",
+    "name": "Radio City Apartments",
+    "link": "",
+    "total": 481.0,
+    "currency": "USD",
+    "total_cad": 673.4,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 207,
+    "rating": 4.5,
+    "stars": null,
+    "km": 2.8,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 2",
+    "trip_score": 62,
+    "trip_total_cad": 2102.4
+   }
+  ],
+  "chosen": 0,
+  "components": {
+   "price": 30.13,
+   "time": 13.47,
+   "convenience": 5.0,
+   "city": 15.0,
+   "weather": 4.47
+  },
+  "score": 68,
+  "total_cad": 1930.2,
+  "share": 0.7859,
+  "lodging_cad": 501.2,
+  "lodging_source": "hotel",
+  "fringe": false,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 30.13,
+    "max": 45,
+    "input": "complete trip $1,930 for two, 79% of what this route normally costs (~$2,456)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 13.47,
+    "max": 20,
+    "input": "21 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 5.0,
+    "max": 10,
+    "input": "one stop each way, 88-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 09:31 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 15.0,
+    "max": 15,
+    "input": "New York, rank 10/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.47,
+    "max": 10,
+    "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "The Renwick Hotel, hotel, $251 a night all-in, total $501"
+   }
+  ]
+ },
+ "pass3": null,
+ "final_score": null,
+ "score": 68,
+ "total_cad": 1930.2,
+ "breakdown": [
+  {
+   "key": "price",
+   "label": "Price",
+   "points": 30.13,
+   "max": 45,
+   "input": "complete trip $1,930 for two, 79% of what this route normally costs (~$2,456)"
+  },
+  {
+   "key": "time",
+   "label": "Time there",
+   "points": 13.47,
+   "max": 20,
+   "input": "21 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+  },
+  {
+   "key": "convenience",
+   "label": "Convenience",
+   "points": 5.0,
+   "max": 10,
+   "input": "one stop each way, 88-min layover (5) \u00b7 airport 45 min from downtown \u00b7 no car needed \u00b7 lands 09:31 \u00b7 central room"
+  },
+  {
+   "key": "city",
+   "label": "City",
+   "points": 15.0,
+   "max": 15,
+   "input": "New York, rank 10/10"
+  },
+  {
+   "key": "weather",
+   "label": "Weather",
+   "points": 4.47,
+   "max": 10,
+   "input": "January normals: highs 4 \u00b0C, rain on 11 of 30 days"
+  },
+  {
+   "key": "lodging",
+   "label": "Lodging",
+   "points": null,
+   "max": null,
+   "input": "The Renwick Hotel, hotel, $251 a night all-in, total $501"
+  }
+ ],
+ "links": {
+  "google_flights": "https://www.google.com/travel/flights?q=Flights%20to%20EWR%20from%20YYC%20on%202027-01-09%20through%202027-01-11",
+  "google_hotels": "https://www.google.com/travel/search?q=hotels%20in%20Midtown%20Manhattan%2C%20New%20York%202027-01-09%20to%202027-01-11",
+  "airbnb": "https://www.airbnb.ca/s/Midtown%20Manhattan%2C%20New%20York/homes?checkin=2027-01-09&checkout=2027-01-11&adults=2"
+ }
+}

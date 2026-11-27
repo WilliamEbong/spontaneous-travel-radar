@@ -1,0 +1,448 @@
+{
+ "id": "2026-11-27_toronto_2027-03-13_mon-off",
+ "scan_date": "2026-11-27",
+ "created": "2026-11-27T11:29:57+00:00",
+ "mode": "dry-run",
+ "stage": "near_miss",
+ "status": "dropped",
+ "drop_reason": "pass-2 score 69 cannot reach the hit line 80 even with 10 what's-on points",
+ "is_hit": false,
+ "city": "toronto",
+ "city_name": "Toronto",
+ "window_id": "2027-03-13_mon-off",
+ "trip_class": "dayoff",
+ "class_label": "Needs a day off",
+ "hit_threshold": 80,
+ "dates": {
+  "check_in": "2027-03-13",
+  "check_out": "2027-03-14",
+  "nights": 1
+ },
+ "flights": {
+  "out": {
+   "from": "YYC",
+   "to": "YYZ",
+   "dep": "2027-03-13T01:45:00-06:00",
+   "arr": "2027-03-13T06:40:00-05:00",
+   "airlines": [
+    "F8"
+   ],
+   "flight_numbers": [
+    "F8 628"
+   ],
+   "stops": 0,
+   "layover_min": 0,
+   "duration_min": 235,
+   "price_cad_2pax": 369
+  },
+  "back": {
+   "from": "YYZ",
+   "to": "YYC",
+   "dep": "2027-03-14T21:05:00-04:00",
+   "arr": "2027-03-14T23:45:00-06:00",
+   "airlines": [
+    "F8"
+   ],
+   "flight_numbers": [
+    "F8 623"
+   ],
+   "stops": 0,
+   "layover_min": 0,
+   "duration_min": 280,
+   "price_cad_2pax": 432
+  },
+  "cad_2pax": 801,
+  "price_pp": 400
+ },
+ "ladder": {
+  "label": "good",
+  "exceptional": 390,
+  "good": 456,
+  "typical": 510,
+  "confidence": "high",
+  "nonstop": "year-round"
+ },
+ "typical_cad": 1279.0,
+ "transfers_cad": 52,
+ "conv_pts": 10,
+ "hours_on_ground": 22.9,
+ "airport_to_core_min": 30,
+ "weather": {
+  "score": 4.4,
+  "source": "normals"
+ },
+ "inputs": {
+  "weights": {
+   "price": 45,
+   "time": 20,
+   "convenience": 10,
+   "city": 15,
+   "weather": 10
+  },
+  "hours": 22.9,
+  "max_hours": 31,
+  "sleep_h": 10,
+  "overhead_h": 4.5,
+  "stops": [
+   0,
+   0
+  ],
+  "layover_min": 0,
+  "airport_to_core_min": 30,
+  "car_needed": false,
+  "night_arrival": false,
+  "convenience_parts": [
+   "non-stop both ways (10)",
+   "airport 30 min from downtown",
+   "no car needed",
+   "lands 06:40"
+  ],
+  "city_name": "Toronto",
+  "rank": 8,
+  "nights": 1,
+  "weather": {
+   "score": 4.3999999999999995,
+   "source": "normals",
+   "highs": [
+    4.7,
+    4.7,
+    4.7
+   ],
+   "precip": [
+    43.333333333333336,
+    43.333333333333336,
+    43.333333333333336
+   ],
+   "months": [
+    "March"
+   ],
+   "days": [],
+   "codes": []
+  },
+  "flights_ladder": {
+   "exceptional": 390,
+   "good": 456,
+   "typical": 510
+  }
+ },
+ "pass1": {
+  "score": 71,
+  "components": {
+   "price": 29.94,
+   "time": 14.78,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 4.4
+  },
+  "lodging_cad": 155.25,
+  "lodging_source": "estimate",
+  "total_cad": 1008.25,
+  "share": 0.7883,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 29.94,
+    "max": 45,
+    "input": "complete trip $1,008 for two, 79% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 14.78,
+    "max": 20,
+    "input": "23 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.4,
+    "max": 10,
+    "input": "March normals: highs 5 \u00b0C, rain on 13 of 30 days"
+   }
+  ]
+ },
+ "pass2": {
+  "searches": 2,
+  "skipped": null,
+  "options": [
+   {
+    "kind": "hotel",
+    "name": "One King West Hotel & Residence",
+    "link": "https://www.onekingwest.com/",
+    "total": 197.0,
+    "currency": "CAD",
+    "total_cad": 197,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 162,
+    "rating": 4.4,
+    "stars": 4,
+    "km": 0.6,
+    "fringe": false,
+    "deal": "31% less than usual",
+    "deal_label": "Great Deal",
+    "detail": "3:00 PM",
+    "trip_score": 69,
+    "trip_total_cad": 1050
+   },
+   {
+    "kind": "hotel",
+    "name": "Novotel Toronto Centre",
+    "link": "https://all.accor.com/lien_externe.svlt?goto=fiche_hotel&code_hotel=0931&merchantid=seo-maps-CA-0931&sourceid=aw-cen&utm_medium=seo%20maps&utm_source=google%20Maps&utm_campaign=seo%20maps",
+    "total": 197.0,
+    "currency": "CAD",
+    "total_cad": 197,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 162,
+    "rating": 4.3,
+    "stars": 4,
+    "km": 1.0,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "3:00 PM",
+    "trip_score": 69,
+    "trip_total_cad": 1050
+   },
+   {
+    "kind": "rental",
+    "name": "Dragon Gate Inn - Superior Studio (2 Adults)",
+    "link": "https://www.bluepillow.com/search/5a84ed357c00cb0e042452b5?dest=bkng&cat=Apartment&p_id=589df5667c00cb10c8da5770&language=en",
+    "total": 200.0,
+    "currency": "CAD",
+    "total_cad": 200,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 200,
+    "rating": 4.9,
+    "stars": null,
+    "km": 2.0,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 6",
+    "trip_score": 68,
+    "trip_total_cad": 1053
+   },
+   {
+    "kind": "rental",
+    "name": "Cozy holiday home",
+    "link": "",
+    "total": 207.0,
+    "currency": "CAD",
+    "total_cad": 207,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 207,
+    "rating": 4.3,
+    "stars": null,
+    "km": 0.9,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 2",
+    "trip_score": 68,
+    "trip_total_cad": 1060
+   },
+   {
+    "kind": "hotel",
+    "name": "Hotel Riu Plaza Toronto",
+    "link": "https://www.riu.com/en/hotel/canada/toronto/hotel-riu-plaza-toronto?utm_source=google&utm_medium=organic&utm_campaign=my_business&utm_content=ZTO",
+    "total": 211.0,
+    "currency": "CAD",
+    "total_cad": 211,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 176,
+    "rating": 4.3,
+    "stars": 4,
+    "km": 1.0,
+    "fringe": false,
+    "deal": "19% less than usual",
+    "deal_label": "Deal",
+    "detail": "3:00 PM",
+    "trip_score": 68,
+    "trip_total_cad": 1064
+   },
+   {
+    "kind": "rental",
+    "name": "Spacious Room with Ensuite Bathroom near Subway, Koreatown UofT - Superior Queen Room",
+    "link": "",
+    "total": 211.0,
+    "currency": "CAD",
+    "total_cad": 211,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 211,
+    "rating": 4.9,
+    "stars": null,
+    "km": 2.8,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire house, Sleeps 2",
+    "trip_score": 68,
+    "trip_total_cad": 1064
+   },
+   {
+    "kind": "hotel",
+    "name": "The Anndore House - JDV by Hyatt",
+    "link": "https://www.hyatt.com/jdv-by-hyatt/en-US/torjd-the-anndore-house?src=corp_lclb_google_seo_torjd&utm_source=google&utm_medium=organic&utm_campaign=lmr",
+    "total": 225.0,
+    "currency": "CAD",
+    "total_cad": 225,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 189,
+    "rating": 4.5,
+    "stars": 4,
+    "km": 1.7,
+    "fringe": false,
+    "deal": "16% less than usual",
+    "deal_label": "Deal",
+    "detail": "3:00 PM",
+    "trip_score": 67,
+    "trip_total_cad": 1078
+   },
+   {
+    "kind": "rental",
+    "name": "StaysToronto",
+    "link": "",
+    "total": 248.0,
+    "currency": "CAD",
+    "total_cad": 248,
+    "taxes_estimated": false,
+    "nightly_pre_tax": 207,
+    "rating": 4.3,
+    "stars": null,
+    "km": 1.3,
+    "fringe": false,
+    "deal": null,
+    "deal_label": null,
+    "detail": "Entire apartment, Sleeps 4",
+    "trip_score": 64,
+    "trip_total_cad": 1101
+   }
+  ],
+  "chosen": 0,
+  "components": {
+   "price": 27.32,
+   "time": 14.78,
+   "convenience": 10.0,
+   "city": 12.0,
+   "weather": 4.4
+  },
+  "score": 69,
+  "total_cad": 1050,
+  "share": 0.821,
+  "lodging_cad": 197,
+  "lodging_source": "hotel",
+  "fringe": false,
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 27.32,
+    "max": 45,
+    "input": "complete trip $1,050 for two, 82% of what this route normally costs (~$1,279)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 14.78,
+    "max": 20,
+    "input": "23 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.4,
+    "max": 10,
+    "input": "March normals: highs 5 \u00b0C, rain on 13 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "One King West Hotel & Residence, hotel, $197 a night all-in, total $197 (Google: 31% less than usual)"
+   }
+  ]
+ },
+ "pass3": null,
+ "final_score": null,
+ "score": 69,
+ "total_cad": 1050,
+ "breakdown": [
+  {
+   "key": "price",
+   "label": "Price",
+   "points": 27.32,
+   "max": 45,
+   "input": "complete trip $1,050 for two, 82% of what this route normally costs (~$1,279)"
+  },
+  {
+   "key": "time",
+   "label": "Time there",
+   "points": 14.78,
+   "max": 20,
+   "input": "23 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+  },
+  {
+   "key": "convenience",
+   "label": "Convenience",
+   "points": 10.0,
+   "max": 10,
+   "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+  },
+  {
+   "key": "city",
+   "label": "City",
+   "points": 12.0,
+   "max": 15,
+   "input": "Toronto, rank 8/10"
+  },
+  {
+   "key": "weather",
+   "label": "Weather",
+   "points": 4.4,
+   "max": 10,
+   "input": "March normals: highs 5 \u00b0C, rain on 13 of 30 days"
+  },
+  {
+   "key": "lodging",
+   "label": "Lodging",
+   "points": null,
+   "max": null,
+   "input": "One King West Hotel & Residence, hotel, $197 a night all-in, total $197 (Google: 31% less than usual)"
+  }
+ ],
+ "links": {
+  "google_flights": "https://www.google.com/travel/flights?q=Flights%20to%20YYZ%20from%20YYC%20on%202027-03-13%20through%202027-03-14",
+  "google_hotels": "https://www.google.com/travel/search?q=hotels%20in%20Downtown%20Toronto%2C%20Toronto%202027-03-13%20to%202027-03-14",
+  "airbnb": "https://www.airbnb.ca/s/Downtown%20Toronto%2C%20Toronto/homes?checkin=2027-03-13&checkout=2027-03-14&adults=2"
+ }
+}
