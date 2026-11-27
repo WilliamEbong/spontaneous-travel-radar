@@ -33,7 +33,7 @@ Every item stays inside section C's allowed files; none touches anything on C's 
 
 **Done when:** the numbers match the files, stated as a range with the date measured.
 
-## 4. README: the local commands have no macOS or Linux form (open)
+## 4. README: the local commands have no macOS or Linux form (done (iter 2026-11-27))
 
 **Who notices:** anyone setting the project up outside Windows. The "Run locally" commands use `.venv\Scripts\python` only.
 
