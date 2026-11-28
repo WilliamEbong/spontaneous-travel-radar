@@ -1,5 +1,77 @@
 [
  {
+  "id": "2026-11-28_toronto_2027-03-20_mon-off",
+  "city": "toronto",
+  "city_name": "Toronto",
+  "window_id": "2027-03-20_mon-off",
+  "trip_class": "dayoff",
+  "mode": "dry-run",
+  "stage": "near_miss",
+  "status": "dropped",
+  "is_hit": false,
+  "scan_date": "2026-11-28",
+  "pass": 2,
+  "score_p1": 71,
+  "score_p2": 68,
+  "events_pts": null,
+  "final_score": null,
+  "score": 68,
+  "hit_threshold": 80,
+  "flights_cad_2pax": 815,
+  "price_pp": 408,
+  "ladder": "good",
+  "total_cad": 1064,
+  "lodging_source": "hotel",
+  "drop_reason": "pass-2 score 68 cannot reach the hit line 80 even with 10 what's-on points",
+  "created": "2026-11-28T11:23:24+00:00",
+  "path_json": "hits/candidates/2026-11-28_toronto_2027-03-20_mon-off.json",
+  "path_md": "hits/candidates/2026-11-28_toronto_2027-03-20_mon-off.md",
+  "breakdown": [
+   {
+    "key": "price",
+    "label": "Price",
+    "points": 27.46,
+    "max": 45,
+    "input": "complete trip $1,064 for two, 83% of what this route normally costs (~$1,289)"
+   },
+   {
+    "key": "time",
+    "label": "Time there",
+    "points": 14.09,
+    "max": 20,
+    "input": "22 h awake there, of the 31 a 3-day weekend can give (10 h a night for sleep, 4.5 h for airports)"
+   },
+   {
+    "key": "convenience",
+    "label": "Convenience",
+    "points": 10.0,
+    "max": 10,
+    "input": "non-stop both ways (10) \u00b7 airport 30 min from downtown \u00b7 no car needed \u00b7 lands 06:40 \u00b7 central room"
+   },
+   {
+    "key": "city",
+    "label": "City",
+    "points": 12.0,
+    "max": 15,
+    "input": "Toronto, rank 8/10"
+   },
+   {
+    "key": "weather",
+    "label": "Weather",
+    "points": 4.4,
+    "max": 10,
+    "input": "March normals: highs 5 \u00b0C, rain on 13 of 30 days"
+   },
+   {
+    "key": "lodging",
+    "label": "Lodging",
+    "points": null,
+    "max": null,
+    "input": "Novotel Toronto Centre, hotel, $197 a night all-in, total $197"
+   }
+  ]
+ },
+ {
   "id": "2026-11-27_toronto_2027-01-29_fri-off",
   "city": "toronto",
   "city_name": "Toronto",
