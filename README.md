@@ -80,6 +80,7 @@ scoring table, `table.html`) and the weekly summary, and runs without API keys t
 uv venv --python 3.12 .venv
 uv pip install --python .venv -e ".[dev]"
 .venv\Scripts\python -m pytest -q
+.venv/bin/python -m pytest -q        # the same on macOS or Linux
 ```
 
 Offline scan (recorded fares, no network): it writes `data/` and `hits/` in the current folder, over the real scan
