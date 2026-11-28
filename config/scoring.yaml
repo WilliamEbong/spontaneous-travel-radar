@@ -6,7 +6,7 @@ realert_drop_pct: 15     # a city-window gets a fresh closer look (pass 2) only 
 serpapi_monthly_cap: 200 # free tier is 250/month; pass 2 spends 2 per candidate (hotels + rentals), at most 3 candidates a scan
 weights: {price: 45, time: 20, convenience: 10, city: 15, weather: 10}
 price_curve:             # price points vs share = complete trip for two / the route's typical trip (v2, D-57)
-  points: [[0.65, 45], [0.85, 25], [1.00, 0], [1.30, -10]]   # straight lines between; full points at or under 0.60
+  points: [[0.70, 45], [0.85, 25], [1.00, 0], [1.30, -10]]   # straight lines between; full points at or under 0.60
   floor: -100            # past 1.30 the line keeps its slope down to this (share 4.0), so the cheaper of two dear trips wins (D-59)
 ladder_mode: rolling     # D-82: each route's flights ladder from its own fares (static = config/references.yaml only, the undo)
 rolling_ladder: {exceptional: 10, good: 35, typical: 55}   # percentiles of the route's price_pp; the self-tuning loop moves good and typical
